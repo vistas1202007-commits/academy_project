@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class EditBatchScreen extends StatefulWidget {
+  final String batchId;
+  const EditBatchScreen({super.key, required this.batchId});
+
+  @override
+  State<EditBatchScreen> createState() => _EditBatchScreenState();
+}
+
+class _EditBatchScreenState extends State<EditBatchScreen> {
+  static const Color primaryGreen = Color(0xFF1B6B4A);
+  String? _selectedTrainerId;
+  bool _isSaving = false;
+  bool _loaded = false;
+  late Map<String, dynamic> _batchData;
+
+  Future<void> _saveTrainer() async {
+    if (_selectedTrainerId == null) return;
+    setState(() => _isSaving = true);
+    try {
+      final trainerDoc = await FirebaseFirestore.instance.collection('users').doc(_selectedTrainerId).get();
+      final trainerName = (trainerDoc.data() as Map<String, dynamic>?)?['name'] ?? '';
+      await FirebaseFirestore.instance.collection('batches').doc(widget.batchId).update({
+        'trainerId': _selectedTrainerId,
+        'trainerName': trainerName,
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Trainer updated successfully!'), backgroundColor: primaryGreen),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7F5),
+      appBar: AppBar(backgroundColor: primaryGreen, title: const Text('Edit Batch — Trainer')),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+          }
+          if (!_loaded) {
+            _batchData = snapshot.data!.data() as Map<String, dynamic>;
+            _selectedTrainerId = (_batchData['trainerId'] ?? '').toString().isNotEmpty
+                ? _batchData['trainerId']
+                : null;
+            _loaded = true;
+          }
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Batch: ${_batchData['batchName'] ?? '-'}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'trainer').snapshots(),
+                  builder: (context, trainerSnap) {
+                    if (!trainerSnap.hasData) {
+                      return const LinearProgressIndicator(color: primaryGreen);
+                    }
+                    final trainers = trainerSnap.data!.docs;
+                    return DropdownButtonFormField<String>(
+                      initialValue: _selectedTrainerId,
+                      decoration: InputDecoration(
+                        labelText: 'Assign Trainer',
+                        prefixIcon: const Icon(Icons.person_outline, color: primaryGreen),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      items: trainers.map((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return DropdownMenuItem(value: doc.id, child: Text(data['name'] ?? 'Unnamed'));
+                      }).toList(),
+                      onChanged: (v) => setState(() => _selectedTrainerId = v),
+                    );
+                  },
+                ),
+                const SizedBox(height: 26),
+                SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: (_isSaving || _selectedTrainerId == null) ? null : _saveTrainer,
+                    style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                    child: _isSaving
+                        ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white))
+                        : const Text('Save Trainer', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
