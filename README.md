@@ -1,17 +1,63 @@
-# vti_erp
+# VTI ERP
 
-A new Flutter project.
+A Flutter + Firebase ERP (Enterprise Resource Planning) application built for **GHCL Foundation's vocational training institute** to manage trainees, batches, attendance, placements, and enquiries across multiple staff roles.
 
-## Getting Started
+## Overview
 
-This project is a starting point for a Flutter application.
+This app digitizes the day-to-day operations of a vocational training institute — from a candidate's first enquiry, through registration and batch training, to final placement — replacing manual registers and spreadsheets with a single real-time system.
 
-A few resources to get you started if this is your first Flutter project:
+## User Roles
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+The app supports **4 distinct roles**, each with its own dashboard and permissions:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Role | Responsibilities |
+|---|---|
+| **Admin** | Full access — manages trainees, batches, trainers, companies, placements, and staff records |
+| **Trainer** | Views trainees in their assigned batch(es), marks daily attendance |
+| **Placement Officer** | Manages company tie-ups and tracks student placements |
+| **Mobilizer** | Registers and tracks enquiries (leads) from prospective trainees |
+
+## Features
+
+### Trainee Management
+- Add / edit / view trainee profiles (personal, guardian, and training info)
+- Auto-generated Trainee ID (format: `VTI-YYYY-0001`)
+- Status tracking: Registered → Joined → Ongoing → Completed / Dropped
+- Fee tracking (total fee, amount paid, pending balance)
+
+### Batch Management
+- Create and manage training batches (course, trainer, duration, status)
+- View all trainees enrolled in a specific batch
+
+### Attendance
+- Trainers mark daily attendance for their assigned batch
+- Attendance history tracking
+
+### Placement
+- Company/employer database
+- Track which trainees are placed at which companies
+
+### Enquiry Management
+- Mobilizers log new enquiries (leads)
+- Follow-up status tracking
+- Convert enquiries into registered trainees
+
+### Bulk Import
+- Import trainee data in bulk from Excel spreadsheets
+
+### Reports
+- Fees report across all trainees
+
+## Tech Stack
+
+- **Frontend:** Flutter (cross-platform — Android, iOS, Web, Windows, macOS, Linux)
+- **Backend:** Firebase
+    - Cloud Firestore (database)
+    - Firebase Authentication (login & role-based access)
+
+## Status
+
+This project has been developed and delivered to the client. It is currently in an active bug-fixing and refinement phase based on tester feedback.
+
+---
+*Private repository — internal project, not for public distribution.*
