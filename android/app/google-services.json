@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "803436608075",
-    "project_id": "vti-erp",
-    "storage_bucket": "vti-erp.firebasestorage.app"
+    "project_number": "206443858106",
+    "project_id": "skillbridge-3b6c3",
+    "storage_bucket": "skillbridge-3b6c3.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:803436608075:android:5c482efd505e75ef90ebce",
+        "mobilesdk_app_id": "1:206443858106:android:625a9d612b6b4782455a83",
         "android_client_info": {
           "package_name": "com.example.vti_erp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "803436608075-g6bhjg5nie2gkg47b4ej73si20fachoj.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDmlliXo7JBW2fNlQGB1WtcMpwQYzJK3rI"
+          "current_key": "AIzaSyDhY9fp1DY0JhLYWenN-z3Vwmn-uX_ru3c"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "803436608075-g6bhjg5nie2gkg47b4ej73si20fachoj.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

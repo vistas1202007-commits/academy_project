@@ -1,16 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
 import 'help_screen.dart';
 import 'about_screen.dart';
+import 'report_list_screen.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   final String name;
   final String roleLabel;
   const AppDrawer({super.key, required this.name, required this.roleLabel});
 
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
   static const Color primaryGreen = Color(0xFF1B6B4A);
   static const Color accentGold = Color(0xFFD4AF37);
+
+  bool _canSeeReports = false;
+  bool _roleChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRole();
+  }
+
+  Future<void> _checkRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      setState(() => _roleChecked = true);
+      return;
+    }
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final role = (doc.data()?['role'] ?? '').toString();
+      setState(() {
+        _canSeeReports = role == 'admin' || role == 'mobilizer';
+        _roleChecked = true;
+      });
+    } catch (_) {
+      setState(() => _roleChecked = true);
+    }
+  }
 
   Future<void> _confirmLogout(BuildContext context) async {
     final confirm = await showDialog<bool>(
@@ -76,7 +110,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  name,
+                  widget.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -85,7 +119,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  roleLabel,
+                  widget.roleLabel,
                   style: const TextStyle(
                     color: accentGold,
                     fontSize: 12,
@@ -104,6 +138,17 @@ class AppDrawer extends StatelessWidget {
                   title: const Text('Dashboard'),
                   onTap: () => Navigator.of(context).pop(),
                 ),
+                if (_roleChecked && _canSeeReports)
+                  ListTile(
+                    leading: const Icon(Icons.description_outlined, color: primaryGreen),
+                    title: const Text('Reports'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const ReportListScreen()),
+                      );
+                    },
+                  ),
                 ListTile(
                   leading: const Icon(Icons.help_outline, color: primaryGreen),
                   title: const Text('Help & User Guide'),
