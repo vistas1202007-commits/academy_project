@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
+import 'current_user.dart';
 
 class AddPlacementScreen extends StatefulWidget {
   const AddPlacementScreen({super.key});
@@ -73,6 +74,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final stamp = await creatorStamp();
       await FirebaseFirestore.instance.collection('placements').add({
         'studentName': _studentNameController.text.trim(),
         'traineeId': _traineeIdController.text.trim(),
@@ -86,6 +88,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
         'joiningDate': Timestamp.fromDate(_joiningDate!),
         'employmentType': _employmentType,
         'status': _status,
+        ...stamp,
         'createdAt': FieldValue.serverTimestamp(),
       });
 

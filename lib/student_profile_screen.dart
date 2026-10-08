@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'edit_student_screen.dart';
+import 'current_user.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   final String studentId;
@@ -24,6 +25,14 @@ class StudentProfileScreen extends StatelessWidget {
       default:
         return accentGold;
     }
+  }
+
+  /// DOB se aaj tak ki poori umar (saal me)
+  int _ageFromDob(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) age--;
+    return age;
   }
 
   Widget _infoRow(IconData icon, String label, String value) {
@@ -109,6 +118,12 @@ class StudentProfileScreen extends StatelessWidget {
           final admissionDate = data['admissionDate'] != null
               ? DateFormat('dd MMM yyyy').format((data['admissionDate'] as Timestamp).toDate())
               : '-';
+          final dobText = data['dob'] is Timestamp
+              ? () {
+                  final dob = (data['dob'] as Timestamp).toDate();
+                  return '${DateFormat('dd MMM yyyy').format(dob)} (${_ageFromDob(dob)} yrs)';
+                }()
+              : '';
           final traineeId = (data['traineeId'] ?? '').toString();
           final status = (data['status'] ?? 'Registered').toString();
 
@@ -201,6 +216,9 @@ class StudentProfileScreen extends StatelessWidget {
                     _infoRow(Icons.phone_outlined, 'Phone', data['phone'] ?? ''),
                     _infoRow(Icons.email_outlined, 'Email', data['email'] ?? ''),
                     _infoRow(Icons.wc_outlined, 'Gender', data['gender'] ?? ''),
+                    _infoRow(Icons.cake_outlined, 'Date of Birth (Age)', dobText),
+                    _infoRow(Icons.home_outlined, 'Village', (data['village'] ?? '').toString()),
+                    _infoRow(Icons.location_city_outlined, 'Tehsil', (data['tehsil'] ?? '').toString()),
                   ]),
                   _sectionCard('GUARDIAN INFORMATION', [
                     _infoRow(Icons.family_restroom_outlined, 'Guardian Name',
@@ -284,7 +302,12 @@ class StudentProfileScreen extends StatelessWidget {
                   const SizedBox(height: 70),
                 ],
               ),
-              Positioned(
+              // Edit sirf Admin ko dikhe
+              FutureBuilder<String>(
+                future: currentUserRole(),
+                builder: (context, roleSnap) {
+                  if (roleSnap.data != 'admin') return const SizedBox.shrink();
+                  return Positioned(
                 bottom: 20,
                 left: 20,
                 right: 20,
@@ -311,6 +334,8 @@ class StudentProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              );
+                },
               ),
             ],
           );

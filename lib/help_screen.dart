@@ -64,11 +64,11 @@ class HelpScreen extends StatelessWidget {
 
           _section('👥 Managing Staff Accounts (Admin only)', [
             _step('Add a new staff member',
-                'Dashboard → "Add Staff" → fill Name, Email, Phone, Education, Address, set a temporary Password, choose their Role (Trainer / Placement Officer / Mobilizer / Admin) → Create Account.'),
+                'Dashboard → "Add Staff" → fill Name, Email, Phone, Education, Address, set a temporary Password (at least 8 characters, with letters and numbers), choose their Role (Trainer / Placement Officer / Mobilizer / Admin) → Create Account.'),
             _step('View or edit staff details',
                 'Dashboard → "Staff List" → tap any staff member to view their details, edit their information, or change their role.'),
             _step('Deactivate or reactivate an account',
-                'Open Staff List → tap the staff member → "Deactivate Account" (or "Activate Account"). A deactivated account cannot log in until reactivated.'),
+                'Open Staff List → tap the staff member → "Deactivate Account" (or "Activate Account"). A deactivated account cannot log in until reactivated. You cannot deactivate your own account.'),
             _step('Reset a staff member\'s password',
                 'Open Staff List → tap their name → "Send Password Reset Email". They will receive a link on their registered email to set a new password.'),
             _step('Remove a staff account',
@@ -77,13 +77,13 @@ class HelpScreen extends StatelessWidget {
 
           _section('🎓 Managing Trainees', [
             _step('Add a new trainee',
-                'Dashboard → "Add Student" → fill in personal and guardian details, select the Course and Batch from the dropdown lists, and optionally enter fee details → Save. A Trainee ID (e.g. VTI-2026-0001) is generated automatically.'),
+                'Dashboard → "Add Trainee" → fill in personal and guardian details, select the Course and Batch from the dropdown lists, and optionally enter fee details → Save. A Trainee ID (e.g. VTI-2026-0001) is generated automatically.'),
             _step('View all trainees',
-                'Dashboard → "View Students" → search by name, phone, or Trainee ID, and tap any trainee to open their full profile.'),
+                'Dashboard → "View Trainees" → search by name, phone, Trainee ID, village, or batch, and tap any trainee to open their full profile.'),
             _step('Edit a trainee or update their status',
                 'Open a trainee\'s profile → Edit → update details, change their status (Registered / Joined / Ongoing / Completed / Dropped), or update their fee record.'),
             _step('Removing a trainee record',
-                'A delete option is available in the trainee list for Admin and Mobilizer accounts.'),
+                'Only the Admin can edit or delete a trainee record.'),
           ]),
 
           _section('📚 Managing Batches', [
@@ -114,7 +114,7 @@ class HelpScreen extends StatelessWidget {
             _step('Converting an enquiry into a trainee',
                 'Open an enquiry and tap "Convert to Registration" to automatically create a new trainee record with an auto-generated Trainee ID.'),
             _step('What Mobilizers can see',
-                'The enquiry list and dashboard counts show enquiries you have created, along with any enquiries added directly by the Admin.'),
+                'The enquiry list and dashboard counts show all enquiries, whoever added them.'),
           ]),
 
           _section('💼 Placement (Placement Officer)', [

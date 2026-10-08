@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'course_data.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final String studentId;
@@ -22,13 +23,16 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   late TextEditingController _emailController;
   late TextEditingController _guardianNameController;
   late TextEditingController _guardianPhoneController;
-  late TextEditingController _courseController;
+  late TextEditingController _villageController;
+  late TextEditingController _tehsilController;
   late TextEditingController _totalFeeController;
   late TextEditingController _feePaidController;
   late String _status;
 
   String? _selectedBatch;
+  String? _selectedCourse;
   String? _selectedGender;
+  DateTime? _dob;
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
   bool _isSaving = false;
@@ -48,7 +52,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _emailController = TextEditingController(text: data['email'] ?? '');
     _guardianNameController = TextEditingController(text: data['guardianName'] ?? '');
     _guardianPhoneController = TextEditingController(text: data['guardianPhone'] ?? '');
-    _courseController = TextEditingController(text: data['course'] ?? '');
+    _villageController = TextEditingController(text: (data['village'] ?? '').toString());
+    _tehsilController = TextEditingController(text: (data['tehsil'] ?? '').toString());
+    final existingCourse = (data['course'] ?? '').toString();
+    _selectedCourse = existingCourse.isNotEmpty ? existingCourse : null;
+    if (data['dob'] is Timestamp) _dob = (data['dob'] as Timestamp).toDate();
     _totalFeeController = TextEditingController(
       text: (data['totalFee'] ?? 0).toString() == '0.0'
           ? '0'
@@ -67,6 +75,27 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _selectedBatch = existingBatch.isNotEmpty ? existingBatch : null;
     final existingGender = (data['gender'] ?? '').toString();
     _selectedGender = _genderOptions.contains(existingGender) ? existingGender : null;
+  }
+
+  Future<void> _pickDob() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dob ?? DateTime(now.year - 18, now.month, now.day),
+      firstDate: DateTime(1950),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(primary: primaryGreen),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() => _dob = picked);
+    }
   }
 
   Future<void> _updateStudent() async {
@@ -95,9 +124,12 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         'phone': _phoneController.text.trim(),
         'email': _emailController.text.trim(),
         'gender': _selectedGender ?? '',
+        'dob': _dob != null ? Timestamp.fromDate(_dob!) : null,
+        'village': _villageController.text.trim(),
+        'tehsil': _tehsilController.text.trim(),
         'guardianName': _guardianNameController.text.trim(),
         'guardianPhone': _guardianPhoneController.text.trim(),
-        'course': _courseController.text.trim(),
+        'course': _selectedCourse ?? '',
         'batch': _selectedBatch ?? '',
         'status': _status,
         'totalFee': totalFee,
@@ -221,7 +253,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _emailController.dispose();
     _guardianNameController.dispose();
     _guardianPhoneController.dispose();
-    _courseController.dispose();
+    _villageController.dispose();
+    _tehsilController.dispose();
     _totalFeeController.dispose();
     _feePaidController.dispose();
     super.dispose();
@@ -299,6 +332,28 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
               onChanged: (v) => setState(() => _selectedGender = v),
               validator: (v) => (v == null || v.isEmpty) ? 'Please select a gender' : null,
             ),
+            const SizedBox(height: 14),
+            InkWell(
+              onTap: _pickDob,
+              borderRadius: BorderRadius.circular(10),
+              child: InputDecorator(
+                decoration: _inputStyle('Date of Birth', Icons.cake_outlined),
+                child: Text(
+                  _dob == null ? 'Select Date of Birth' : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+                  style: _dob == null ? TextStyle(color: Colors.grey[600]) : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _villageController,
+              decoration: _inputStyle('Village', Icons.home_outlined),
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _tehsilController,
+              decoration: _inputStyle('Tehsil', Icons.location_city_outlined),
+            ),
             const SizedBox(height: 20),
             _sectionTitle('GUARDIAN INFORMATION'),
             TextFormField(
@@ -313,11 +368,32 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             ),
             const SizedBox(height: 20),
             _sectionTitle('TRAINING INFORMATION'),
-            TextFormField(
-              controller: _courseController,
-              decoration: _inputStyle('Course', Icons.school_outlined),
-              validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Please enter a course' : null,
+            Builder(
+              builder: (context) {
+                // Purana course value (list se bahar) bhi dikhe, taaki dropdown crash na ho
+                final options = [...kCourseOptions];
+                if (_selectedCourse != null &&
+                    !options.any((c) => c['value'] == _selectedCourse)) {
+                  options.insert(0, {'value': _selectedCourse!, 'label': _selectedCourse!});
+                }
+                return DropdownButtonFormField<String>(
+                  initialValue: _selectedCourse,
+                  isExpanded: true,
+                  decoration: _inputStyle('Course', Icons.school_outlined),
+                  hint: const Text('Select Course'),
+                  items: options
+                      .map((c) => DropdownMenuItem(
+                    value: c['value'],
+                    child: Text(
+                      c['label']!,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedCourse = v),
+                  validator: (v) => (v == null || v.isEmpty) ? 'Please select a course' : null,
+                );
+              },
             ),
             const SizedBox(height: 14),
             _buildBatchDropdown(),

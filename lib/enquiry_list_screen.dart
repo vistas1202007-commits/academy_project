@@ -3,16 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'add_enquiry_screen.dart';
+import 'current_user.dart';
 
 class EnquiryListScreen extends StatefulWidget {
   final List<String>? filterStatuses;
-  final bool onlyMine;
   final String? screenTitle;
 
   const EnquiryListScreen({
     super.key,
     this.filterStatuses,
-    this.onlyMine = false,
     this.screenTitle,
   });
 
@@ -108,6 +107,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
 
     try {
       final traineeId = await _generateTraineeId();
+      final stamp = await creatorStamp();
 
       final studentRef = await FirebaseFirestore.instance.collection('students').add({
         'traineeId': traineeId,
@@ -120,6 +120,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         'batch': '',
         'admissionDate': Timestamp.now(),
         'status': 'Registered',
+        ...stamp,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -304,20 +305,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUid = FirebaseAuth.instance.currentUser?.uid;
-
-    // NOTE: we intentionally do NOT add a `.where('createdBy', ...)` clause
-    // here combined with `.orderBy('createdAt')`. Firestore treats an
-    // equality-filter + orderBy-on-a-different-field as a compound query,
-    // which requires a composite index to be created in the Firebase
-    // Console. If that index doesn't exist, the stream silently fails and
-    // the screen is stuck on a loading spinner forever ("processing" with
-    // no list ever showing) - which is exactly the bug that was reported
-    // for the Mobilizer's enquiry cards.
-    //
-    // Instead we fetch everything ordered by date (a single-field query,
-    // no index needed) and filter "onlyMine" client-side below, the same
-    // way `_filter` and `widget.filterStatuses` are already filtered.
+    // Sab roles (Mobilizer bhi) saari enquiries dekhte hain.
     final query = FirebaseFirestore.instance
         .collection('enquiries')
         .orderBy('createdAt', descending: true);
@@ -384,17 +372,6 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                 }
 
                 var docs = snapshot.data!.docs;
-
-                // "onlyMine" filter is applied client-side (see note above).
-                // A Mobilizer should see both their own enquiries AND any
-                // enquiry an Admin created, so this now also lets through
-                // records tagged createdByRole == 'admin'.
-                if (widget.onlyMine && currentUid != null) {
-                  docs = docs.where((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return data['createdBy'] == currentUid || data['createdByRole'] == 'admin';
-                  }).toList();
-                }
 
                 if (widget.filterStatuses != null) {
                   docs = docs.where((doc) {

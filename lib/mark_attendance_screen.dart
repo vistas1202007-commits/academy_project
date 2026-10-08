@@ -294,7 +294,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                   if (students.isEmpty) {
                     return Center(
                       child: Text(
-                        'No students found in this batch.\n(Make sure the student\'s "Batch" field matches the batch name exactly.)',
+                        'No trainees found in this batch.\n(Make sure the trainee\'s "Batch" field matches the batch name exactly.)',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey[600]),
                       ),

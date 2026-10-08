@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
+import 'current_user.dart';
 
 class AddBatchScreen extends StatefulWidget {
   const AddBatchScreen({super.key});
@@ -69,6 +70,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
     });
 
     try {
+      final stamp = await creatorStamp();
       await FirebaseFirestore.instance.collection('batches').add({
         'batchName': _batchNameController.text.trim(),
         'course': _selectedCourse ?? '',
@@ -79,6 +81,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
         'endDate': Timestamp.fromDate(_endDate),
         'status': 'active',
         'studentCount': 0,
+        ...stamp,
         'createdAt': FieldValue.serverTimestamp(),
       });
 

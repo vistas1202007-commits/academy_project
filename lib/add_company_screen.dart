@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'current_user.dart';
 
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
@@ -24,11 +25,13 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final stamp = await creatorStamp();
       await FirebaseFirestore.instance.collection('companies').add({
         'companyName': _companyNameController.text.trim(),
         'contactPerson': _contactPersonController.text.trim(),
         'contactNumber': _contactNumberController.text.trim(),
         'location': _locationController.text.trim(),
+        ...stamp,
         'createdAt': FieldValue.serverTimestamp(),
       });
 

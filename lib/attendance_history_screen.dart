@@ -219,7 +219,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      '$total students',
+                                      '$total trainees',
                                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                     ),
                                     const SizedBox(width: 4),

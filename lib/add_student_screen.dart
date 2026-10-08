@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
+import 'current_user.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -18,8 +19,11 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final _guardianPhoneController = TextEditingController();
   final _totalFeeController = TextEditingController();
   final _feePaidController = TextEditingController();
+  final _villageController = TextEditingController();
+  final _tehsilController = TextEditingController();
 
   DateTime _admissionDate = DateTime.now();
+  DateTime? _dob;
   bool _isSaving = false;
   String _errorMessage = '';
   String _status = 'Registered';
@@ -63,6 +67,27 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       setState(() {
         _admissionDate = picked;
       });
+    }
+  }
+
+  Future<void> _pickDob() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dob ?? DateTime(now.year - 18, now.month, now.day),
+      firstDate: DateTime(1950),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(primary: primaryGreen),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() => _dob = picked);
     }
   }
 
@@ -111,6 +136,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     try {
       final traineeId = await _generateTraineeId();
       final feePending = totalFee - feePaid;
+      final stamp = await creatorStamp();
 
       await FirebaseFirestore.instance.collection('students').add({
         'traineeId': traineeId,
@@ -118,6 +144,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         'phone': _phoneController.text.trim(),
         'email': _emailController.text.trim(),
         'gender': _selectedGender ?? '',
+        'dob': _dob != null ? Timestamp.fromDate(_dob!) : null,
+        'village': _villageController.text.trim(),
+        'tehsil': _tehsilController.text.trim(),
         'guardianName': _guardianNameController.text.trim(),
         'guardianPhone': _guardianPhoneController.text.trim(),
         'course': _selectedCourse ?? '',
@@ -127,6 +156,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         'totalFee': totalFee,
         'feePaid': feePaid,
         'feePending': feePending,
+        ...stamp,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -141,7 +171,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to save student. Please try again.';
+        _errorMessage = 'Failed to save trainee. Please try again.';
       });
     } finally {
       if (mounted) {
@@ -241,6 +271,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     _guardianPhoneController.dispose();
     _totalFeeController.dispose();
     _feePaidController.dispose();
+    _villageController.dispose();
+    _tehsilController.dispose();
     super.dispose();
   }
 
@@ -251,7 +283,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       appBar: AppBar(
         backgroundColor: primaryGreen,
         elevation: 0,
-        title: const Text('Add Student'),
+        title: const Text('Add Trainee'),
       ),
       body: Form(
         key: _formKey,
@@ -263,7 +295,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
               controller: _nameController,
               decoration: _inputStyle('Full Name', Icons.person_outline),
               validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Please enter the student\'s name' : null,
+              (v == null || v.trim().isEmpty) ? 'Please enter the trainee\'s name' : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
@@ -292,6 +324,28 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   .toList(),
               onChanged: (v) => setState(() => _selectedGender = v),
               validator: (v) => (v == null || v.isEmpty) ? 'Please select a gender' : null,
+            ),
+            const SizedBox(height: 14),
+            InkWell(
+              onTap: _pickDob,
+              borderRadius: BorderRadius.circular(10),
+              child: InputDecorator(
+                decoration: _inputStyle('Date of Birth', Icons.cake_outlined),
+                child: Text(
+                  _dob == null ? 'Select Date of Birth' : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+                  style: _dob == null ? TextStyle(color: Colors.grey[600]) : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _villageController,
+              decoration: _inputStyle('Village', Icons.home_outlined),
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _tehsilController,
+              decoration: _inputStyle('Tehsil', Icons.location_city_outlined),
             ),
             const SizedBox(height: 20),
             _sectionTitle('GUARDIAN INFORMATION'),
@@ -423,7 +477,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   ),
                 )
                     : const Text(
-                  'Save Student',
+                  'Save Trainee',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

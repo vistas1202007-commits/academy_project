@@ -226,7 +226,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                                     Icon(Icons.groups_outlined, size: 16, color: Colors.grey[600]),
                                     const SizedBox(width: 6),
                                     if (batchName.isEmpty)
-                                      Text('0 students', style: TextStyle(color: Colors.grey[700], fontSize: 12))
+                                      Text('0 trainees', style: TextStyle(color: Colors.grey[700], fontSize: 12))
                                     else
                                       StreamBuilder<QuerySnapshot>(
                                         stream: FirebaseFirestore.instance
@@ -238,7 +238,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                                               ? studentSnap.data!.docs.length
                                               : (data['studentCount'] ?? 0);
                                           return Text(
-                                            '$count students',
+                                            '$count trainees',
                                             style: TextStyle(color: Colors.grey[700], fontSize: 12),
                                           );
                                         },

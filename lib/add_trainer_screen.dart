@@ -81,7 +81,7 @@ setState(() {
 if (e.code == 'email-already-in-use') {
 _errorMessage = 'An account with this email already exists.';
 } else if (e.code == 'weak-password') {
-_errorMessage = 'Password should be at least 6 characters.';
+_errorMessage = 'Password must be at least 8 characters with letters and numbers.';
 } else if (e.code == 'invalid-email') {
 _errorMessage = 'Please enter a valid email.';
 } else {
@@ -188,7 +188,10 @@ obscureText: true,
 decoration: _inputStyle('Temporary Password', Icons.lock_outline),
 validator: (v) {
 if (v == null || v.isEmpty) return 'Please set a password';
-if (v.length < 6) return 'Password must be at least 6 characters';
+if (v.length < 8) return 'Password must be at least 8 characters';
+if (!RegExp(r'[A-Za-z]').hasMatch(v) || !RegExp(r'[0-9]').hasMatch(v)) {
+return 'Password must contain both letters and numbers';
+}
 return null;
 },
 ),

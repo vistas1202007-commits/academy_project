@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'student_profile_screen.dart';
+import 'current_user.dart';
 
 class StudentListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -21,9 +22,19 @@ class StudentListScreen extends StatefulWidget {
 
 class _StudentListScreenState extends State<StudentListScreen> {
   String _searchQuery = '';
+  // Delete sirf Admin ko dikhe
+  bool _isAdmin = false;
   static const Color primaryGreen = Color(0xFF1B6B4A);
   static const Color accentGold = Color(0xFFD4AF37);
   static const Color lightGreen = Color(0xFF6FA98C);
+
+  @override
+  void initState() {
+    super.initState();
+    currentUserRole().then((role) {
+      if (mounted) setState(() => _isAdmin = role == 'admin');
+    });
+  }
 
   Color _statusColor(String status) {
     switch (status) {
@@ -89,10 +100,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
       final name = (data['name'] ?? '').toString().toLowerCase();
       final phone = (data['phone'] ?? '').toString().toLowerCase();
       final traineeId = (data['traineeId'] ?? '').toString().toLowerCase();
+      final village = (data['village'] ?? '').toString().toLowerCase();
+      final batch = (data['batch'] ?? '').toString().toLowerCase();
       final status = (data['status'] ?? 'Registered').toString();
       final matchesSearch = name.contains(_searchQuery) ||
           phone.contains(_searchQuery) ||
-          traineeId.contains(_searchQuery);
+          traineeId.contains(_searchQuery) ||
+          village.contains(_searchQuery) ||
+          batch.contains(_searchQuery);
       final matchesStatus =
           widget.filterStatuses == null || widget.filterStatuses!.contains(status);
       return matchesSearch && matchesStatus;
@@ -107,8 +122,8 @@ class _StudentListScreenState extends State<StudentListScreen> {
             const SizedBox(height: 12),
             Text(
               allDocs.isEmpty
-                  ? 'No students found.'
-                  : 'No matching students found.',
+                  ? 'No trainees found.'
+                  : 'No matching trainees found.',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -126,6 +141,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         final status = (data['status'] ?? 'Registered').toString();
         final rawName = (data['name'] ?? '').toString().trim();
         final name = rawName.isNotEmpty ? rawName : 'This trainee';
+        final village = (data['village'] ?? '').toString().trim();
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -153,9 +169,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             subtitle: Text(
-              traineeId.isNotEmpty
+              (traineeId.isNotEmpty
                   ? '$traineeId - ${data['course'] ?? '-'}'
-                  : '${data['course'] ?? '-'} - ${data['phone'] ?? '-'}',
+                  : '${data['course'] ?? '-'} - ${data['phone'] ?? '-'}') +
+                  (village.isNotEmpty ? '\n$village' : ''),
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
             trailing: Row(
@@ -176,7 +193,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     ),
                   ),
                 ),
-                if (!widget.trainerOnly)
+                if (_isAdmin && !widget.trainerOnly)
                   IconButton(
                     icon: Icon(Icons.delete_outline, color: Colors.red[400], size: 20),
                     tooltip: 'Delete',
@@ -202,7 +219,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   @override
   Widget build(BuildContext context) {
     final title = widget.screenTitle ??
-        (widget.trainerOnly ? 'My Batch Students' : 'Students');
+        (widget.trainerOnly ? 'My Batch Trainees' : 'Trainees');
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
@@ -221,7 +238,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search by name, phone, or Trainee ID',
+                hintText: 'Search by name, phone, ID, village, or batch',
                 prefixIcon: Icon(Icons.search, color: primaryGreen),
                 filled: true,
                 fillColor: Colors.white,

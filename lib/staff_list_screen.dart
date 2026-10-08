@@ -197,7 +197,8 @@ class StaffListScreen extends StatelessWidget {
                           builder: (context) => EditProfileScreen(
                             uid: uid,
                             currentData: data,
-                            isAdminEditingOther: true,
+                            // Apni profile pe role badalne ka option nahi
+                            isAdminEditingOther: !isSelf,
                           ),
                         ),
                       );
@@ -224,6 +225,8 @@ class StaffListScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Admin apna khud ka account deactivate nahi kar sakta
+                if (!isSelf) ...[
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
@@ -241,6 +244,7 @@ class StaffListScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                ],
                 if (!isSelf) ...[
                   const SizedBox(height: 10),
                   SizedBox(

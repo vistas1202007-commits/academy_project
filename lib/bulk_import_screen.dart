@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:excel/excel.dart' as xls;
+import 'course_data.dart';
+import 'current_user.dart';
 
 class BulkImportScreen extends StatefulWidget {
   const BulkImportScreen({super.key});
@@ -96,6 +98,52 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     final stripped = label.replaceAll(RegExp(r'-?\s*\d+\s*$'), '').trim();
     // remove a trailing lone dash if the regex above left one
     return stripped.replaceAll(RegExp(r'-\s*$'), '').trim();
+  }
+
+  /// Batch label se course: pehle prefix map (ELC-01 -> Electrical), warna label ka prefix hi
+  String _courseForBatch(String label) {
+    final prefix = label.split('-').first.trim().toUpperCase();
+    return kBatchPrefixToCourse[prefix] ?? _courseFromBatchLabel(label);
+  }
+
+  /// "M"/"Male" -> Male, "F"/"Female" -> Female, kuch aur ho to jaisa hai waisa
+  String _normalizeGender(String raw) {
+    final g = raw.trim().toLowerCase();
+    if (g == 'm' || g == 'male') return 'Male';
+    if (g == 'f' || g == 'female') return 'Female';
+    return raw.trim();
+  }
+
+  /// Header text ko compare karne layak banata hai: "Fees Received  Amount" -> "feesreceivedamount"
+  String _headerKey(String raw) => raw.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+
+  /// Date cell -> DateTime. Excel date cell, numeric serial (45231) aur
+  /// dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy text teeno sambhalta hai.
+  DateTime? _parseDateCell(xls.Data? cell) {
+    if (cell == null || cell.value == null) return null;
+    final v = cell.value;
+    if (v is xls.DateCellValue) return v.asDateTimeLocal();
+    if (v is xls.DateTimeCellValue) return v.asDateTimeLocal();
+    if (v is xls.IntCellValue || v is xls.DoubleCellValue) {
+      final serial = v is xls.IntCellValue ? v.value.toDouble() : (v as xls.DoubleCellValue).value;
+      if (serial < 1 || serial > 100000) return null;
+      return DateTime(1899, 12, 30).add(Duration(days: serial.floor()));
+    }
+    final parts = _cellToString(cell).split(RegExp(r'[/.\-]'));
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0].trim());
+    final m = int.tryParse(parts[1].trim());
+    var y = int.tryParse(parts[2].trim());
+    if (d == null || m == null || y == null) return null;
+    if (y < 100) y += (y <= DateTime.now().year % 100) ? 2000 : 1900;
+    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+    return DateTime(y, m, d);
+  }
+
+  /// "₹ 1,500" -> 1500
+  double? _parseAmount(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'[^0-9.]'), '');
+    return cleaned.isEmpty ? null : double.tryParse(cleaned);
   }
 
   /// Normalizes messy spacing around dashes: "BPO - 03" / "BPO -01" -> "BPO-03"/"BPO-01"
@@ -251,24 +299,50 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
       final rows = sheet.rows;
       if (rows.length < 3) continue; // no data rows at all
 
+      // Row index 0 = title, index 1 = header, index 2+ = data.
+      // Columns A-I fixed: Sr No, Gender, Name, Batch, DOB, Village, Tehsil,
+      // Contact, Emergency. Fees wale columns header ke naam se dhoondhe jaate hain.
+      final headerCols = <String, int>{};
+      final headerRow = rows[1];
+      for (int c = 0; c < headerRow.length; c++) {
+        final key = _headerKey(_cellToString(headerRow[c]));
+        if (key.isNotEmpty) headerCols.putIfAbsent(key, () => c);
+      }
+      final feesAmountCol = headerCols['feesreceivedamount'];
+      final receiptNoCol = headerCols['receiptno'];
+      final feesDateCol = headerCols['feesreceiveddate'];
+      final totalFeeCol = headerCols['totalfee'];
+      final statusCol = headerCols['status'];
+
       final dataRows = <_TraineeRowData>[];
-      // Row index 0 = title, index 1 = header, index 2+ = data
       for (int r = 2; r < rows.length; r++) {
         final row = rows[r];
         if (row.isEmpty) continue;
 
-        final name = row.length > 2 ? _cellToString(row[2]) : '';
+        xls.Data? cellAt(int? i) => (i != null && i < row.length) ? row[i] : null;
+        String text(int? i) => _cellToString(cellAt(i));
+
+        final name = text(2);
         if (name.isEmpty) continue; // trailing empty row — skip
 
-        final phone = row.length > 7 ? _cellToString(row[7]) : '';
-        final guardianPhone = row.length > 8 ? _cellToString(row[8]) : '';
+        final batchFromCell = _normalizeBatchLabel(text(3));
+        final batch = batchFromCell.isNotEmpty ? batchFromCell : sheetName.trim();
 
         dataRows.add(_TraineeRowData(
           name: name,
-          phone: phone,
-          guardianPhone: guardianPhone,
-          batch: sheetName.trim(),
-          course: _courseFromBatchLabel(sheetName.trim()),
+          gender: _normalizeGender(text(1)),
+          batch: batch,
+          course: _courseForBatch(batch),
+          dob: _parseDateCell(cellAt(4)),
+          village: text(5),
+          tehsil: text(6),
+          phone: text(7),
+          guardianPhone: text(8),
+          feePaid: _parseAmount(text(feesAmountCol)),
+          receiptNo: text(receiptNoCol),
+          feeReceivedDate: _parseDateCell(cellAt(feesDateCol)),
+          totalFee: _parseAmount(text(totalFeeCol)),
+          status: text(statusCol),
         ));
       }
 
@@ -308,7 +382,9 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
 
     final batchStartDates = await _fetchBatchStartDates();
     final existingPhones = await _fetchExistingStudentPhones();
+    final stamp = await creatorStamp();
     final seenPhonesThisRun = <String>{};
+    final warnedBatches = <String>{};
 
     final allRows = <_TraineeRowData>[];
     for (final s in selectedSheets) {
@@ -339,13 +415,22 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         continue;
       }
 
-      // ---- batch existence check (warning only, still imports) ----
-      if (!batchStartDates.containsKey(row.batch)) {
+      // ---- batch existence check (warning only, still imports) — har batch ka ek hi warning ----
+      if (!batchStartDates.containsKey(row.batch) && warnedBatches.add(row.batch)) {
         _traineeWarningLog.add(
             "Batch '${row.batch}' was not found in the system — the trainee was still imported and the batch name was saved as text, but trainer filtering by batch will not work for this record until the batch is created.");
       }
 
       final admissionTimestamp = batchStartDates[row.batch] ?? Timestamp.fromDate(DateTime.now());
+
+      // Sheet ka Status valid ho to wahi, warna dropdown wala default
+      final rowStatus = _statusOptions.firstWhere(
+        (s) => s.toLowerCase() == row.status.trim().toLowerCase(),
+        orElse: () => _defaultTraineeStatus,
+      );
+      final totalFee = row.totalFee ?? 0;
+      final feePaid = row.feePaid ?? 0;
+      final feePending = totalFee - feePaid;
 
       try {
         final traineeId = await _generateTraineeId();
@@ -355,13 +440,24 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           'name': row.name,
           'phone': row.phone,
           'email': '',
+          'gender': row.gender,
+          'dob': row.dob != null ? Timestamp.fromDate(row.dob!) : null,
+          'village': row.village,
+          'tehsil': row.tehsil,
           'guardianName': '',
           'guardianPhone': row.guardianPhone,
           'course': row.course,
           'batch': row.batch,
           'admissionDate': admissionTimestamp,
-          'status': _defaultTraineeStatus,
+          'status': rowStatus,
+          'totalFee': totalFee,
+          'feePaid': feePaid,
+          'feePending': feePending < 0 ? 0 : feePending,
+          'receiptNo': row.receiptNo,
+          'feeReceivedDate':
+              row.feeReceivedDate != null ? Timestamp.fromDate(row.feeReceivedDate!) : null,
           'importSessionId': sessionId,
+          ...stamp,
           'createdAt': FieldValue.serverTimestamp(),
         });
         opsInBatch++;
@@ -625,6 +721,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
 
     final phoneToTraineeId = await _fetchPhoneToTraineeId();
     final companyNameToId = await _fetchCompanyNameToId();
+    final stamp = await creatorStamp();
 
     WriteBatch batch = FirebaseFirestore.instance.batch();
     int opsInBatch = 0;
@@ -653,6 +750,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
             'contactNumber': row.contactPersonPhone,
             'location': row.jobLocation,
             'importSessionId': sessionId,
+            ...stamp,
             'createdAt': FieldValue.serverTimestamp(),
           });
           companyNameToId[key] = companyRef.id; // avoid creating it twice
@@ -682,6 +780,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           'employmentType': _mapEmploymentType(row),
           'status': _mapPlacementStatus(row),
           'importSessionId': sessionId,
+          ...stamp,
           'createdAt': FieldValue.serverTimestamp(),
         });
         opsInBatch++;
@@ -819,7 +918,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         children: [
           _sectionCard(
             title: 'Import Trainees',
-            subtitle: 'From the Enrollment & Fees Status Excel — each sheet is one batch.',
+            subtitle: 'Enrollment & Fees Excel — row 1 title, row 2 header, data from row 3. Batch from column D (sheet name if empty).',
             child: _buildTraineeSection(),
           ),
           const SizedBox(height: 20),
@@ -897,7 +996,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           DropdownButtonFormField<String>(
             initialValue: _defaultTraineeStatus,
             decoration: const InputDecoration(
-              labelText: 'Status for all imported trainees',
+              labelText: 'Default status (if sheet has no valid Status)',
               border: OutlineInputBorder(),
               isDense: true,
             ),
@@ -1101,16 +1200,34 @@ class _SheetPreview {
 
 class _TraineeRowData {
   final String name;
+  final String gender;
   final String phone;
   final String guardianPhone;
   final String batch;
   final String course;
+  final DateTime? dob;
+  final String village;
+  final String tehsil;
+  final double? feePaid;
+  final String receiptNo;
+  final DateTime? feeReceivedDate;
+  final double? totalFee;
+  final String status;
   _TraineeRowData({
     required this.name,
+    required this.gender,
     required this.phone,
     required this.guardianPhone,
     required this.batch,
     required this.course,
+    required this.dob,
+    required this.village,
+    required this.tehsil,
+    required this.feePaid,
+    required this.receiptNo,
+    required this.feeReceivedDate,
+    required this.totalFee,
+    required this.status,
   });
 }
 

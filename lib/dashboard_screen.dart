@@ -174,7 +174,7 @@ class DashboardScreen extends StatelessWidget {
                           children: [
                             _DashboardCard(
                               icon: Icons.work_outline,
-                              label: 'Students Placed',
+                              label: 'Trainees Placed',
                               value: placedCount,
                               color: primaryGreen,
                               onTap: () {
@@ -201,7 +201,7 @@ class DashboardScreen extends StatelessWidget {
                   },
                 )
               else if (role == 'mobilizer')
-                  _MobilizerOverview(mobilizerUid: currentUid),
+                  const _MobilizerOverview(),
             const SizedBox(height: 24),
             if (_actionsForRole(context).isNotEmpty) ...[
               const Text(
@@ -237,7 +237,7 @@ class DashboardScreen extends StatelessWidget {
         return [
           _QuickActionButton(
             icon: Icons.person_add_alt_outlined,
-            label: 'Add Student',
+            label: 'Add Trainee',
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const AddStudentScreen()),
@@ -255,7 +255,7 @@ class DashboardScreen extends StatelessWidget {
           ),
           _QuickActionButton(
             icon: Icons.list_alt_outlined,
-            label: 'View Students',
+            label: 'View Trainees',
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const StudentListScreen()),
@@ -375,7 +375,7 @@ class DashboardScreen extends StatelessWidget {
           ),
           _QuickActionButton(
             icon: Icons.list_alt_outlined,
-            label: 'View Students',
+            label: 'View Trainees',
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const StudentListScreen(trainerOnly: true)),
@@ -684,8 +684,7 @@ class _TrainerOverview extends StatelessWidget {
 
 // ---------------- MOBILIZER OVERVIEW ----------------
 class _MobilizerOverview extends StatelessWidget {
-  final String? mobilizerUid;
-  const _MobilizerOverview({required this.mobilizerUid});
+  const _MobilizerOverview();
 
   static const Color primaryGreen = Color(0xFF1B6B4A);
   static const Color accentGold = Color(0xFFD4AF37);
@@ -697,19 +696,12 @@ class _MobilizerOverview extends StatelessWidget {
           .collection('enquiries')
           .snapshots(),
       builder: (context, snapshot) {
-        // A Mobilizer should see BOTH their own enquiries AND ones an Admin
-        // created — so the card count here uses the same rule as the list
-        // screen's "onlyMine" filter: mine, OR created by an Admin.
+        // Mobilizer saari enquiries dekhta hai (koi createdBy filter nahi)
         final allDocs = snapshot.data?.docs ?? [];
-        final myDocs = allDocs.where((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          return data['createdBy'] == mobilizerUid || data['createdByRole'] == 'admin';
-        }).toList();
-
-        final totalEnquiries = snapshot.hasData ? myDocs.length.toString() : '--';
+        final totalEnquiries = snapshot.hasData ? allDocs.length.toString() : '--';
         int pendingFollowUp = 0;
         int registered = 0;
-        for (final doc in myDocs) {
+        for (final doc in allDocs) {
           final status = (doc.data() as Map<String, dynamic>)['followUpStatus'];
           if (status == 'Follow-up' || status == 'New') pendingFollowUp++;
           if (status == 'Registered') registered++;
@@ -724,12 +716,12 @@ class _MobilizerOverview extends StatelessWidget {
           children: [
             _DashboardCard(
               icon: Icons.contact_mail_outlined,
-              label: 'My Enquiries',
+              label: 'Enquiries',
               value: totalEnquiries,
               color: primaryGreen,
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const EnquiryListScreen(onlyMine: true)),
+                  MaterialPageRoute(builder: (context) => const EnquiryListScreen()),
                 );
               },
             ),
@@ -742,7 +734,6 @@ class _MobilizerOverview extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const EnquiryListScreen(
-                      onlyMine: true,
                       filterStatuses: ['New', 'Follow-up'],
                     ),
                   ),
@@ -758,7 +749,6 @@ class _MobilizerOverview extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const EnquiryListScreen(
-                      onlyMine: true,
                       filterStatuses: ['Registered'],
                     ),
                   ),
