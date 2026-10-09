@@ -68,7 +68,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             const Text(
-              'GHCL Foundation VTI',
+              'Vistas Academy',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],

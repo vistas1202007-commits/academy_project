@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dashboard_screen.dart';
+import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,10 +15,55 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String _errorMessage = '';
 
   static const Color primaryGreen = Color(0xFF1B6B4A);
   static const Color accentGold = Color(0xFFD4AF37);
+
+  @override
+  void initState() {
+    super.initState();
+    // Mobile/Google login fail hone par app LoginScreen dobara banata hai;
+    // pichla message yahan dikhate hain
+    _showNotice();
+    loginNotice.addListener(_showNotice);
+  }
+
+  void _showNotice() {
+    final notice = loginNotice.value;
+    if (notice == null || !mounted) return;
+    loginNotice.value = null;
+    setState(() => _errorMessage = notice);
+  }
+
+  Future<void> _loginWithPhone() async {
+    setState(() => _errorMessage = '');
+    await showPhoneOtpSheet(
+      context,
+      title: 'Login with Mobile',
+      onVerified: signInStaffWithCredential,
+    );
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _errorMessage = '';
+    });
+    String? error;
+    try {
+      final credential = await googleCredential();
+      if (credential != null) error = await signInStaffWithCredential(credential);
+    } catch (e) {
+      error = googleErrorMessage(e);
+    }
+    if (!mounted) return;
+    setState(() {
+      _isGoogleLoading = false;
+      if (error != null) _errorMessage = error;
+    });
+  }
 
   Future<void> _login() async {
     setState(() {
@@ -231,6 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    loginNotice.removeListener(_showNotice);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -267,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               const Text(
-                'GHCL Foundation VTI',
+                'Vistas Academy',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -286,7 +333,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Training Institute ERP',
+                'Skill Training ERP',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -404,6 +451,63 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text('OR', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: (_isLoading || _isGoogleLoading) ? null : _loginWithPhone,
+                        icon: const Icon(Icons.phone_android_outlined, color: primaryGreen),
+                        label: const Text(
+                          'Login with Mobile OTP',
+                          style: TextStyle(color: primaryGreen, fontWeight: FontWeight.w600),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: primaryGreen),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: (_isLoading || _isGoogleLoading) ? null : _loginWithGoogle,
+                        icon: _isGoogleLoading
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: accentGold),
+                              )
+                            : const Icon(Icons.account_circle_outlined, color: accentGold),
+                        label: const Text(
+                          'Continue with Google',
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: accentGold),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Mobile and Google login work after you link them from My Profile.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11.5, color: Colors.grey[500]),
                     ),
                   ],
                 ),

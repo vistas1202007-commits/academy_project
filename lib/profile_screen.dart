@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'edit_profile_screen.dart';
+import 'login_options_card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -212,6 +213,7 @@ class ProfileScreen extends StatelessWidget {
                     ]);
                   },
                 ),
+              const LoginOptionsCard(),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

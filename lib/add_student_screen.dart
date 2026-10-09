@@ -112,7 +112,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     });
 
     final paddedNumber = newNumber.toString().padLeft(4, '0');
-    return 'VTI-$year-$paddedNumber';
+    return 'VIS-$year-$paddedNumber';
   }
 
   Future<void> _saveStudent() async {

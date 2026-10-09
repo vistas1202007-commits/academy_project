@@ -66,7 +66,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
     });
 
     final paddedNumber = newNumber.toString().padLeft(4, '0');
-    return 'VTI-$year-$paddedNumber';
+    return 'VIS-$year-$paddedNumber';
   }
 
   /// Looks up the current signed-in user's role from Firestore, so the "+"

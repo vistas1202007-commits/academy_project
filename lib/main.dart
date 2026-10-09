@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'firebase_options.dart';
+import 'app_lock.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VTI ERP',
+      title: 'Vistas Academy',
       debugShowCheckedModeBanner: false,
+      navigatorKey: appNavigatorKey,
+      // Fingerprint lock poore app ke upar (Profile se on hota hai)
+      builder: (context, child) => AppLock(child: child ?? const SizedBox.shrink()),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1B6B4A)),
         useMaterial3: true,

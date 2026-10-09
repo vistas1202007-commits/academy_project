@@ -22,7 +22,7 @@ class AboutScreen extends StatelessWidget {
               Image.asset('assets/images/logo.png', height: 90, width: 90),
               const SizedBox(height: 20),
               const Text(
-                'GHCL Foundation VTI',
+                'Vistas Academy',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -31,12 +31,17 @@ class AboutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Vocational Training Institute ERP',
+                'Skill Training ERP',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
               Text(
                 'App Version 1.0.0',
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Developed by Shivani Sharma',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ],

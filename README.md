@@ -1,6 +1,6 @@
-# VTI ERP
+# Vistas Academy
 
-A Flutter + Firebase ERP (Enterprise Resource Planning) application built for **GHCL Foundation's vocational training institute** to manage trainees, batches, attendance, placements, and enquiries across multiple staff roles.
+A Flutter + Firebase ERP (Enterprise Resource Planning) application built for **Vistas Academy**, a skill training academy, to manage trainees, batches, attendance, placements, and enquiries across multiple staff roles.
 
 ## Overview
 
@@ -21,7 +21,7 @@ The app supports **4 distinct roles**, each with its own dashboard and permissio
 
 ### Trainee Management
 - Add / edit / view trainee profiles (personal, guardian, and training info)
-- Auto-generated Trainee ID (format: `VTI-YYYY-0001`)
+- Auto-generated Trainee ID (format: `VIS-YYYY-0001`)
 - Status tracking: Registered → Joined → Ongoing → Completed / Dropped
 - Fee tracking (total fee, amount paid, pending balance)
 

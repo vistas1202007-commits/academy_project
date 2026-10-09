@@ -47,6 +47,10 @@ class HelpScreen extends StatelessWidget {
           _section('🔑 Getting Started', [
             _step('Who can log in',
                 'Only staff accounts created by the Admin can log in — there is no public sign-up. Each account belongs to one role: Admin, Trainer, Placement Officer, or Mobilizer.'),
+            _step('Login with Mobile OTP or Google',
+                'First log in with your email once. Then open My Profile → Login Options and link your mobile number (verified by OTP) and/or your Google account. After that, you can use "Login with Mobile OTP" or "Continue with Google" on the Login screen.'),
+            _step('Fingerprint / Face lock',
+                'My Profile → Login Options → turn on Fingerprint / Face Lock. The app will then ask for your fingerprint (or phone PIN) when it opens, and again if it was in the background for more than 30 seconds.'),
             _step('Forgot your password?',
                 'On the Login screen, tap "Forgot Password?" → enter your email → check your inbox (and Spam folder) for the reset link.'),
             _step('Deactivated account',
@@ -77,7 +81,7 @@ class HelpScreen extends StatelessWidget {
 
           _section('🎓 Managing Trainees', [
             _step('Add a new trainee',
-                'Dashboard → "Add Trainee" → fill in personal and guardian details, select the Course and Batch from the dropdown lists, and optionally enter fee details → Save. A Trainee ID (e.g. VTI-2026-0001) is generated automatically.'),
+                'Dashboard → "Add Trainee" → fill in personal and guardian details, select the Course and Batch from the dropdown lists, and optionally enter fee details → Save. A Trainee ID (e.g. VIS-2026-0001) is generated automatically.'),
             _step('View all trainees',
                 'Dashboard → "View Trainees" → search by name, phone, Trainee ID, village, or batch, and tap any trainee to open their full profile.'),
             _step('Edit a trainee or update their status',

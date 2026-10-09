@@ -161,7 +161,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _traineeIdController,
-                decoration: _decoration('Trainee ID (e.g. VTI-2026-0001)', Icons.badge_outlined),
+                decoration: _decoration('Trainee ID (e.g. VIS-2026-0001)', Icons.badge_outlined),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(

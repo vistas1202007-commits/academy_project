@@ -242,7 +242,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     });
 
     final paddedNumber = newNumber.toString().padLeft(4, '0');
-    return 'VTI-$year-$paddedNumber';
+    return 'VIS-$year-$paddedNumber';
   }
 
   // =================================================================
@@ -924,7 +924,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           const SizedBox(height: 20),
           _sectionCard(
             title: 'Import Placement Records',
-            subtitle: 'From the Gadu Data Excel — "Trainees Details 25-26" sheet.',
+            subtitle: 'From the Placement Excel — "Trainees Details" sheet.',
             child: _buildPlacementSection(),
           ),
         ],
