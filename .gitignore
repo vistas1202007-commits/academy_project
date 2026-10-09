@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase service account keys / seed data (kabhi commit mat karna)
+scripts/*.json
+*firebase-adminsdk*.json
+*service-account*.json
+*serviceAccount*.json
+*service_account*.json
+scripts/*.xlsx
