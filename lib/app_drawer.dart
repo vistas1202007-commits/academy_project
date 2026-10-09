@@ -5,6 +5,7 @@ import 'login_screen.dart';
 import 'help_screen.dart';
 import 'about_screen.dart';
 import 'report_list_screen.dart';
+import 'analytics_screen.dart';
 
 class AppDrawer extends StatefulWidget {
   final String name;
@@ -20,6 +21,7 @@ class _AppDrawerState extends State<AppDrawer> {
   static const Color accentGold = Color(0xFFD4AF37);
 
   bool _canSeeReports = false;
+  bool _isAdmin = false;
   bool _roleChecked = false;
 
   @override
@@ -39,6 +41,7 @@ class _AppDrawerState extends State<AppDrawer> {
       final role = (doc.data()?['role'] ?? '').toString();
       setState(() {
         _canSeeReports = role == 'admin' || role == 'mobilizer';
+        _isAdmin = role == 'admin';
         _roleChecked = true;
       });
     } catch (_) {
@@ -146,6 +149,17 @@ class _AppDrawerState extends State<AppDrawer> {
                       Navigator.of(context).pop();
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => const ReportListScreen()),
+                      );
+                    },
+                  ),
+                if (_roleChecked && _isAdmin)
+                  ListTile(
+                    leading: const Icon(Icons.insights_outlined, color: primaryGreen),
+                    title: const Text('Analytics'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
                       );
                     },
                   ),

@@ -19,6 +19,7 @@ import 'enquiry_list_screen.dart';
 import 'profile_screen.dart';
 import 'bulk_import_screen.dart';
 import 'fees_report_screen.dart';
+import 'analytics_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String role;
@@ -349,6 +350,15 @@ class DashboardScreen extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const FeesReportScreen()),
+              );
+            },
+          ),
+          _QuickActionButton(
+            icon: Icons.insights_outlined,
+            label: 'Analytics',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
               );
             },
           ),
