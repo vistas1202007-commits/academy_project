@@ -58,22 +58,40 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     try {
       final mobile = _mobileController.text.trim();
-      final existing = await FirebaseFirestore.instance
-          .collection('enquiries')
-          .where('mobile', isEqualTo: mobile)
-          .limit(1)
-          .get();
+      // Enquiries aur students dono me same number check karo
+      final results = await Future.wait([
+        FirebaseFirestore.instance
+            .collection('enquiries')
+            .where('mobile', isEqualTo: mobile)
+            .limit(1)
+            .get(),
+        FirebaseFirestore.instance
+            .collection('students')
+            .where('phone', isEqualTo: mobile)
+            .limit(1)
+            .get(),
+      ]);
+      final enquiryMatch = results[0];
+      final studentMatch = results[1];
 
-      if (existing.docs.isNotEmpty && mounted) {
-        final existingName = existing.docs.first.data()['traineeName'] ?? 'a trainee';
+      String? existingName;
+      String source = '';
+      if (studentMatch.docs.isNotEmpty) {
+        existingName = (studentMatch.docs.first.data()['name'] ?? 'a trainee').toString();
+        source = 'Student';
+      } else if (enquiryMatch.docs.isNotEmpty) {
+        existingName =
+            (enquiryMatch.docs.first.data()['traineeName'] ?? 'a trainee').toString();
+        source = 'Enquiry';
+      }
+
+      if (existingName != null && mounted) {
         final proceed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             title: const Text('Duplicate Mobile Number'),
-            content: Text(
-              'This mobile number is already used in an enquiry for "$existingName". Do you still want to save this as a new enquiry?',
-            ),
+            content: Text('Ye number pehle se hai: $existingName ($source)'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
@@ -85,7 +103,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   backgroundColor: primaryGreen,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Save Anyway', style: TextStyle(color: Colors.white)),
+                child: const Text('Phir bhi save karo', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),

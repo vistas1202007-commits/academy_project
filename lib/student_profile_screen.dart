@@ -95,6 +95,51 @@ class StudentProfileScreen extends StatelessWidget {
     );
   }
 
+  /// placements collection se is trainee ka latest record (orderBy nahi, taaki index na lage)
+  Widget _placementSection(String traineeId) {
+    if (traineeId.isEmpty) {
+      return _sectionCard('PLACEMENT', [
+        _infoRow(Icons.work_off_outlined, 'Status', 'Not placed yet'),
+      ]);
+    }
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('placements')
+          .where('traineeId', isEqualTo: traineeId)
+          .snapshots(),
+      builder: (context, snap) {
+        if (!snap.hasData) {
+          return _sectionCard('PLACEMENT', [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Center(child: CircularProgressIndicator(color: primaryGreen)),
+            ),
+          ]);
+        }
+        final docs = snap.data!.docs;
+        if (docs.isEmpty) {
+          return _sectionCard('PLACEMENT', [
+            _infoRow(Icons.work_off_outlined, 'Status', 'Not placed yet'),
+          ]);
+        }
+        // Ek se zyada record ho to sabse naya (createdAt) dikhao
+        final latest = docs.reduce((a, b) {
+          final ta = a.data()['createdAt'];
+          final tb = b.data()['createdAt'];
+          if (ta is! Timestamp) return b;
+          if (tb is! Timestamp) return a;
+          return tb.compareTo(ta) > 0 ? b : a;
+        }).data();
+        return _sectionCard('PLACEMENT', [
+          _infoRow(Icons.work_outline, 'Status', (latest['status'] ?? '').toString()),
+          _infoRow(Icons.business_outlined, 'Company', (latest['companyName'] ?? '').toString()),
+          _infoRow(Icons.location_on_outlined, 'Job Location',
+              (latest['jobLocation'] ?? '').toString()),
+        ]);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,6 +276,7 @@ class StudentProfileScreen extends StatelessWidget {
                     _infoRow(Icons.class_outlined, 'Batch', data['batch'] ?? ''),
                     _infoRow(Icons.calendar_today_outlined, 'Admission Date', admissionDate),
                   ]),
+                  _placementSection(traineeId),
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(16),
