@@ -8,6 +8,8 @@ import 'firebase_options.dart';
 import 'app_lock.dart';
 import 'app_colors.dart';
 import 'app_theme.dart';
+import 'open_screen.dart';
+import 'web_frame.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,65 +27,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       // Fingerprint lock poore app ke upar (Profile se on hota hai)
-      // Web/chaudi screen par app 720 ke frame me, phone par koi farak nahi
-      builder: (context, child) => _WebFrame(child: AppLock(child: child ?? const SizedBox.shrink())),
+      // Web/chaudi screen par app 720 ke frame me (open screen/login poori width),
+      // phone par koi farak nahi
+      builder: (context, child) => WebFrame(child: AppLock(child: child ?? const SizedBox.shrink())),
       theme: AppTheme.light,
       home: const AuthCheckScreen(),
     );
   }
 }
 
-/// Chaudi screen (web/desktop) par app ko beech me 720 width ke frame me
-/// rakhta hai; bahar night background. 720 ya kam width par koi farak nahi.
-/// Widget tree dono haalat me ek jaisa rehta hai, taaki window resize par
-/// Navigator ka state na khoye — sirf rang/decoration/MediaQuery data badalte hain.
-class _WebFrame extends StatelessWidget {
-  final Widget child;
-  const _WebFrame({required this.child});
-
-  static const double maxWidth = 720;
-
-  static final BoxDecoration _frameDecoration = BoxDecoration(
-    color: AppColors.appBackground,
-    border: Border.symmetric(
-      vertical: BorderSide(color: AppColors.teal.withValues(alpha: 0.25)),
-    ),
-    boxShadow: [
-      BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 32),
-    ],
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = constraints.maxWidth > maxWidth;
-        final mediaQuery = MediaQuery.of(context);
-        return ColoredBox(
-          color: wide ? AppColors.night : Colors.transparent,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: maxWidth),
-              child: DecoratedBox(
-                decoration: wide ? _frameDecoration : const BoxDecoration(),
-                child: ClipRect(
-                  // Frame ke andar ke widgets (date picker, dialogs) ko bhi
-                  // 720 ki width dikhe; phone par data waisa hi rehta hai
-                  child: MediaQuery(
-                    data: wide
-                        ? mediaQuery.copyWith(size: Size(maxWidth, mediaQuery.size.height))
-                        : mediaQuery,
-                    child: child,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
+/// Auth check aur profile load dono me ek hi OpenScreen dikhe (aurora ruke
+/// ya dobara fade na ho), isliye ek GlobalKey se wahi element aage jata hai
+final GlobalKey _openScreenKey = GlobalKey();
 
 class AuthCheckScreen extends StatelessWidget {
   const AuthCheckScreen({super.key});
@@ -95,7 +50,7 @@ class AuthCheckScreen extends StatelessWidget {
       builder: (context, authSnapshot) {
         // Still checking whether a session exists
         if (authSnapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingScreen();
+          return OpenScreen(key: _openScreenKey);
         }
 
         // No logged-in user -> show Login screen
@@ -169,7 +124,7 @@ class _ProfileGateState extends State<_ProfileGate> {
       future: _profileFuture,
       builder: (context, profileSnapshot) {
         if (profileSnapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingScreen();
+          return OpenScreen(key: _openScreenKey);
         }
 
         // Network / permission error -> keep the session, let the user retry
@@ -199,18 +154,6 @@ class _ProfileGateState extends State<_ProfileGate> {
 
         return DashboardScreen(role: role, name: name);
       },
-    );
-  }
-}
-
-class _LoadingScreen extends StatelessWidget {
-  const _LoadingScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppColors.appBackground,
-      body: Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
     );
   }
 }

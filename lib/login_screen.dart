@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dashboard_screen.dart';
 import 'auth_service.dart';
 import 'app_colors.dart';
+import 'aurora_background.dart';
 import 'brand.dart';
+import 'web_frame.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -284,226 +287,220 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appBackground,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.appPrimary.withValues(alpha: 0.15),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Image.asset(BrandAssets.logoCircle, height: 120, width: 120),
-              ),
-              const SizedBox(height: 20),
-              Semantics(
-                label: BrandAssets.appName,
-                child: Image.asset(BrandAssets.wordmarkDark, height: 38),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: AppColors.appAccent,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Skill Training ERP',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        prefixIcon: Icon(Icons.email_outlined, color: AppColors.appPrimary),
-                        filled: true,
-                        fillColor: AppColors.appBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        prefixIcon: Icon(Icons.lock_outline, color: AppColors.appPrimary),
-                        filled: true,
-                        fillColor: AppColors.appBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: _showForgotPasswordDialog,
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: AppColors.appPrimary, fontSize: 13, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                    if (_errorMessage.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _errorMessage,
-                          style: TextStyle(color: Colors.red[700], fontSize: 13),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.appPrimary,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+    final busy = _isLoading || _isGoogleLoading;
+    return FullBleed(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Stack(
+          children: [
+            // Keyboard khulne par aurora na simte, isliye Scaffold ke peeche
+            const Positioned.fill(child: AuroraBackground()),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              body: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SnowPeakMark(width: 150),
+                          const SizedBox(height: 14),
+                          Semantics(
+                            label: BrandAssets.appName,
+                            child: Image.asset(
+                              BrandAssets.wordmarkLight,
+                              height: 34,
+                              filterQuality: FilterQuality.medium,
+                            ),
                           ),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
+                          const SizedBox(height: 8),
+                          const Text(
+                            BrandAssets.tagline,
+                            style: TextStyle(fontSize: 13, color: _LoginColors.muted, letterSpacing: 0.6),
                           ),
-                        )
-                            : const Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                          const SizedBox(height: 32),
+                          _buildCard(busy),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: Colors.grey[300])),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text('OR', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                        ),
-                        Expanded(child: Divider(color: Colors.grey[300])),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: (_isLoading || _isGoogleLoading) ? null : _loginWithPhone,
-                        icon: const Icon(Icons.phone_android_outlined, color: AppColors.appPrimary),
-                        label: const Text(
-                          'Login with Mobile OTP',
-                          style: TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.w600),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.appPrimary),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: (_isLoading || _isGoogleLoading) ? null : _loginWithGoogle,
-                        icon: _isGoogleLoading
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.appAccent),
-                              )
-                            : const Icon(Icons.account_circle_outlined, color: AppColors.appAccent),
-                        label: const Text(
-                          'Continue with Google',
-                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.appAccent),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Mobile and Google login work after you link them from My Profile.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11.5, color: Colors.grey[500]),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildCard(bool busy) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+      decoration: BoxDecoration(
+        color: _LoginColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.30), blurRadius: 30, offset: const Offset(0, 12)),
+        ],
+      ),
+      child: Column(
+        children: [
+          TextField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
+            style: const TextStyle(color: Colors.white),
+            cursorColor: AppColors.aurora,
+            decoration: _fieldDecoration('Email', Icons.email_outlined),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _passwordController,
+            obscureText: true,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.password],
+            onSubmitted: (_) {
+              if (!busy) _login();
+            },
+            style: const TextStyle(color: Colors.white),
+            cursorColor: AppColors.aurora,
+            decoration: _fieldDecoration('Password', Icons.lock_outline),
+          ),
+          if (_errorMessage.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.danger.withValues(alpha: 0.45)),
+              ),
+              child: Text(
+                _errorMessage,
+                style: const TextStyle(color: _LoginColors.errorText, fontSize: 13),
+              ),
+            ),
+          ],
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: FilledButton(
+              onPressed: busy ? null : _login,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.aurora,
+                foregroundColor: AppColors.night,
+                disabledBackgroundColor: AppColors.aurora.withValues(alpha: 0.35),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(color: AppColors.night, strokeWidth: 2.5),
+                    )
+                  : const Text(
+                      'Login',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0.3),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            onPressed: _showForgotPasswordDialog,
+            style: TextButton.styleFrom(foregroundColor: _LoginColors.muted),
+            child: const Text('Forgot password?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text('OR', style: TextStyle(color: _LoginColors.muted, fontSize: 12)),
+              ),
+              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _altButton(
+            onPressed: busy ? null : _loginWithPhone,
+            icon: const Icon(Icons.phone_android_outlined, size: 20),
+            label: 'Login with Mobile OTP',
+          ),
+          const SizedBox(height: 10),
+          _altButton(
+            onPressed: busy ? null : _loginWithGoogle,
+            icon: _isGoogleLoading
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.aurora),
+                  )
+                : const Icon(Icons.account_circle_outlined, size: 20),
+            label: 'Continue with Google',
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Mobile and Google login work after you link them from My Profile.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11.5, color: _LoginColors.faint),
+          ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _fieldDecoration(String hint, IconData icon) {
+    OutlineInputBorder border(Color color, [double width = 1]) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: color, width: width),
+        );
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: _LoginColors.muted),
+      prefixIcon: Icon(icon, color: _LoginColors.muted, size: 20),
+      filled: true,
+      fillColor: _LoginColors.field,
+      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+      border: border(Colors.white.withValues(alpha: 0.08)),
+      enabledBorder: border(Colors.white.withValues(alpha: 0.08)),
+      focusedBorder: border(AppColors.aurora, 1.5),
+    );
+  }
+
+  Widget _altButton({required VoidCallback? onPressed, required Widget icon, required String label}) {
+    return SizedBox(
+      width: double.infinity,
+      height: 46,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: icon,
+        label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFFDDF2EE),
+          disabledForegroundColor: _LoginColors.faint,
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.18)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Sirf login ke andhere card ke rang
+class _LoginColors {
+  _LoginColors._();
+
+  static const Color card = Color(0xD90B2228);
+  static const Color field = Color(0x14FFFFFF);
+  static const Color muted = Color(0xFF9DBFBB);
+  static const Color faint = Color(0xFF6E8E8B);
+  static const Color errorText = Color(0xFFF2B8B0);
 }
