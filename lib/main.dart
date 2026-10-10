@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
 /// Chaudi screen (web/desktop) par app ko beech me 720 width ke frame me
 /// rakhta hai; bahar night background. 720 ya kam width par koi farak nahi.
 /// Widget tree dono haalat me ek jaisa rehta hai, taaki window resize par
-/// Navigator ka state na khoye — sirf rang/decoration badalte hain.
+/// Navigator ka state na khoye — sirf rang/decoration/MediaQuery data badalte hain.
 class _WebFrame extends StatelessWidget {
   final Widget child;
   const _WebFrame({required this.child});
@@ -58,6 +58,7 @@ class _WebFrame extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth > maxWidth;
+        final mediaQuery = MediaQuery.of(context);
         return ColoredBox(
           color: wide ? AppColors.night : Colors.transparent,
           child: Center(
@@ -65,7 +66,16 @@ class _WebFrame extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: maxWidth),
               child: DecoratedBox(
                 decoration: wide ? _frameDecoration : const BoxDecoration(),
-                child: ClipRect(child: child),
+                child: ClipRect(
+                  // Frame ke andar ke widgets (date picker, dialogs) ko bhi
+                  // 720 ki width dikhe; phone par data waisa hi rehta hai
+                  child: MediaQuery(
+                    data: wide
+                        ? mediaQuery.copyWith(size: Size(maxWidth, mediaQuery.size.height))
+                        : mediaQuery,
+                    child: child,
+                  ),
+                ),
               ),
             ),
           ),
