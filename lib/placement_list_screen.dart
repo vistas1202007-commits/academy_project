@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_placement_screen.dart';
 import 'placement_detail_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class PlacementListScreen extends StatefulWidget {
   const PlacementListScreen({super.key});
@@ -47,7 +48,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -193,7 +194,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

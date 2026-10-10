@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class StaffListScreen extends StatelessWidget {
   const StaffListScreen({super.key});
@@ -299,7 +300,7 @@ class StaffListScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Staff Accounts'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .orderBy('createdAt', descending: true)
@@ -378,7 +379,7 @@ class StaffListScreen extends StatelessWidget {
             },
           );
         },
-      ),
+      )),
     );
   }
 }

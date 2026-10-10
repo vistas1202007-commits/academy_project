@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'edit_placement_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class PlacementDetailScreen extends StatelessWidget {
   final String placementId;
@@ -49,7 +50,7 @@ class PlacementDetailScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Placement Details'),
       ),
-      body: Stack(
+      body: ContentWidth(maxWidth: 1100, child: Stack(
         children: [
           ListView(
             padding: const EdgeInsets.all(20),
@@ -137,7 +138,7 @@ class PlacementDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

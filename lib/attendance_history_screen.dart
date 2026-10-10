@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'mark_attendance_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
   // true when opened from the Trainer's Quick Actions — restricts the batch
@@ -81,7 +82,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         elevation: 0,
         title: const Text('Attendance History'),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 1100, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -272,7 +273,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               ),
             ),
         ],
-      ),
+      )),
     );
   }
 

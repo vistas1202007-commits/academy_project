@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'add_enquiry_screen.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EnquiryListScreen extends StatefulWidget {
   final List<String>? filterStatuses;
@@ -330,7 +331,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 900, child: Column(
         children: [
           // Only show the quick-filter chips when this screen isn't already
           // locked to a specific set of statuses via filterStatuses.
@@ -451,7 +452,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
@@ -85,7 +86,7 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
         backgroundColor: AppColors.appPrimary,
         title: const Text('Add Company'),
       ),
-      body: SingleChildScrollView(
+      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -135,7 +136,7 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

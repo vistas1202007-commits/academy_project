@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final String studentId;
@@ -269,7 +270,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         elevation: 0,
         title: const Text('Edit Trainee'),
       ),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -493,7 +494,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             const SizedBox(height: 12),
           ],
         ),
-      ),
+      )),
     );
   }
 }

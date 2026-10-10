@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final String batchId;
@@ -46,7 +47,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Batch — Trainer')),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: ContentWidth(maxWidth: 640, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -108,7 +109,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
             ),
           );
         },
-      ),
+      )),
     );
   }
 }

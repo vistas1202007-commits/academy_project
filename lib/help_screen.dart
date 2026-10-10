@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
@@ -13,7 +14,7 @@ class HelpScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Help & User Guide'),
       ),
-      body: ListView(
+      body: ContentWidth(maxWidth: 1100, child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Container(
@@ -155,7 +156,7 @@ class HelpScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
         ],
-      ),
+      )),
     );
   }
 

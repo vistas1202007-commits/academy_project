@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdfx/pdfx.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AddReportScreen extends StatefulWidget {
   final String currentUserRole;
@@ -342,7 +343,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
         elevation: 0,
         title: Text(_isEditing ? 'Edit Report' : 'New Report'),
       ),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -476,7 +477,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

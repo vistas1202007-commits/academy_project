@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'student_profile_screen.dart';
 import 'edit_batch_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class BatchDetailScreen extends StatelessWidget {
   final String batchId;
@@ -54,7 +55,7 @@ class BatchDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('batches').doc(batchId).snapshots(),
         builder: (context, batchSnap) {
           if (!batchSnap.hasData) {
@@ -230,7 +231,7 @@ class BatchDetailScreen extends StatelessWidget {
             ],
           );
         },
-      ),
+      )),
     );
   }
 }

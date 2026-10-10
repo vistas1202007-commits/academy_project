@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -164,7 +165,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         elevation: 0,
         title: Text(isEditingExisting ? 'Edit Attendance' : 'Mark Attendance'),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 1100, child: Column(
         children: [
           if (isEditingExisting)
             Container(
@@ -395,7 +396,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
               ),
             ),
         ],
-      ),
+      )),
     );
   }
 

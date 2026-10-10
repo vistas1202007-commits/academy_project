@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AddEnquiryScreen extends StatefulWidget {
   final String currentUserRole;
@@ -184,7 +185,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         elevation: 0,
         title: const Text('New Enquiry'),
       ),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -303,7 +304,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

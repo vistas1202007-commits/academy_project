@@ -6,6 +6,7 @@ import 'package:excel/excel.dart' as xls;
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class BulkImportScreen extends StatefulWidget {
   const BulkImportScreen({super.key});
@@ -910,7 +911,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         elevation: 0,
         title: const Text('Bulk Import'),
       ),
-      body: ListView(
+      body: ContentWidth(maxWidth: 1100, child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _sectionCard(
@@ -925,7 +926,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
             child: _buildPlacementSection(),
           ),
         ],
-      ),
+      )),
     );
   }
 

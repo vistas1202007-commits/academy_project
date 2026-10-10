@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import 'analytics_export.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 /// Admin-only analytics. Students, enquiries, attendance aur placements ke
 /// plain streams aate hain; date filter aur saari calculation client-side.
@@ -42,7 +43,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder<bool>(
+      body: ContentWidth(maxWidth: 1100, child: FutureBuilder<bool>(
         future: _isAdminFuture,
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
@@ -51,7 +52,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           if (snap.data != true) return const _AccessDenied();
           return const _AnalyticsBody();
         },
-      ),
+      )),
     );
   }
 }
@@ -713,6 +714,46 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     }
     final stats = a.stats;
     final allReady = _collections.every(_ready);
+    // Desktop par charts jode me (2 columns), phone par ek ke neeche ek
+    final desktop = isDesktop(context);
+
+    final enrollment = _ChartCard(
+      title: 'Enrollment Trend (pichhle 12 mahine)',
+      hasData: stats.monthCounts.any((c) => c > 0),
+      child: _EnrollmentLineChart(stats: stats),
+    );
+    final course = _ChartCard(
+      title: 'Course-wise Trainees',
+      hasData: stats.total > 0,
+      child: _SimpleBarChart(
+        entries: (stats.courses.entries.toList()..sort((a, b) => b.value.compareTo(a.value))),
+      ),
+    );
+    final gender = _ChartCard(
+      title: 'Gender Split',
+      hasData: stats.total > 0,
+      child: _GenderDonut(stats: stats),
+    );
+    final villages = _ChartCard(
+      title: 'Top 10 Villages',
+      hasData: stats.villages.isNotEmpty,
+      height: null,
+      child: _VillageBars(entries: stats.villages),
+    );
+    final funnel = _gated('Enquiry → Placement Funnel', ['enquiries', 'placements'], () => [
+          _ChartCard(
+            title: 'Enquiry → Placement Funnel',
+            hasData: a.funnel.any((f) => f.count > 0),
+            height: null,
+            child: _FunnelBars(steps: a.funnel),
+          ),
+        ]);
+    final feeBars = _ChartCard(
+      title: 'Batch-wise Collected vs Pending',
+      hasData: a.feeBatches.any((b) => b.total > 0),
+      height: null,
+      child: _FeeStackedBars(batches: a.feeBatches),
+    );
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -726,44 +767,19 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
         const SizedBox(height: 16),
         _KpiGrid(stats: stats, conversion: _ready('enquiries') ? a.conversion : '--'),
         const SizedBox(height: 16),
-        _ChartCard(
-          title: 'Enrollment Trend (pichhle 12 mahine)',
-          hasData: stats.monthCounts.any((c) => c > 0),
-          child: _EnrollmentLineChart(stats: stats),
-        ),
-        _ChartCard(
-          title: 'Course-wise Trainees',
-          hasData: stats.total > 0,
-          child: _SimpleBarChart(
-            entries: (stats.courses.entries.toList()..sort((a, b) => b.value.compareTo(a.value))),
-          ),
-        ),
-        _ChartCard(
-          title: 'Gender Split',
-          hasData: stats.total > 0,
-          child: _GenderDonut(stats: stats),
-        ),
+        if (desktop) _ChartPair(course, gender) else ...[enrollment, course, gender],
         _ChartCard(
           title: 'Age Groups',
           hasData: stats.ageGroups.values.any((c) => c > 0),
           child: _SimpleBarChart(entries: stats.ageGroups.entries.toList()),
         ),
-        _ChartCard(
-          title: 'Top 10 Villages',
-          hasData: stats.villages.isNotEmpty,
-          height: null,
-          child: _VillageBars(entries: stats.villages),
-        ),
-
-        const _SectionTitle('Funnel'),
-        ..._gated('Enquiry → Placement Funnel', ['enquiries', 'placements'], () => [
-              _ChartCard(
-                title: 'Enquiry → Placement Funnel',
-                hasData: a.funnel.any((f) => f.count > 0),
-                height: null,
-                child: _FunnelBars(steps: a.funnel),
-              ),
-            ]),
+        if (desktop)
+          _ChartPair(villages, Column(children: funnel))
+        else ...[
+          villages,
+          const _SectionTitle('Funnel'),
+          ...funnel,
+        ],
 
         const _SectionTitle('Fees'),
         _KpiWrap(cards: [
@@ -787,12 +803,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           ),
         ]),
         const SizedBox(height: 16),
-        _ChartCard(
-          title: 'Batch-wise Collected vs Pending',
-          hasData: a.feeBatches.any((b) => b.total > 0),
-          height: null,
-          child: _FeeStackedBars(batches: a.feeBatches),
-        ),
+        if (desktop) _ChartPair(feeBars, enrollment) else feeBars,
 
         const _SectionTitle('Attendance'),
         ..._gated('Attendance', ['attendance'], () => [
@@ -924,6 +935,25 @@ class _FilterBar extends StatelessWidget {
   }
 }
 
+/// Desktop par do charts ek line me, barabar chaudai ke
+class _ChartPair extends StatelessWidget {
+  final Widget left;
+  final Widget right;
+  const _ChartPair(this.left, this.right);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: left),
+        const SizedBox(width: 16),
+        Expanded(child: right),
+      ],
+    );
+  }
+}
+
 class _SectionTitle extends StatelessWidget {
   final String text;
   const _SectionTitle(this.text);
@@ -988,9 +1018,10 @@ class _KpiGrid extends StatelessWidget {
         color: AppColors.appPrimary,
       ),
     ];
+    // Desktop par paanchon ek line me, phone par 2
+    final columns = isDesktop(context) ? 5 : 2;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 600 ? 3 : 2;
         const spacing = 12.0;
         final width = (constraints.maxWidth - spacing * (columns - 1)) / columns;
         return Wrap(

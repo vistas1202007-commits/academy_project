@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String uid;
@@ -137,7 +138,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         elevation: 0,
         title: Text(widget.isAdminEditingOther ? 'Edit Staff Details' : 'Edit My Profile'),
       ),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -247,7 +248,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 12),
           ],
         ),
-      ),
+      )),
     );
   }
 }

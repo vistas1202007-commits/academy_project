@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add_report_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class ReportListScreen extends StatefulWidget {
   const ReportListScreen({super.key});
@@ -324,7 +325,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
   Widget build(BuildContext context) {
     if (!_roleLoaded) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
+        body: ContentWidth(maxWidth: 900, child: Center(child: CircularProgressIndicator(color: AppColors.appPrimary))),
       );
     }
 
@@ -346,7 +347,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('reports')
             .orderBy('createdAt', descending: true)
@@ -424,7 +425,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
             },
           );
         },
-      ),
+      )),
     );
   }
 }

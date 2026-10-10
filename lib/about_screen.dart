@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'brand.dart';
+import 'responsive.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -13,7 +14,7 @@ class AboutScreen extends StatelessWidget {
         backgroundColor: AppColors.appPrimary,
         title: const Text('About'),
       ),
-      body: Center(
+      body: ContentWidth(maxWidth: 1100, child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -43,7 +44,7 @@ class AboutScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

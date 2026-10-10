@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AddPlacementScreen extends StatefulWidget {
   const AddPlacementScreen({super.key});
@@ -144,7 +145,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
         backgroundColor: AppColors.appPrimary,
         title: const Text('Add Placement'),
       ),
-      body: SingleChildScrollView(
+      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -266,7 +267,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

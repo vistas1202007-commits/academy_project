@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'edit_student_screen.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   final String studentId;
@@ -146,7 +147,7 @@ class StudentProfileScreen extends StatelessWidget {
         elevation: 0,
         title: const Text('Trainee Profile'),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('students').doc(studentId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -381,7 +382,7 @@ class StudentProfileScreen extends StatelessWidget {
             ],
           );
         },
-      ),
+      )),
     );
   }
 }

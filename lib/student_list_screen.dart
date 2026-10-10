@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'student_profile_screen.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class StudentListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -225,7 +226,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         elevation: 0,
         title: Text(title),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -301,7 +302,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

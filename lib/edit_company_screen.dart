@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EditCompanyScreen extends StatefulWidget {
   final String companyId;
@@ -83,7 +84,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Company')),
-      body: SingleChildScrollView(
+      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -129,7 +130,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

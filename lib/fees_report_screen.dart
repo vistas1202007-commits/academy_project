@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'student_profile_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class FeesReportScreen extends StatefulWidget {
   const FeesReportScreen({super.key});
@@ -25,7 +26,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
         elevation: 0,
         title: const Text('Fees Report'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('students')
             .orderBy('createdAt', descending: true)
@@ -271,7 +272,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
             ],
           );
         },
-      ),
+      )),
     );
   }
 }

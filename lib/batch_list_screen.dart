@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'batch_detail_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class BatchListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -35,7 +36,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
         elevation: 0,
         title: Text(widget.trainerOnly ? 'My Batches' : 'Batches'),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -258,7 +259,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

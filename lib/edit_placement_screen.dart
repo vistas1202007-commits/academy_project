@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class EditPlacementScreen extends StatefulWidget {
   final String placementId;
@@ -188,7 +189,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Placement')),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -309,7 +310,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

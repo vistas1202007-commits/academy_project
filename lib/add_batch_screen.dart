@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class AddBatchScreen extends StatefulWidget {
   const AddBatchScreen({super.key});
@@ -139,7 +140,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
         elevation: 0,
         title: const Text('Create Batch'),
       ),
-      body: Form(
+      body: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -288,7 +289,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

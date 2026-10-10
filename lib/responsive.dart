@@ -32,7 +32,8 @@ class ContentWidth extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: child,
+        // Poori (ya maxWidth tak) width, taaki phone par alignment pehle jaisa rahe
+        child: SizedBox(width: double.infinity, child: child),
       ),
     );
   }

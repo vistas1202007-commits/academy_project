@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_company_screen.dart';
 import 'edit_company_screen.dart';
 import 'app_colors.dart';
+import 'responsive.dart';
 
 class CompanyListScreen extends StatefulWidget {
   const CompanyListScreen({super.key});
@@ -31,7 +32,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Column(
+      body: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -159,7 +160,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }
