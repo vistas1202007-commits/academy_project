@@ -127,10 +127,10 @@ class _AuroraPainter extends CustomPainter {
   _AuroraPainter(this.animation) : super(repaint: animation);
 
   static const List<_Band> _bands = [
-    _Band(0.10, 0.20, 0.045, 1.1, 0.0, 1, AppColors.teal, 0.40),
-    _Band(0.17, 0.18, 0.055, 0.8, 2.1, -1, AppColors.aurora, 0.32),
-    _Band(0.25, 0.20, 0.040, 1.4, 4.0, 2, Color(0xFF1F7F86), 0.45),
-    _Band(0.33, 0.16, 0.035, 1.0, 1.2, -1, AppColors.aurora, 0.16),
+    _Band(0.10, 0.20, 0.045, 1.1, 0.0, 1, AppColors.teal, 0.55),
+    _Band(0.17, 0.18, 0.055, 0.8, 2.1, -1, AppColors.aurora, 0.52),
+    _Band(0.25, 0.20, 0.040, 1.4, 4.0, 2, Color(0xFF1F7F86), 0.58),
+    _Band(0.33, 0.16, 0.035, 1.0, 1.2, -1, AppColors.aurora, 0.30),
   ];
 
   @override
@@ -170,7 +170,7 @@ class _AuroraPainter extends CustomPainter {
             end: Alignment.bottomCenter,
             colors: [
               band.color.withValues(alpha: band.alpha),
-              band.color.withValues(alpha: band.alpha * 0.35),
+              band.color.withValues(alpha: band.alpha * 0.45),
               band.color.withValues(alpha: 0),
             ],
             stops: const [0.0, 0.45, 1.0],
@@ -268,38 +268,4 @@ void paintSnowPeak(Canvas canvas, Offset apex, double halfBase, double baseY, Pa
       ..close(),
     Paint()..color = const Color(0xFFD4EEE6),
   );
-}
-
-/// Login ke upar wala chhota barfeela pahaad (logo jaisa)
-class SnowPeakMark extends StatelessWidget {
-  final double width;
-  const SnowPeakMark({super.key, this.width = 150});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: width * 0.42,
-      child: const CustomPaint(painter: _SnowPeakMarkPainter()),
-    );
-  }
-}
-
-class _SnowPeakMarkPainter extends CustomPainter {
-  const _SnowPeakMarkPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Neeche se aasmaan me ghul jata hai, koi seedhi kinaari nahi dikhti
-    final body = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [const Color(0xFF15434C), const Color(0xFF15434C).withValues(alpha: 0)],
-      ).createShader(Offset.zero & size);
-    paintSnowPeak(canvas, Offset(size.width / 2, 0), size.width / 2, size.height, body);
-  }
-
-  @override
-  bool shouldRepaint(_SnowPeakMarkPainter oldDelegate) => false;
 }

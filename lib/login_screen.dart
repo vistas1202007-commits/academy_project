@@ -17,6 +17,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  /// Mobile OTP aur Google login abhi band; code rakha hai, true karte hi wapas
+  final bool _showAltLogins = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -306,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SnowPeakMark(width: 150),
+                          Image.asset(BrandAssets.mountainGlyph, height: 64, filterQuality: FilterQuality.medium),
                           const SizedBox(height: 14),
                           Semantics(
                             label: BrandAssets.appName,
@@ -417,41 +419,43 @@ class _LoginScreenState extends State<LoginScreen> {
             style: TextButton.styleFrom(foregroundColor: _LoginColors.muted),
             child: const Text('Forgot password?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Text('OR', style: TextStyle(color: _LoginColors.muted, fontSize: 12)),
-              ),
-              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
-            ],
-          ),
-          const SizedBox(height: 14),
-          _altButton(
-            onPressed: busy ? null : _loginWithPhone,
-            icon: const Icon(Icons.phone_android_outlined, size: 20),
-            label: 'Login with Mobile OTP',
-          ),
-          const SizedBox(height: 10),
-          _altButton(
-            onPressed: busy ? null : _loginWithGoogle,
-            icon: _isGoogleLoading
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.aurora),
-                  )
-                : const Icon(Icons.account_circle_outlined, size: 20),
-            label: 'Continue with Google',
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Mobile and Google login work after you link them from My Profile.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11.5, color: _LoginColors.faint),
-          ),
+          if (_showAltLogins) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('OR', style: TextStyle(color: _LoginColors.muted, fontSize: 12)),
+                ),
+                Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _altButton(
+              onPressed: busy ? null : _loginWithPhone,
+              icon: const Icon(Icons.phone_android_outlined, size: 20),
+              label: 'Login with Mobile OTP',
+            ),
+            const SizedBox(height: 10),
+            _altButton(
+              onPressed: busy ? null : _loginWithGoogle,
+              icon: _isGoogleLoading
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.aurora),
+                    )
+                  : const Icon(Icons.account_circle_outlined, size: 20),
+              label: 'Continue with Google',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Mobile and Google login work after you link them from My Profile.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 11.5, color: _LoginColors.faint),
+            ),
+          ],
         ],
       ),
     );
