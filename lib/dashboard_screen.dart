@@ -144,13 +144,16 @@ class DashboardScreen extends StatelessWidget {
                       builder: (context, companySnap) {
                         final companyCount =
                         companySnap.hasData ? companySnap.data!.docs.length.toString() : '--';
-                        return GridView.count(
-                          crossAxisCount: 2,
+                        return GridView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                          childAspectRatio: 1.15,
+                          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 1.25,
+                          ),
                           children: [
                             _DashboardCard(
                               icon: Icons.work_outline,
@@ -193,16 +196,19 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final action in _actionsForRole(context))
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width - 20 * 2 - 12) / 2,
-                      child: action,
-                    ),
-                ],
+              // Parent ki width se, kyunki web par app 720 ke frame me hai
+              LayoutBuilder(
+                builder: (context, constraints) => Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    for (final action in _actionsForRole(context))
+                      SizedBox(
+                        width: (constraints.maxWidth - 12) / 2,
+                        child: action,
+                      ),
+                  ],
+                ),
               ),
             ],
           ],
@@ -518,13 +524,16 @@ class _AdminOverview extends StatelessWidget {
                     }
                   }
                 }
-                return GridView.count(
-                  crossAxisCount: 2,
+                return GridView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 1.15,
+                  // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 1.25,
+                  ),
                   children: [
                     _DashboardCard(
                       icon: Icons.contact_mail_outlined,
@@ -628,13 +637,16 @@ class _TrainerOverview extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         final myBatches = snapshot.hasData ? snapshot.data!.docs.length.toString() : '--';
-        return GridView.count(
-          crossAxisCount: 2,
+        return GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-          childAspectRatio: 1.15,
+          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: 1.25,
+          ),
           children: [
             _DashboardCard(
               icon: Icons.class_outlined,
@@ -686,13 +698,16 @@ class _MobilizerOverview extends StatelessWidget {
           if (status == 'Follow-up' || status == 'New') pendingFollowUp++;
           if (status == 'Registered') registered++;
         }
-        return GridView.count(
-          crossAxisCount: 2,
+        return GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-          childAspectRatio: 1.15,
+          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: 1.25,
+          ),
           children: [
             _DashboardCard(
               icon: Icons.contact_mail_outlined,

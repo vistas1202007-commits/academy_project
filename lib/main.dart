@@ -25,9 +25,52 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       // Fingerprint lock poore app ke upar (Profile se on hota hai)
-      builder: (context, child) => AppLock(child: child ?? const SizedBox.shrink()),
+      // Web/chaudi screen par app 720 ke frame me, phone par koi farak nahi
+      builder: (context, child) => _WebFrame(child: AppLock(child: child ?? const SizedBox.shrink())),
       theme: AppTheme.light,
       home: const AuthCheckScreen(),
+    );
+  }
+}
+
+/// Chaudi screen (web/desktop) par app ko beech me 720 width ke frame me
+/// rakhta hai; bahar night background. 720 ya kam width par koi farak nahi.
+/// Widget tree dono haalat me ek jaisa rehta hai, taaki window resize par
+/// Navigator ka state na khoye — sirf rang/decoration badalte hain.
+class _WebFrame extends StatelessWidget {
+  final Widget child;
+  const _WebFrame({required this.child});
+
+  static const double maxWidth = 720;
+
+  static final BoxDecoration _frameDecoration = BoxDecoration(
+    color: AppColors.appBackground,
+    border: Border.symmetric(
+      vertical: BorderSide(color: AppColors.teal.withValues(alpha: 0.25)),
+    ),
+    boxShadow: [
+      BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 32),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth > maxWidth;
+        return ColoredBox(
+          color: wide ? AppColors.night : Colors.transparent,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: maxWidth),
+              child: DecoratedBox(
+                decoration: wide ? _frameDecoration : const BoxDecoration(),
+                child: ClipRect(child: child),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

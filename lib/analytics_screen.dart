@@ -714,145 +714,140 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     final stats = a.stats;
     final allReady = _collections.every(_ready);
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 900),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _FilterBar(
-              filter: _filter,
-              onSelect: _selectPreset,
-              exporting: _exporting,
-              onExport: allReady && !_exporting ? _export : null,
-            ),
-            const SizedBox(height: 16),
-            _KpiGrid(stats: stats, conversion: _ready('enquiries') ? a.conversion : '--'),
-            const SizedBox(height: 16),
-            _ChartCard(
-              title: 'Enrollment Trend (pichhle 12 mahine)',
-              hasData: stats.monthCounts.any((c) => c > 0),
-              child: _EnrollmentLineChart(stats: stats),
-            ),
-            _ChartCard(
-              title: 'Course-wise Trainees',
-              hasData: stats.total > 0,
-              child: _SimpleBarChart(
-                entries: (stats.courses.entries.toList()..sort((a, b) => b.value.compareTo(a.value))),
-              ),
-            ),
-            _ChartCard(
-              title: 'Gender Split',
-              hasData: stats.total > 0,
-              child: _GenderDonut(stats: stats),
-            ),
-            _ChartCard(
-              title: 'Age Groups',
-              hasData: stats.ageGroups.values.any((c) => c > 0),
-              child: _SimpleBarChart(entries: stats.ageGroups.entries.toList()),
-            ),
-            _ChartCard(
-              title: 'Top 10 Villages',
-              hasData: stats.villages.isNotEmpty,
-              height: null,
-              child: _VillageBars(entries: stats.villages),
-            ),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _FilterBar(
+          filter: _filter,
+          onSelect: _selectPreset,
+          exporting: _exporting,
+          onExport: allReady && !_exporting ? _export : null,
+        ),
+        const SizedBox(height: 16),
+        _KpiGrid(stats: stats, conversion: _ready('enquiries') ? a.conversion : '--'),
+        const SizedBox(height: 16),
+        _ChartCard(
+          title: 'Enrollment Trend (pichhle 12 mahine)',
+          hasData: stats.monthCounts.any((c) => c > 0),
+          child: _EnrollmentLineChart(stats: stats),
+        ),
+        _ChartCard(
+          title: 'Course-wise Trainees',
+          hasData: stats.total > 0,
+          child: _SimpleBarChart(
+            entries: (stats.courses.entries.toList()..sort((a, b) => b.value.compareTo(a.value))),
+          ),
+        ),
+        _ChartCard(
+          title: 'Gender Split',
+          hasData: stats.total > 0,
+          child: _GenderDonut(stats: stats),
+        ),
+        _ChartCard(
+          title: 'Age Groups',
+          hasData: stats.ageGroups.values.any((c) => c > 0),
+          child: _SimpleBarChart(entries: stats.ageGroups.entries.toList()),
+        ),
+        _ChartCard(
+          title: 'Top 10 Villages',
+          hasData: stats.villages.isNotEmpty,
+          height: null,
+          child: _VillageBars(entries: stats.villages),
+        ),
 
-            const _SectionTitle('Funnel'),
-            ..._gated('Enquiry → Placement Funnel', ['enquiries', 'placements'], () => [
-                  _ChartCard(
-                    title: 'Enquiry → Placement Funnel',
-                    hasData: a.funnel.any((f) => f.count > 0),
-                    height: null,
-                    child: _FunnelBars(steps: a.funnel),
-                  ),
-                ]),
-
-            const _SectionTitle('Fees'),
-            _KpiWrap(cards: [
-              _KpiCard(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'Total Collected',
-                value: _money(a.feeCollected),
-                color: AppColors.appPrimary,
-              ),
-              _KpiCard(
-                icon: Icons.hourglass_bottom,
-                label: 'Total Pending',
-                value: _money(a.feePending),
-                color: AppColors.warning,
-              ),
-              _KpiCard(
-                icon: Icons.percent,
-                label: 'Collection %',
-                value: _pct(a.feeCollected, a.feeCollected + a.feePending),
-                color: _shade(0.35),
+        const _SectionTitle('Funnel'),
+        ..._gated('Enquiry → Placement Funnel', ['enquiries', 'placements'], () => [
+              _ChartCard(
+                title: 'Enquiry → Placement Funnel',
+                hasData: a.funnel.any((f) => f.count > 0),
+                height: null,
+                child: _FunnelBars(steps: a.funnel),
               ),
             ]),
-            const SizedBox(height: 16),
-            _ChartCard(
-              title: 'Batch-wise Collected vs Pending',
-              hasData: a.feeBatches.any((b) => b.total > 0),
-              height: null,
-              child: _FeeStackedBars(batches: a.feeBatches),
-            ),
 
-            const _SectionTitle('Attendance'),
-            ..._gated('Attendance', ['attendance'], () => [
-                  _ChartCard(
-                    title: 'Batch-wise Average Present %',
-                    hasData: a.batchAttendance.isNotEmpty,
-                    height: null,
-                    child: _AttendanceBars(entries: a.batchAttendance),
-                  ),
-                  _ChartCard(
-                    title: 'Chronic Absentees (sabse kam present %)',
-                    hasData: a.absentees.isNotEmpty,
-                    height: null,
-                    child: _AbsenteeList(absentees: a.absentees),
-                  ),
-                ]),
-
-            const _SectionTitle('Placement'),
-            ..._gated('Placement', ['placements'], () => [
-                  _KpiWrap(cards: [
-                    _KpiCard(
-                      icon: Icons.work_outline,
-                      label: 'Placement %',
-                      value: a.placementPct,
-                      subtitle: '${a.placed} placed / ${stats.completed} completed',
-                      color: AppColors.appPrimary,
-                    ),
-                    _KpiCard(
-                      icon: Icons.payments_outlined,
-                      label: 'Average Salary',
-                      value: a.avgSalary == null ? '--' : _money(a.avgSalary!),
-                      subtitle: '${a.salaryCount} salaries',
-                      color: _shade(0.35),
-                    ),
-                    _KpiCard(
-                      icon: Icons.stacked_line_chart,
-                      label: 'Median Salary',
-                      value: a.medianSalary == null ? '--' : _money(a.medianSalary!),
-                      color: AppColors.teal,
-                    ),
-                  ]),
-                  const SizedBox(height: 16),
-                  _ChartCard(
-                    title: 'Employment Type',
-                    hasData: a.employmentTypes.isNotEmpty,
-                    child: _CountDonut(entries: a.employmentTypes, centerLabel: 'Placed'),
-                  ),
-                  _ChartCard(
-                    title: 'Top 10 Companies',
-                    hasData: a.topCompanies.isNotEmpty,
-                    height: null,
-                    child: _VillageBars(entries: a.topCompanies),
-                  ),
-                ]),
-          ],
+        const _SectionTitle('Fees'),
+        _KpiWrap(cards: [
+          _KpiCard(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Total Collected',
+            value: _money(a.feeCollected),
+            color: AppColors.appPrimary,
+          ),
+          _KpiCard(
+            icon: Icons.hourglass_bottom,
+            label: 'Total Pending',
+            value: _money(a.feePending),
+            color: AppColors.warning,
+          ),
+          _KpiCard(
+            icon: Icons.percent,
+            label: 'Collection %',
+            value: _pct(a.feeCollected, a.feeCollected + a.feePending),
+            color: _shade(0.35),
+          ),
+        ]),
+        const SizedBox(height: 16),
+        _ChartCard(
+          title: 'Batch-wise Collected vs Pending',
+          hasData: a.feeBatches.any((b) => b.total > 0),
+          height: null,
+          child: _FeeStackedBars(batches: a.feeBatches),
         ),
-      ),
+
+        const _SectionTitle('Attendance'),
+        ..._gated('Attendance', ['attendance'], () => [
+              _ChartCard(
+                title: 'Batch-wise Average Present %',
+                hasData: a.batchAttendance.isNotEmpty,
+                height: null,
+                child: _AttendanceBars(entries: a.batchAttendance),
+              ),
+              _ChartCard(
+                title: 'Chronic Absentees (sabse kam present %)',
+                hasData: a.absentees.isNotEmpty,
+                height: null,
+                child: _AbsenteeList(absentees: a.absentees),
+              ),
+            ]),
+
+        const _SectionTitle('Placement'),
+        ..._gated('Placement', ['placements'], () => [
+              _KpiWrap(cards: [
+                _KpiCard(
+                  icon: Icons.work_outline,
+                  label: 'Placement %',
+                  value: a.placementPct,
+                  subtitle: '${a.placed} placed / ${stats.completed} completed',
+                  color: AppColors.appPrimary,
+                ),
+                _KpiCard(
+                  icon: Icons.payments_outlined,
+                  label: 'Average Salary',
+                  value: a.avgSalary == null ? '--' : _money(a.avgSalary!),
+                  subtitle: '${a.salaryCount} salaries',
+                  color: _shade(0.35),
+                ),
+                _KpiCard(
+                  icon: Icons.stacked_line_chart,
+                  label: 'Median Salary',
+                  value: a.medianSalary == null ? '--' : _money(a.medianSalary!),
+                  color: AppColors.teal,
+                ),
+              ]),
+              const SizedBox(height: 16),
+              _ChartCard(
+                title: 'Employment Type',
+                hasData: a.employmentTypes.isNotEmpty,
+                child: _CountDonut(entries: a.employmentTypes, centerLabel: 'Placed'),
+              ),
+              _ChartCard(
+                title: 'Top 10 Companies',
+                hasData: a.topCompanies.isNotEmpty,
+                height: null,
+                child: _VillageBars(entries: a.topCompanies),
+              ),
+            ]),
+      ],
     );
   }
 }
