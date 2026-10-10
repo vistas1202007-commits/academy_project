@@ -17,8 +17,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  /// Mobile OTP aur Google login abhi band; code rakha hai, true karte hi wapas
-  final bool _showAltLogins = false;
+  /// Mobile OTP aur Google login; false karte hi dono button chhup jaate hain
+  final bool _showAltLogins = true;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -47,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       title: 'Login with Mobile',
       onVerified: signInStaffWithCredential,
+      errorMessage: altLoginErrorMessage,
     );
   }
 
@@ -60,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final credential = await googleCredential();
       if (credential != null) error = await signInStaffWithCredential(credential);
     } catch (e) {
-      error = googleErrorMessage(e);
+      error = altLoginErrorMessage(e);
     }
     if (!mounted) return;
     setState(() {
@@ -302,14 +303,14 @@ class _LoginScreenState extends State<LoginScreen> {
               body: SafeArea(
                 child: Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 420),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset(BrandAssets.mountainGlyph, height: 64, filterQuality: FilterQuality.medium),
-                          const SizedBox(height: 14),
+                          Image.asset(BrandAssets.mountainGlyph, height: 52, filterQuality: FilterQuality.medium),
+                          const SizedBox(height: 10),
                           Semantics(
                             label: BrandAssets.appName,
                             child: Image.asset(
@@ -323,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             BrandAssets.tagline,
                             style: TextStyle(fontSize: 13, color: _LoginColors.muted, letterSpacing: 0.6),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 22),
                           _buildCard(busy),
                         ],
                       ),
@@ -340,7 +341,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildCard(bool busy) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
       decoration: BoxDecoration(
         color: _LoginColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -389,7 +390,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -431,7 +432,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             _altButton(
               onPressed: busy ? null : _loginWithPhone,
               icon: const Icon(Icons.phone_android_outlined, size: 20),
@@ -449,7 +450,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   : const Icon(Icons.account_circle_outlined, size: 20),
               label: 'Continue with Google',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             const Text(
               'Mobile and Google login work after you link them from My Profile.',
               textAlign: TextAlign.center,

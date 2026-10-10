@@ -8,9 +8,30 @@ import 'app_colors.dart';
 /// LoginScreen dobara banti hai, isliye message yahan rakhte hain.
 final ValueNotifier<String?> loginNotice = ValueNotifier<String?>(null);
 
-const String kNotRegisteredMessage =
-    'This mobile number / Google account is not linked to any staff account. '
-    'Log in with email once, then link it from My Profile → Login Options.';
+/// Login screen pe Mobile/Google fail hone par (provider band, account link
+/// nahi, setup ki dikkat) yahi ek message dikhta hai
+const String kAltLoginUnavailableMessage =
+    'Mobile OTP aur Google login unhi accounts ke liye hai jo My Profile se link hain. '
+    'Demo ke liye Email aur Password use karein.';
+
+/// Login screen ke Mobile/Google errors. Jo galti user khud sudhar sake
+/// (galat number/OTP, internet) uska apna message; baaki sab ke liye
+/// [kAltLoginUnavailableMessage], taaki Firebase ka raw text na dikhe.
+String altLoginErrorMessage(Object e) {
+  if (e is FirebaseAuthException) {
+    switch (e.code) {
+      case 'invalid-phone-number':
+      case 'invalid-verification-code':
+      case 'session-expired':
+      case 'code-expired':
+      case 'too-many-requests':
+      case 'quota-exceeded':
+      case 'network-request-failed':
+        return authErrorMessage(e);
+    }
+  }
+  return kAltLoginUnavailableMessage;
+}
 
 bool _googleInitialized = false;
 
@@ -96,18 +117,16 @@ Future<String?> signInStaffWithCredential(AuthCredential credential) async {
   try {
     final result = await FirebaseAuth.instance.signInWithCredential(credential);
     if (result.additionalUserInfo?.isNewUser == true) {
-      loginNotice.value = kNotRegisteredMessage;
+      loginNotice.value = kAltLoginUnavailableMessage;
       try {
         await result.user?.delete();
       } catch (_) {}
       await FirebaseAuth.instance.signOut();
-      return kNotRegisteredMessage;
+      return kAltLoginUnavailableMessage;
     }
     return null;
-  } on FirebaseAuthException catch (e) {
-    return authErrorMessage(e);
-  } catch (_) {
-    return 'Something went wrong. Please try again.';
+  } catch (e) {
+    return altLoginErrorMessage(e);
   }
 }
 
@@ -148,11 +167,13 @@ Future<String?> unlinkFromCurrentUser(String providerId) async {
 
 /// Mobile number + OTP ka bottom sheet. OTP verify hone par [onVerified]
 /// chalta hai; wo error message return kare to sheet khuli rehti hai.
-/// Kaam ho jaye to true return hota hai.
+/// Kaam ho jaye to true return hota hai. OTP bhejne me error aaye to
+/// [errorMessage] se message banta hai.
 Future<bool> showPhoneOtpSheet(
   BuildContext context, {
   required String title,
   required Future<String?> Function(PhoneAuthCredential credential) onVerified,
+  String Function(Object error) errorMessage = _defaultOtpError,
 }) async {
   final done = await showModalBottomSheet<bool>(
     context: context,
@@ -161,15 +182,20 @@ Future<bool> showPhoneOtpSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => _PhoneOtpSheet(title: title, onVerified: onVerified),
+    builder: (context) =>
+        _PhoneOtpSheet(title: title, onVerified: onVerified, errorMessage: errorMessage),
   );
   return done == true;
 }
 
+String _defaultOtpError(Object e) =>
+    e is FirebaseAuthException ? authErrorMessage(e) : 'Something went wrong. Please try again.';
+
 class _PhoneOtpSheet extends StatefulWidget {
   final String title;
   final Future<String?> Function(PhoneAuthCredential credential) onVerified;
-  const _PhoneOtpSheet({required this.title, required this.onVerified});
+  final String Function(Object error) errorMessage;
+  const _PhoneOtpSheet({required this.title, required this.onVerified, required this.errorMessage});
 
   @override
   State<_PhoneOtpSheet> createState() => _PhoneOtpSheetState();
@@ -213,30 +239,37 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
       _busy = true;
       _error = '';
     });
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+91$phone',
-      timeout: const Duration(seconds: 60),
-      forceResendingToken: _resendToken,
-      // Android kabhi kabhi OTP khud padh leta hai
-      verificationCompleted: (credential) => _complete(credential),
-      verificationFailed: (e) {
-        if (!mounted) return;
-        setState(() {
-          _busy = false;
-          _error = authErrorMessage(e);
-        });
-      },
-      codeSent: (verificationId, resendToken) {
-        if (!mounted) return;
-        setState(() {
-          _busy = false;
-          _verificationId = verificationId;
-          _resendToken = resendToken;
-        });
-        _startResendTimer();
-      },
-      codeAutoRetrievalTimeout: (_) {},
-    );
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: '+91$phone',
+        timeout: const Duration(seconds: 60),
+        forceResendingToken: _resendToken,
+        // Android kabhi kabhi OTP khud padh leta hai
+        verificationCompleted: (credential) => _complete(credential),
+        verificationFailed: _failed,
+        codeSent: (verificationId, resendToken) {
+          if (!mounted) return;
+          setState(() {
+            _busy = false;
+            _verificationId = verificationId;
+            _resendToken = resendToken;
+          });
+          _startResendTimer();
+        },
+        codeAutoRetrievalTimeout: (_) {},
+      );
+    } catch (e) {
+      // Web/desktop pe ye seedha throw kar sakta hai
+      _failed(e);
+    }
+  }
+
+  void _failed(Object e) {
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _error = widget.errorMessage(e);
+    });
   }
 
   Future<void> _verifyOtp() async {
