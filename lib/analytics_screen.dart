@@ -748,11 +748,10 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
             child: _FunnelBars(steps: a.funnel),
           ),
         ]);
-    final feeBars = _ChartCard(
-      title: 'Batch-wise Collected vs Pending',
-      hasData: a.feeBatches.any((b) => b.total > 0),
-      height: null,
-      child: _FeeStackedBars(batches: a.feeBatches),
+    final age = _ChartCard(
+      title: 'Age Groups',
+      hasData: stats.ageGroups.values.any((c) => c > 0),
+      child: _SimpleBarChart(entries: stats.ageGroups.entries.toList()),
     );
 
     return ListView(
@@ -767,15 +766,32 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
         const SizedBox(height: 16),
         _KpiGrid(stats: stats, conversion: _ready('enquiries') ? a.conversion : '--'),
         const SizedBox(height: 16),
-        if (desktop) _ChartPair(course, gender) else ...[enrollment, course, gender],
-        _ChartCard(
-          title: 'Age Groups',
-          hasData: stats.ageGroups.values.any((c) => c > 0),
-          child: _SimpleBarChart(entries: stats.ageGroups.entries.toList()),
-        ),
-        if (desktop)
-          _ChartPair(villages, Column(children: funnel))
-        else ...[
+        if (desktop) ...[
+          _ChartPair(enrollment, age),
+          _ChartPair(course, gender),
+          // Funnel ka title sirf daayin column me; baayin taraf utni hi khali
+          // jagah, taaki dono cards ki upar ki line barabar rahe
+          _ChartPair(
+            Column(children: [
+              const Visibility(
+                visible: false,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: _SectionTitle('Funnel'),
+              ),
+              villages,
+            ]),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [const _SectionTitle('Funnel'), ...funnel],
+            ),
+          ),
+        ] else ...[
+          enrollment,
+          course,
+          gender,
+          age,
           villages,
           const _SectionTitle('Funnel'),
           ...funnel,
@@ -803,7 +819,12 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           ),
         ]),
         const SizedBox(height: 16),
-        if (desktop) _ChartPair(feeBars, enrollment) else feeBars,
+        _ChartCard(
+          title: 'Batch-wise Collected vs Pending',
+          hasData: a.feeBatches.any((b) => b.total > 0),
+          height: null,
+          child: _FeeStackedBars(batches: a.feeBatches),
+        ),
 
         const _SectionTitle('Attendance'),
         ..._gated('Attendance', ['attendance'], () => [
