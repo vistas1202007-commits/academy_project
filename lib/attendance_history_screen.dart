@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'mark_attendance_screen.dart';
+import 'app_colors.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
   // true when opened from the Trainer's Quick Actions — restricts the batch
@@ -18,9 +19,6 @@ class AttendanceHistoryScreen extends StatefulWidget {
 }
 
 class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   String? _selectedBatchId;
   String? _selectedBatchName;
 
@@ -56,7 +54,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       await FirebaseFirestore.instance.collection('attendance').doc(docId).delete();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Attendance record deleted.'), backgroundColor: primaryGreen),
+          const SnackBar(content: Text('Attendance record deleted.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -77,9 +75,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         : FirebaseFirestore.instance.collection('batches');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Attendance History'),
       ),
@@ -114,7 +112,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: 'Select Batch',
-                    prefixIcon: Icon(Icons.class_outlined, color: primaryGreen),
+                    prefixIcon: Icon(Icons.class_outlined, color: AppColors.appPrimary),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -162,7 +160,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                     return const Center(child: Text('Something went wrong.'));
                   }
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                    return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                   }
 
                   final records = snapshot.data!.docs.where((doc) {
@@ -199,7 +197,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -224,7 +222,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     IconButton(
-                                      icon: Icon(Icons.edit_outlined, color: primaryGreen, size: 18),
+                                      icon: Icon(Icons.edit_outlined, color: AppColors.appPrimary, size: 18),
                                       tooltip: 'Edit',
                                       padding: EdgeInsets.zero,
                                       constraints: const BoxConstraints(),
@@ -258,11 +256,11 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                _countChip('Present', presentCount, primaryGreen),
+                                _countChip('Present', presentCount, AppColors.appPrimary),
                                 const SizedBox(width: 8),
-                                _countChip('Absent', absentCount, Colors.red),
+                                _countChip('Absent', absentCount, AppColors.danger),
                                 const SizedBox(width: 8),
-                                _countChip('Leave', leaveCount, accentGold),
+                                _countChip('Leave', leaveCount, AppColors.teal),
                               ],
                             ),
                           ],
@@ -283,7 +281,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(

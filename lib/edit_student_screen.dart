@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
+import 'app_colors.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final String studentId;
@@ -37,9 +38,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   bool _isSaving = false;
   String _errorMessage = '';
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   final List<String> _statusOptions = ['Registered', 'Joined', 'Ongoing', 'Completed', 'Dropped'];
 
@@ -87,7 +85,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -142,7 +140,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Trainee updated successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -164,16 +162,16 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -186,7 +184,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w700,
-          color: primaryGreen,
+          color: AppColors.appPrimary,
           letterSpacing: 0.3,
         ),
       ),
@@ -265,9 +263,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     final traineeId = (widget.currentData['traineeId'] ?? '').toString();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Edit Trainee'),
       ),
@@ -282,17 +280,17 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: primaryGreen.withOpacity(0.08),
+                  color: AppColors.appPrimary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.badge_outlined, color: primaryGreen, size: 18),
+                    const Icon(Icons.badge_outlined, color: AppColors.appPrimary, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Trainee ID: $traineeId',
                       style: const TextStyle(
-                          color: primaryGreen, fontWeight: FontWeight.w600, fontSize: 13),
+                          color: AppColors.appPrimary, fontWeight: FontWeight.w600, fontSize: 13),
                     ),
                   ],
                 ),
@@ -432,14 +430,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: (isFullyPaid ? primaryGreen : accentGold).withOpacity(0.1),
+                    color: (isFullyPaid ? AppColors.success : AppColors.warning).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     'Pending: ₹${pending.clamp(0, double.infinity).toStringAsFixed(0)}'
                         '${isFullyPaid ? ' • Fully Paid ✓' : ''}',
                     style: TextStyle(
-                      color: isFullyPaid ? primaryGreen : accentGold.withAlpha(230),
+                      color: isFullyPaid ? AppColors.success : AppColors.warning.withAlpha(230),
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -467,7 +465,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _updateStudent,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

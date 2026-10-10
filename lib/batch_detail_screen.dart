@@ -4,13 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'student_profile_screen.dart';
 import 'edit_batch_screen.dart';
+import 'app_colors.dart';
 
 class BatchDetailScreen extends StatelessWidget {
   final String batchId;
   const BatchDetailScreen({super.key, required this.batchId});
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   Widget _infoChip(IconData icon, String label) {
     return Row(
@@ -26,9 +24,9 @@ class BatchDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Batch Details'),
         actions: [
@@ -60,7 +58,7 @@ class BatchDetailScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('batches').doc(batchId).snapshots(),
         builder: (context, batchSnap) {
           if (!batchSnap.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           if (!batchSnap.data!.exists) {
             return const Center(child: Text('This batch no longer exists.'));
@@ -82,7 +80,7 @@ class BatchDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: primaryGreen,
+                  color: AppColors.appPrimary,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -100,7 +98,7 @@ class BatchDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -127,7 +125,7 @@ class BatchDetailScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: primaryGreen,
+                  color: AppColors.appPrimary,
                   letterSpacing: 0.3,
                 ),
               ),
@@ -148,7 +146,7 @@ class BatchDetailScreen extends StatelessWidget {
                       return const Center(
                         child: Padding(
                           padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(color: primaryGreen),
+                          child: CircularProgressIndicator(color: AppColors.appPrimary),
                         ),
                       );
                     }
@@ -182,7 +180,7 @@ class BatchDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
@@ -190,10 +188,10 @@ class BatchDetailScreen extends StatelessWidget {
                           ),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: primaryGreen.withOpacity(0.12),
+                              backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
                               child: Text(
                                 rawName.isNotEmpty ? rawName[0].toUpperCase() : '?',
-                                style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.bold),
+                                style: const TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.bold),
                               ),
                             ),
                             title: Text(rawName.isNotEmpty ? rawName : 'Unnamed'),
@@ -204,13 +202,13 @@ class BatchDetailScreen extends StatelessWidget {
                             trailing: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: accentGold.withOpacity(0.15),
+                                color: AppColors.teal.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 (data['status'] ?? 'Registered').toString().toUpperCase(),
                                 style: const TextStyle(
-                                  color: accentGold,
+                                  color: AppColors.teal,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),

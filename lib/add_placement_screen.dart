@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class AddPlacementScreen extends StatefulWidget {
   const AddPlacementScreen({super.key});
@@ -27,9 +28,6 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
   String _status = 'Not Placed';
   bool _isSaving = false;
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   final List<String> _foodOptions = ['Yes', 'No'];
   final List<String> _employmentOptions = ['Salaried', 'Waged', 'Self-employed'];
   final List<String> _statusOptions = [
@@ -51,7 +49,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -112,16 +110,16 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
   InputDecoration _decoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -141,9 +139,9 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         title: const Text('Add Placement'),
       ),
       body: SingleChildScrollView(
@@ -253,7 +251,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _savePlacement,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
+                    backgroundColor: AppColors.appPrimary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: _isSaving

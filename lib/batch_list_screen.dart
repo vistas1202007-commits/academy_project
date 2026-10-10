@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'batch_detail_screen.dart';
+import 'app_colors.dart';
 
 class BatchListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -15,8 +16,6 @@ class BatchListScreen extends StatefulWidget {
 
 class _BatchListScreenState extends State<BatchListScreen> {
   String _searchQuery = '';
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +29,9 @@ class _BatchListScreenState extends State<BatchListScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(widget.trainerOnly ? 'My Batches' : 'Batches'),
       ),
@@ -48,7 +47,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'Search by batch name, course, or trainer',
-                prefixIcon: Icon(Icons.search, color: primaryGreen),
+                prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -66,7 +65,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                   return const Center(child: Text('Something went wrong.'));
                 }
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
                 final allDocs = snapshot.data!.docs.toList();
                 if (widget.trainerOnly) {
@@ -129,7 +128,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -164,13 +163,13 @@ class _BatchListScreenState extends State<BatchListScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: accentGold.withOpacity(0.15),
+                                        color: AppColors.teal.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: Text(
                                         (data['status'] ?? 'active').toString().toUpperCase(),
                                         style: const TextStyle(
-                                          color: accentGold,
+                                          color: AppColors.teal,
                                           fontSize: 10,
                                           fontWeight: FontWeight.w700,
                                         ),

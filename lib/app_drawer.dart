@@ -6,6 +6,8 @@ import 'help_screen.dart';
 import 'about_screen.dart';
 import 'report_list_screen.dart';
 import 'analytics_screen.dart';
+import 'app_colors.dart';
+import 'brand.dart';
 
 class AppDrawer extends StatefulWidget {
   final String name;
@@ -17,9 +19,6 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   bool _canSeeReports = false;
   bool _isAdmin = false;
   bool _roleChecked = false;
@@ -95,22 +94,11 @@ class _AppDrawerState extends State<AppDrawer> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-            color: primaryGreen,
+            color: AppColors.appPrimary,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    height: 40,
-                    width: 40,
-                  ),
-                ),
+                Image.asset(BrandAssets.logoCircle, height: 56, width: 56),
                 const SizedBox(height: 12),
                 Text(
                   widget.name,
@@ -124,7 +112,7 @@ class _AppDrawerState extends State<AppDrawer> {
                 Text(
                   widget.roleLabel,
                   style: const TextStyle(
-                    color: accentGold,
+                    color: AppColors.aurora,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -137,13 +125,13 @@ class _AppDrawerState extends State<AppDrawer> {
               padding: EdgeInsets.zero,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.dashboard_outlined, color: primaryGreen),
+                  leading: const Icon(Icons.dashboard_outlined, color: AppColors.appPrimary),
                   title: const Text('Dashboard'),
                   onTap: () => Navigator.of(context).pop(),
                 ),
                 if (_roleChecked && _canSeeReports)
                   ListTile(
-                    leading: const Icon(Icons.description_outlined, color: primaryGreen),
+                    leading: const Icon(Icons.description_outlined, color: AppColors.appPrimary),
                     title: const Text('Reports'),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -154,7 +142,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                 if (_roleChecked && _isAdmin)
                   ListTile(
-                    leading: const Icon(Icons.insights_outlined, color: primaryGreen),
+                    leading: const Icon(Icons.insights_outlined, color: AppColors.appPrimary),
                     title: const Text('Analytics'),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -164,7 +152,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     },
                   ),
                 ListTile(
-                  leading: const Icon(Icons.help_outline, color: primaryGreen),
+                  leading: const Icon(Icons.help_outline, color: AppColors.appPrimary),
                   title: const Text('Help & User Guide'),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -174,7 +162,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.info_outline, color: primaryGreen),
+                  leading: const Icon(Icons.info_outline, color: AppColors.appPrimary),
                   title: const Text('About'),
                   onTap: () {
                     Navigator.of(context).pop();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
+import 'app_colors.dart';
 
 class EditPlacementScreen extends StatefulWidget {
   final String placementId;
@@ -28,8 +29,6 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   late String _employmentType;
   late String _status;
   bool _isSaving = false;
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
 
   final List<String> _foodOptions = ['Yes', 'No'];
   final List<String> _employmentOptions = ['Salaried', 'Waged', 'Self-employed'];
@@ -72,7 +71,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
       lastDate: DateTime(2035),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: primaryGreen)),
+          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.appPrimary)),
           child: child!,
         );
       },
@@ -110,7 +109,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Placement updated successfully!'), backgroundColor: primaryGreen),
+          const SnackBar(content: Text('Placement updated successfully!'), backgroundColor: AppColors.appPrimary),
         );
         Navigator.of(context).pop();
       }
@@ -148,7 +147,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Placement record deleted.'), backgroundColor: primaryGreen),
+          const SnackBar(content: Text('Placement record deleted.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -161,13 +160,13 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   InputDecoration _decoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -187,8 +186,8 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
-      appBar: AppBar(backgroundColor: primaryGreen, title: const Text('Edit Placement')),
+      backgroundColor: AppColors.appBackground,
+      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Placement')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -286,7 +285,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _updatePlacement,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: _isSaving

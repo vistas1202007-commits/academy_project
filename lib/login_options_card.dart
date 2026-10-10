@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth_service.dart';
 import 'app_lock.dart';
+import 'app_colors.dart';
 
 /// Profile screen ka "LOGIN OPTIONS" card: mobile number jodna, Google
 /// account jodna, aur fingerprint lock on/off.
@@ -13,9 +14,6 @@ class LoginOptionsCard extends StatefulWidget {
 }
 
 class _LoginOptionsCardState extends State<LoginOptionsCard> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   bool _busy = false;
   bool _lockEnabled = false;
   bool _lockSupported = false;
@@ -51,7 +49,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(error ?? successText),
-        backgroundColor: error == null ? primaryGreen : Colors.red[700],
+        backgroundColor: error == null ? AppColors.appPrimary : Colors.red[700],
       ),
     );
   }
@@ -137,7 +135,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, color: primaryGreen, size: 22),
+          Icon(icon, color: AppColors.appPrimary, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -158,7 +156,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
   Widget _linkButton(String label, VoidCallback onPressed) {
     return TextButton(
       onPressed: _busy ? null : onPressed,
-      child: Text(label, style: const TextStyle(color: accentGold, fontWeight: FontWeight.w600)),
+      child: Text(label, style: const TextStyle(color: AppColors.appAccent, fontWeight: FontWeight.w600)),
     );
   }
 
@@ -196,7 +194,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               letterSpacing: 0.3,
             ),
           ),
@@ -225,7 +223,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
                 : 'Set up a screen lock on this phone to use this',
             trailing: Switch(
               value: _lockEnabled,
-              activeThumbColor: primaryGreen,
+              activeThumbColor: AppColors.appPrimary,
               onChanged: (_lockSupported && !_busy) ? _toggleLock : null,
             ),
           ),

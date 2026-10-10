@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Help & User Guide'),
       ),
@@ -22,7 +20,7 @@ class HelpScreen extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Column(
@@ -170,7 +168,7 @@ class HelpScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -181,7 +179,7 @@ class HelpScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: primaryGreen),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
           ),
           const SizedBox(height: 12),
           ...steps,
@@ -200,7 +198,7 @@ class HelpScreen extends StatelessWidget {
             margin: const EdgeInsets.only(top: 4),
             width: 6,
             height: 6,
-            decoration: const BoxDecoration(color: accentGold, shape: BoxShape.circle),
+            decoration: const BoxDecoration(color: AppColors.appAccent, shape: BoxShape.circle),
           ),
           const SizedBox(width: 10),
           Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class AddBatchScreen extends StatefulWidget {
   const AddBatchScreen({super.key});
@@ -25,9 +26,6 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
   bool _isSaving = false;
   String _errorMessage = '';
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   Future<void> _pickDate({required bool isStart}) async {
     final picked = await showDatePicker(
       context: context,
@@ -37,7 +35,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -89,7 +87,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Batch created successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -111,16 +109,16 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -135,9 +133,9 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Create Batch'),
       ),
@@ -182,7 +180,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const LinearProgressIndicator(color: primaryGreen);
+                  return const LinearProgressIndicator(color: AppColors.appPrimary);
                 }
                 final trainers = snapshot.data!.docs;
                 if (trainers.isEmpty) {
@@ -263,7 +261,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _saveBatch,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

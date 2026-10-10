@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
@@ -16,8 +17,6 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
   final _contactNumberController = TextEditingController();
   final _locationController = TextEditingController();
   bool _isSaving = false;
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
 
   Future<void> _saveCompany() async {
     if (!_formKey.currentState!.validate()) return;
@@ -55,16 +54,16 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
   InputDecoration _decoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -81,9 +80,9 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         title: const Text('Add Company'),
       ),
       body: SingleChildScrollView(
@@ -121,7 +120,7 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _saveCompany,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
+                    backgroundColor: AppColors.appPrimary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: _isSaving

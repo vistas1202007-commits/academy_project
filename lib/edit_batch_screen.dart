@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'app_colors.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final String batchId;
@@ -10,7 +11,6 @@ class EditBatchScreen extends StatefulWidget {
 }
 
 class _EditBatchScreenState extends State<EditBatchScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
   String? _selectedTrainerId;
   bool _isSaving = false;
   bool _loaded = false;
@@ -28,7 +28,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Trainer updated successfully!'), backgroundColor: primaryGreen),
+          const SnackBar(content: Text('Trainer updated successfully!'), backgroundColor: AppColors.appPrimary),
         );
         Navigator.of(context).pop();
       }
@@ -44,13 +44,13 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
-      appBar: AppBar(backgroundColor: primaryGreen, title: const Text('Edit Batch — Trainer')),
+      backgroundColor: AppColors.appBackground,
+      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Batch — Trainer')),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           if (!_loaded) {
             _batchData = snapshot.data!.data() as Map<String, dynamic>;
@@ -73,14 +73,14 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                   stream: FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'trainer').snapshots(),
                   builder: (context, trainerSnap) {
                     if (!trainerSnap.hasData) {
-                      return const LinearProgressIndicator(color: primaryGreen);
+                      return const LinearProgressIndicator(color: AppColors.appPrimary);
                     }
                     final trainers = trainerSnap.data!.docs;
                     return DropdownButtonFormField<String>(
                       initialValue: _selectedTrainerId,
                       decoration: InputDecoration(
                         labelText: 'Assign Trainer',
-                        prefixIcon: const Icon(Icons.person_outline, color: primaryGreen),
+                        prefixIcon: const Icon(Icons.person_outline, color: AppColors.appPrimary),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -98,7 +98,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: (_isSaving || _selectedTrainerId == null) ? null : _saveTrainer,
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.appPrimary),
                     child: _isSaving
                         ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white))
                         : const Text('Save Trainer', style: TextStyle(color: Colors.white, fontSize: 16)),

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
+import 'brand.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         title: const Text('About'),
       ),
       body: Center(
@@ -19,30 +19,26 @@ class AboutScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/logo.png', height: 90, width: 90),
+              Image.asset(BrandAssets.logoCircle, height: 104, width: 104),
               const SizedBox(height: 20),
-              const Text(
-                'Vistas Academy',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: primaryGreen,
-                ),
+              Semantics(
+                label: BrandAssets.appName,
+                child: Image.asset(BrandAssets.wordmarkDark, height: 36),
               ),
               const SizedBox(height: 6),
-              Text(
-                'Skill Training ERP',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              const Text(
+                BrandAssets.tagline,
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted),
               ),
               const SizedBox(height: 24),
-              Text(
+              const Text(
                 'App Version 1.0.0',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
               ),
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 'Developed by Shivani Sharma',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
               ),
             ],
           ),

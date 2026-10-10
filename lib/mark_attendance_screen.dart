@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'app_colors.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -24,9 +25,6 @@ class MarkAttendanceScreen extends StatefulWidget {
 }
 
 class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   String? _selectedBatchId;
   String? _selectedBatchName;
   DateTime _selectedDate = DateTime.now();
@@ -58,7 +56,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -114,7 +112,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Attendance saved successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
       }
@@ -139,11 +137,11 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   Color _statusColor(String status) {
     switch (status) {
       case 'present':
-        return primaryGreen;
+        return AppColors.appPrimary;
       case 'absent':
-        return Colors.red;
+        return AppColors.danger;
       case 'leave':
-        return accentGold;
+        return AppColors.teal;
       default:
         return Colors.grey.shade300;
     }
@@ -160,9 +158,9 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
     final isEditingExisting = widget.initialBatchId != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(isEditingExisting ? 'Edit Attendance' : 'Mark Attendance'),
       ),
@@ -174,12 +172,12 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: accentGold.withOpacity(0.12),
+                color: AppColors.teal.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: accentGold, size: 18),
+                  const Icon(Icons.info_outline, color: AppColors.teal, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -221,7 +219,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                       isExpanded: true,
                       decoration: InputDecoration(
                         labelText: 'Select Batch',
-                        prefixIcon: Icon(Icons.class_outlined, color: primaryGreen),
+                        prefixIcon: Icon(Icons.class_outlined, color: AppColors.appPrimary),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -258,7 +256,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                   child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: 'Date',
-                      prefixIcon: Icon(Icons.calendar_today_outlined, color: primaryGreen),
+                      prefixIcon: Icon(Icons.calendar_today_outlined, color: AppColors.appPrimary),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -287,7 +285,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                    return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                   }
                   final students = snapshot.data!.docs;
 
@@ -316,8 +314,8 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                                   }
                                 });
                               },
-                              icon: const Icon(Icons.done_all, size: 18, color: primaryGreen),
-                              label: const Text('Mark all present', style: TextStyle(color: primaryGreen)),
+                              icon: const Icon(Icons.done_all, size: 18, color: AppColors.appPrimary),
+                              label: const Text('Mark all present', style: TextStyle(color: AppColors.appPrimary)),
                             ),
                           ],
                         ),
@@ -339,7 +337,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
+                                    color: Colors.black.withValues(alpha: 0.04),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -372,7 +370,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                           child: ElevatedButton(
                             onPressed: _isSaving ? null : () => _saveAttendance(students),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryGreen,
+                              backgroundColor: AppColors.appPrimary,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),

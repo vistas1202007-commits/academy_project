@@ -3,27 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'edit_student_screen.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   final String studentId;
 
   const StudentProfileScreen({super.key, required this.studentId});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-  static const Color lightGreen = Color(0xFF6FA98C);
-
   Color _statusColor(String status) {
     switch (status) {
       case 'Completed':
-        return primaryGreen;
+        return AppColors.appPrimary;
       case 'Joined':
       case 'Ongoing':
-        return accentGold;
+        return AppColors.teal;
       case 'Dropped':
-        return lightGreen;
+        return AppColors.danger;
       default:
-        return accentGold;
+        return AppColors.teal;
     }
   }
 
@@ -41,7 +38,7 @@ class StudentProfileScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: primaryGreen, size: 20),
+          Icon(icon, color: AppColors.appPrimary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -70,7 +67,7 @@ class StudentProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -84,7 +81,7 @@ class StudentProfileScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               letterSpacing: 0.3,
             ),
           ),
@@ -112,7 +109,7 @@ class StudentProfileScreen extends StatelessWidget {
           return _sectionCard('PLACEMENT', [
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Center(child: CircularProgressIndicator(color: primaryGreen)),
+              child: Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
             ),
           ]);
         }
@@ -143,9 +140,9 @@ class StudentProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Trainee Profile'),
       ),
@@ -153,7 +150,7 @@ class StudentProfileScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('students').doc(studentId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           if (!snapshot.data!.exists) {
             return const Center(child: Text('This trainee no longer exists.'));
@@ -187,7 +184,7 @@ class StudentProfileScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: primaryGreen,
+                      color: AppColors.appPrimary,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -221,15 +218,13 @@ class StudentProfileScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.2),
+                                color: _statusColor(status).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 status.toUpperCase(),
                                 style: TextStyle(
-                                  color: _statusColor(status) == primaryGreen
-                                      ? Colors.white
-                                      : accentGold,
+                                  color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -239,7 +234,7 @@ class StudentProfileScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
@@ -285,7 +280,7 @@ class StudentProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -299,7 +294,7 @@ class StudentProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: primaryGreen,
+                            color: AppColors.appPrimary,
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -315,7 +310,7 @@ class StudentProfileScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 isFullyPaid ? Icons.check_circle_outline : Icons.pending_outlined,
-                                color: isFullyPaid ? primaryGreen : accentGold,
+                                color: isFullyPaid ? AppColors.success : AppColors.warning,
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
@@ -333,7 +328,7 @@ class StudentProfileScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
-                                        color: isFullyPaid ? primaryGreen : accentGold.withAlpha(230),
+                                        color: isFullyPaid ? AppColors.success : AppColors.warning.withAlpha(230),
                                       ),
                                     ),
                                   ],
@@ -374,7 +369,7 @@ class StudentProfileScreen extends StatelessWidget {
                     label: const Text('Edit Trainee',
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: accentGold,
+                      backgroundColor: AppColors.appAccent,
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),

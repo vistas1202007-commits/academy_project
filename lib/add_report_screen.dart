@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdfx/pdfx.dart';
+import 'app_colors.dart';
 
 class AddReportScreen extends StatefulWidget {
   final String currentUserRole;
@@ -46,7 +47,6 @@ class _AddReportScreenState extends State<AddReportScreen> {
   bool _isPicking = false;
   String _errorMessage = '';
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
   static const int _maxTotalPdfPages = 10;
 
   // Already-saved attachments (only filled when editing)
@@ -92,7 +92,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? Colors.red[700] : primaryGreen,
+        backgroundColor: isError ? Colors.red[700] : AppColors.appPrimary,
       ),
     );
   }
@@ -106,7 +106,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -251,7 +251,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isEditing ? 'Report updated successfully!' : 'Report saved successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -273,16 +273,16 @@ class _AddReportScreenState extends State<AddReportScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -336,9 +336,9 @@ class _AddReportScreenState extends State<AddReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(_isEditing ? 'Edit Report' : 'New Report'),
       ),
@@ -404,12 +404,12 @@ class _AddReportScreenState extends State<AddReportScreen> {
                   ? const SizedBox(
                 height: 16,
                 width: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: primaryGreen),
+                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.appPrimary),
               )
-                  : const Icon(Icons.attach_file, color: primaryGreen),
-              label: const Text('Add Attachments', style: TextStyle(color: primaryGreen)),
+                  : const Icon(Icons.attach_file, color: AppColors.appPrimary),
+              label: const Text('Add Attachments', style: TextStyle(color: AppColors.appPrimary)),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: primaryGreen),
+                side: const BorderSide(color: AppColors.appPrimary),
                 minimumSize: const Size(double.infinity, 46),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -449,7 +449,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _saveReport,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

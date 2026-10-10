@@ -20,14 +20,13 @@ import 'profile_screen.dart';
 import 'bulk_import_screen.dart';
 import 'fees_report_screen.dart';
 import 'analytics_screen.dart';
+import 'app_colors.dart';
+import 'brand.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String role;
   final String name;
   const DashboardScreen({super.key, required this.role, required this.name});
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   String get _roleLabel {
     switch (role) {
@@ -48,32 +47,12 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       drawer: AppDrawer(name: name, roleLabel: _roleLabel),
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Image.asset(
-                'assets/images/logo.png',
-                height: 28,
-                width: 28,
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Vistas Academy',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
+        title: const VistasAppBarTitle(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -84,11 +63,11 @@ class DashboardScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: primaryGreen,
+                color: AppColors.appPrimary,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryGreen.withOpacity(0.25),
+                    color: AppColors.appPrimary.withValues(alpha: 0.25),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
@@ -114,13 +93,13 @@ class DashboardScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: accentGold.withOpacity(0.2),
+                      color: AppColors.aurora.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       _roleLabel,
                       style: const TextStyle(
-                        color: accentGold,
+                        color: AppColors.aurora,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -177,7 +156,7 @@ class DashboardScreen extends StatelessWidget {
                               icon: Icons.work_outline,
                               label: 'Trainees Placed',
                               value: placedCount,
-                              color: primaryGreen,
+                              color: AppColors.appPrimary,
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (context) => const PlacementListScreen()),
@@ -188,7 +167,7 @@ class DashboardScreen extends StatelessWidget {
                               icon: Icons.business_outlined,
                               label: 'Active Companies',
                               value: companyCount,
-                              color: accentGold,
+                              color: AppColors.teal,
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (context) => const CompanyListScreen()),
@@ -509,9 +488,6 @@ class _AdminOverview extends StatelessWidget {
   final VoidCallback onViewStudents;
   const _AdminOverview({required this.onViewStudents});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -554,7 +530,7 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.contact_mail_outlined,
                       label: 'Total Enquiries',
                       value: totalEnquiries,
-                      color: accentGold,
+                      color: AppColors.teal,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => const EnquiryListScreen()),
@@ -565,14 +541,14 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.groups_outlined,
                       label: 'Total Trainees',
                       value: totalStudents,
-                      color: primaryGreen,
+                      color: AppColors.appPrimary,
                       onTap: onViewStudents,
                     ),
                     _DashboardCard(
                       icon: Icons.how_to_reg_outlined,
                       label: 'Joined',
                       value: joined.toString(),
-                      color: accentGold,
+                      color: AppColors.teal,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -588,7 +564,7 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.verified_outlined,
                       label: 'Completed',
                       value: completed.toString(),
-                      color: primaryGreen,
+                      color: AppColors.appPrimary,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -604,7 +580,7 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.person_off_outlined,
                       label: 'Dropped',
                       value: dropped.toString(),
-                      color: accentGold,
+                      color: AppColors.teal,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -620,7 +596,7 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.work_outline,
                       label: 'Placed',
                       value: placedCount.toString(),
-                      color: primaryGreen,
+                      color: AppColors.appPrimary,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => const PlacementListScreen()),
@@ -643,9 +619,6 @@ class _TrainerOverview extends StatelessWidget {
   final String? trainerUid;
   const _TrainerOverview({required this.trainerUid});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -667,7 +640,7 @@ class _TrainerOverview extends StatelessWidget {
               icon: Icons.class_outlined,
               label: 'My Batches',
               value: myBatches,
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const BatchListScreen(trainerOnly: true)),
@@ -678,7 +651,7 @@ class _TrainerOverview extends StatelessWidget {
               icon: Icons.event_available_outlined,
               label: "Today's Attendance",
               value: '--',
-              color: accentGold,
+              color: AppColors.teal,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const AttendanceHistoryScreen(trainerOnly: true)),
@@ -695,9 +668,6 @@ class _TrainerOverview extends StatelessWidget {
 // ---------------- MOBILIZER OVERVIEW ----------------
 class _MobilizerOverview extends StatelessWidget {
   const _MobilizerOverview();
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   @override
   Widget build(BuildContext context) {
@@ -728,7 +698,7 @@ class _MobilizerOverview extends StatelessWidget {
               icon: Icons.contact_mail_outlined,
               label: 'Enquiries',
               value: totalEnquiries,
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const EnquiryListScreen()),
@@ -739,7 +709,7 @@ class _MobilizerOverview extends StatelessWidget {
               icon: Icons.pending_actions_outlined,
               label: 'Pending Follow-up',
               value: pendingFollowUp.toString(),
-              color: accentGold,
+              color: AppColors.teal,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -754,7 +724,7 @@ class _MobilizerOverview extends StatelessWidget {
               icon: Icons.how_to_reg_outlined,
               label: 'Registered',
               value: registered.toString(),
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -799,7 +769,7 @@ class _DashboardCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -812,7 +782,7 @@ class _DashboardCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -864,7 +834,7 @@ class _QuickActionButton extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: DashboardScreen.primaryGreen, size: 24),
+            Icon(icon, color: AppColors.appPrimary, size: 24),
             const SizedBox(height: 8),
             Text(
               label,

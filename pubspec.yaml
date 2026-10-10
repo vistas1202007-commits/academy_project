@@ -80,10 +80,27 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  # Sirf wahi branding images jo app ke andar dikhti hain. App icon wali files
+  # sirf flutter_launcher_icons padhta hai, reference_preview.png design ke liye hai.
   assets:
-    - assets/images/logo.png
-    - assets/images/app_icon_fixed_white_bg.png
-    - assets/images/app_icon_fixed_transparent.png
+    - assets/branding/vistas_logo_circle.png
+    - assets/branding/vistas_mark_circle.png
+    - assets/branding/vistas_mountain_glyph.png
+    - assets/branding/vistas_wordmark_light.png
+    - assets/branding/vistas_wordmark_dark.png
+
+  # DM Sans (SIL OFL, assets/fonts/OFL.txt) — bundled taaki web par bhi chale
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -114,6 +131,11 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/images/app_icon_fixed_white_bg.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/app_icon_fixed_transparent.png"
+  image_path: "assets/branding/vistas_app_icon.png"
+  adaptive_icon_background: "#05141C"
+  adaptive_icon_foreground: "assets/branding/vistas_app_icon_foreground.png"
+  web:
+    generate: true
+    image_path: "assets/branding/vistas_app_icon.png"
+    background_color: "#05141C"
+    theme_color: "#05141C"

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'app_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String uid;
@@ -28,8 +29,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late String _role;
   bool _isSaving = false;
   String _errorMessage = '';
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
 
   final List<String> _roleOptions = ['admin', 'trainer', 'placementOfficer', 'mobilizer'];
 
@@ -97,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile updated successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -115,16 +114,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -132,9 +131,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(widget.isAdminEditingOther ? 'Edit Staff Details' : 'Edit My Profile'),
       ),
@@ -222,7 +221,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),

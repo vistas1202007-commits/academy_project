@@ -4,12 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'edit_profile_screen.dart';
 import 'login_options_card.dart';
+import 'app_colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   String _roleLabel(String role) {
     switch (role) {
@@ -32,7 +30,7 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: primaryGreen, size: 20),
+          Icon(icon, color: AppColors.appPrimary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -61,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -75,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: primaryGreen,
+              color: AppColors.appPrimary,
               letterSpacing: 0.3,
             ),
           ),
@@ -91,9 +89,9 @@ class ProfileScreen extends StatelessWidget {
     final uid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('My Profile'),
       ),
@@ -103,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           if (!snapshot.data!.exists) {
             return const Center(child: Text('Profile not found.'));
@@ -122,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: primaryGreen,
+                  color: AppColors.appPrimary,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Stack(
@@ -145,13 +143,13 @@ class ProfileScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: accentGold.withOpacity(0.2),
+                            color: AppColors.aurora.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             _roleLabel(role),
                             style: const TextStyle(
-                              color: accentGold,
+                              color: AppColors.aurora,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),

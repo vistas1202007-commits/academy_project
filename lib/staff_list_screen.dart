@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile_screen.dart';
+import 'app_colors.dart';
 
 class StaffListScreen extends StatelessWidget {
   const StaffListScreen({super.key});
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   String _roleLabel(String role) {
     switch (role) {
@@ -43,7 +41,7 @@ class StaffListScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: currentlyActive ? Colors.grey[700] : primaryGreen,
+              backgroundColor: currentlyActive ? Colors.grey[700] : AppColors.appPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: Text(
@@ -68,7 +66,7 @@ class StaffListScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(currentlyActive ? 'Account deactivated.' : 'Account activated.'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -116,7 +114,7 @@ class StaffListScreen extends StatelessWidget {
       if (context.mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$name's profile deleted."), backgroundColor: primaryGreen),
+          SnackBar(content: Text("$name's profile deleted."), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -135,7 +133,7 @@ class StaffListScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Password reset link sent to $email'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
       }
@@ -173,7 +171,7 @@ class StaffListScreen extends StatelessWidget {
               children: [
                 Text(
                   data['name'] ?? 'Unnamed',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -203,10 +201,10 @@ class StaffListScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.edit_outlined, color: primaryGreen),
-                    label: const Text('Edit Details', style: TextStyle(color: primaryGreen)),
+                    icon: const Icon(Icons.edit_outlined, color: AppColors.appPrimary),
+                    label: const Text('Edit Details', style: TextStyle(color: AppColors.appPrimary)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: primaryGreen),
+                      side: const BorderSide(color: AppColors.appPrimary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
@@ -217,10 +215,10 @@ class StaffListScreen extends StatelessWidget {
                   height: 46,
                   child: OutlinedButton.icon(
                     onPressed: () => _sendPasswordReset(context, data['email'] ?? ''),
-                    icon: const Icon(Icons.lock_reset_outlined, color: primaryGreen),
-                    label: const Text('Send Password Reset Email', style: TextStyle(color: primaryGreen)),
+                    icon: const Icon(Icons.lock_reset_outlined, color: AppColors.appPrimary),
+                    label: const Text('Send Password Reset Email', style: TextStyle(color: AppColors.appPrimary)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: primaryGreen),
+                      side: const BorderSide(color: AppColors.appPrimary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
@@ -239,7 +237,7 @@ class StaffListScreen extends StatelessWidget {
                       style: const TextStyle(color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isActive ? Colors.grey[700] : primaryGreen,
+                      backgroundColor: isActive ? Colors.grey[700] : AppColors.appPrimary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
@@ -276,7 +274,7 @@ class StaffListScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: primaryGreen, size: 18),
+          Icon(icon, color: AppColors.appPrimary, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -295,9 +293,9 @@ class StaffListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Staff Accounts'),
       ),
@@ -308,7 +306,7 @@ class StaffListScreen extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
@@ -338,7 +336,7 @@ class StaffListScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -348,10 +346,10 @@ class StaffListScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () => _showDetail(context, doc.id, data),
                   leading: CircleAvatar(
-                    backgroundColor: primaryGreen.withOpacity(0.12),
+                    backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
                     child: Text(
                       rawName.isNotEmpty ? rawName[0].toUpperCase() : '?',
-                      style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.bold),
                     ),
                   ),
                   title: Text(data['name'] ?? 'Unnamed', style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -363,13 +361,13 @@ class StaffListScreen extends StatelessWidget {
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: (isActive ? primaryGreen : Colors.red).withOpacity(0.12),
+                      color: (isActive ? AppColors.appPrimary : Colors.red).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       isActive ? 'ACTIVE' : 'INACTIVE',
                       style: TextStyle(
-                        color: isActive ? primaryGreen : Colors.red,
+                        color: isActive ? AppColors.appPrimary : Colors.red,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),

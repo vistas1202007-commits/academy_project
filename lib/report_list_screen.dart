@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add_report_screen.dart';
+import 'app_colors.dart';
 
 class ReportListScreen extends StatefulWidget {
   const ReportListScreen({super.key});
@@ -14,7 +15,6 @@ class ReportListScreen extends StatefulWidget {
 }
 
 class _ReportListScreenState extends State<ReportListScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
   bool _isAdmin = false;
   String _currentUserRole = 'mobilizer';
   bool _roleLoaded = false;
@@ -92,7 +92,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('"$title" deleted.'), backgroundColor: primaryGreen),
+          SnackBar(content: Text('"$title" deleted.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -210,7 +210,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
               children: [
                 Text(
                   data['title'] ?? 'Untitled',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text('Report Date: $reportDate', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
@@ -286,10 +286,10 @@ class _ReportListScreenState extends State<ReportListScreen> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.edit_outlined, color: primaryGreen),
-                          label: const Text('Edit', style: TextStyle(color: primaryGreen)),
+                          icon: const Icon(Icons.edit_outlined, color: AppColors.appPrimary),
+                          label: const Text('Edit', style: TextStyle(color: AppColors.appPrimary)),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: primaryGreen),
+                            side: const BorderSide(color: AppColors.appPrimary),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
@@ -324,19 +324,19 @@ class _ReportListScreenState extends State<ReportListScreen> {
   Widget build(BuildContext context) {
     if (!_roleLoaded) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: primaryGreen)),
+        body: Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Reports'),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -356,7 +356,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
             return const Center(child: Text('Something went wrong.'));
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
 
           final docs = snapshot.data!.docs;
@@ -385,7 +385,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -395,8 +395,8 @@ class _ReportListScreenState extends State<ReportListScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () => _showDetail(context, doc.id, data),
                   leading: CircleAvatar(
-                    backgroundColor: primaryGreen.withOpacity(0.12),
-                    child: const Icon(Icons.description_outlined, color: primaryGreen),
+                    backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
+                    child: const Icon(Icons.description_outlined, color: AppColors.appPrimary),
                   ),
                   title: Text(
                     data['title'] ?? 'Untitled',

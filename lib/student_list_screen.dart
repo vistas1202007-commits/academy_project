@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'student_profile_screen.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class StudentListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -24,9 +25,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
   String _searchQuery = '';
   // Delete sirf Admin ko dikhe
   bool _isAdmin = false;
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-  static const Color lightGreen = Color(0xFF6FA98C);
 
   @override
   void initState() {
@@ -39,14 +37,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
   Color _statusColor(String status) {
     switch (status) {
       case 'Completed':
-        return primaryGreen;
+        return AppColors.appPrimary;
       case 'Joined':
       case 'Ongoing':
-        return accentGold;
+        return AppColors.teal;
       case 'Dropped':
-        return lightGreen;
+        return AppColors.danger;
       default:
-        return accentGold;
+        return AppColors.teal;
     }
   }
 
@@ -82,7 +80,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
       await FirebaseFirestore.instance.collection('students').doc(docId).delete();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$name deleted.'), backgroundColor: primaryGreen),
+          SnackBar(content: Text('$name deleted.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -149,7 +147,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -158,10 +156,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: primaryGreen.withOpacity(0.12),
+              backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
               child: Text(
                 rawName.isNotEmpty ? rawName[0].toUpperCase() : '?',
-                style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
@@ -181,7 +179,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _statusColor(status).withOpacity(0.15),
+                    color: _statusColor(status).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -221,9 +219,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
     final title = widget.screenTitle ??
         (widget.trainerOnly ? 'My Batch Trainees' : 'Trainees');
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(title),
       ),
@@ -239,7 +237,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'Search by name, phone, ID, village, or batch',
-                prefixIcon: Icon(Icons.search, color: primaryGreen),
+                prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -258,7 +256,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   .snapshots(),
               builder: (context, batchSnap) {
                 if (!batchSnap.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
                 final batchNames = batchSnap.data!.docs
                     .map((d) => (d.data() as Map<String, dynamic>)['batchName'] as String?)
@@ -279,7 +277,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                       .snapshots(),
                   builder: (context, studentSnap) {
                     if (!studentSnap.hasData) {
-                      return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                      return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                     }
                     return _buildStudentList(studentSnap.data!.docs);
                   },
@@ -296,7 +294,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   return const Center(child: Text('Something went wrong.'));
                 }
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
                 return _buildStudentList(snapshot.data!.docs);
               },

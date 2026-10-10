@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_colors.dart';
+import 'brand.dart';
 
 /// MaterialApp ka navigator — lock screen se logout karte waqt khule
 /// screens band karne ke liye.
@@ -63,7 +65,6 @@ class AppLock extends StatefulWidget {
 }
 
 class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
   static const Duration _relockAfter = Duration(seconds: 30);
 
   // App start pe pehla faisla hone tak screen dhak ke rakhte hain
@@ -114,7 +115,7 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
   Future<void> _unlock() async {
     if (_authInProgress) return;
     _authInProgress = true;
-    final ok = await AppLockSettings.authenticate('Unlock Vistas Academy');
+    final ok = await AppLockSettings.authenticate('Unlock Vistas');
     _authInProgress = false;
     if (ok && mounted) setState(() => _locked = false);
   }
@@ -131,11 +132,11 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
       children: [
         widget.child,
         if (_checking)
-          const Positioned.fill(child: ColoredBox(color: Color(0xFFF5F7F5))),
+          const Positioned.fill(child: ColoredBox(color: AppColors.appBackground)),
         if (_locked)
           Positioned.fill(
             child: Material(
-              color: const Color(0xFFF5F7F5),
+              color: AppColors.appBackground,
               child: SafeArea(
                 child: Center(
                   child: Padding(
@@ -143,15 +144,11 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset('assets/images/logo.png', height: 80, width: 80),
+                        Image.asset(BrandAssets.logoCircle, height: 88, width: 88),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Vistas Academy',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: primaryGreen,
-                          ),
+                        Semantics(
+                          label: BrandAssets.appName,
+                          child: Image.asset(BrandAssets.wordmarkDark, height: 34),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -174,7 +171,7 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryGreen,
+                              backgroundColor: AppColors.appPrimary,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),

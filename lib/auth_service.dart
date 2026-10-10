@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'app_colors.dart';
 
 /// Login screen pe dikhane wala message. Mobile/Google login fail hone par
 /// LoginScreen dobara banti hai, isliye message yahan rakhte hain.
@@ -175,9 +176,6 @@ class _PhoneOtpSheet extends StatefulWidget {
 }
 
 class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
   String? _verificationId;
@@ -275,16 +273,16 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
       labelText: label,
       prefixText: prefix,
       counterText: '',
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -305,7 +303,7 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
         children: [
           Text(
             widget.title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
           ),
           const SizedBox(height: 6),
           Text(
@@ -342,14 +340,14 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
                             _otpController.clear();
                             _error = '';
                           }),
-                  child: const Text('Change number', style: TextStyle(color: primaryGreen)),
+                  child: const Text('Change number', style: TextStyle(color: AppColors.appPrimary)),
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: (_busy || _resendSeconds > 0) ? null : _sendOtp,
                   child: Text(
                     _resendSeconds > 0 ? 'Resend in ${_resendSeconds}s' : 'Resend OTP',
-                    style: TextStyle(color: _resendSeconds > 0 ? Colors.grey : accentGold),
+                    style: TextStyle(color: _resendSeconds > 0 ? Colors.grey : AppColors.appAccent),
                   ),
                 ),
               ],
@@ -374,7 +372,7 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
             child: ElevatedButton(
               onPressed: _busy ? null : (otpSent ? _verifyOtp : _sendOtp),
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryGreen,
+                backgroundColor: AppColors.appPrimary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),

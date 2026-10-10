@@ -1,22 +1,47 @@
 import 'package:flutter/material.dart';
 
-/// App ke saare colors ek jagah. Naye screens yahi file use karenge.
+/// App ke saare colors ek jagah. Screens apne local colors nahi banayenge,
+/// yahi file use karenge.
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF1B6B4A);
-  static const Color accent = Color(0xFFD4AF37);
-  static const Color background = Color(0xFFF5F7F5);
+  // ---------------- Brand (open screen / login ka aurora) ----------------
 
-  /// App me success ke liye primary green hi use hota hai
-  static const Color success = Color(0xFF1B6B4A);
+  /// Raat ka aasmaan, dark backgrounds
+  static const Color night = Color(0xFF05141C);
 
-  /// Colors.red[700]
-  static const Color danger = Color(0xFFD32F2F);
+  /// Aurora ki chamakti green line, dark bg par highlight
+  static const Color aurora = Color(0xFF3EE0A0);
 
-  /// Colors.black87
-  static const Color textDark = Color(0xDD000000);
+  /// Aurora ka gehra teal hissa
+  static const Color teal = Color(0xFF14919B);
 
-  /// Colors.grey[600]
-  static const Color textMuted = Color(0xFF757575);
+  // ---------------- App (andar ki screens) ----------------
+
+  /// AppBar, primary buttons, headers
+  static const Color appPrimary = Color(0xFF0B4F55);
+
+  /// FAB, secondary highlights
+  static const Color appAccent = Color(0xFF1FA383);
+
+  /// Halka screen background, input fill
+  static const Color appBackground = Color(0xFFF3F8F7);
+
+  /// Card / sheet ka surface
+  static const Color surface = Colors.white;
+
+  static const Color textDark = Color(0xFF12292E);
+  static const Color textMuted = Color(0xFF5F7B7A);
+  static const Color border = Color(0xFFE1ECEA);
+
+  // ---------------- Semantic ----------------
+
+  /// Paid, present, completed, selected
+  static const Color success = Color(0xFF1FA383);
+
+  /// Fees pending, low attendance jaisi cheezein. Status chips ke liye nahi.
+  static const Color warning = Color(0xFFD99A2B);
+
+  /// Dropped, absent, rejected, delete, errors
+  static const Color danger = Color(0xFFB5524A);
 }

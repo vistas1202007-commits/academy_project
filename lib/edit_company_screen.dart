@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'app_colors.dart';
 
 class EditCompanyScreen extends StatefulWidget {
   final String companyId;
@@ -18,8 +19,6 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   late TextEditingController _contactNumberController;
   late TextEditingController _locationController;
   bool _isSaving = false;
-
-  static const Color primaryGreen = Color(0xFF1B6B4A);
 
   @override
   void initState() {
@@ -43,7 +42,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Company updated successfully'), backgroundColor: primaryGreen),
+          const SnackBar(content: Text('Company updated successfully'), backgroundColor: AppColors.appPrimary),
         );
         Navigator.of(context).pop();
       }
@@ -59,13 +58,13 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   InputDecoration _decoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -82,8 +81,8 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
-      appBar: AppBar(backgroundColor: primaryGreen, title: const Text('Edit Company')),
+      backgroundColor: AppColors.appBackground,
+      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Company')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -119,7 +118,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _updateCompany,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
+                    backgroundColor: AppColors.appPrimary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: _isSaving

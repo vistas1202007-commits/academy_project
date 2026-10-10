@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:excel/excel.dart' as xls;
 import 'course_data.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class BulkImportScreen extends StatefulWidget {
   const BulkImportScreen({super.key});
@@ -14,10 +15,6 @@ class BulkImportScreen extends StatefulWidget {
 }
 
 class _BulkImportScreenState extends State<BulkImportScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-  static const Color bg = Color(0xFFF5F7F5);
-
   // ===================== TRAINEE IMPORT STATE =====================
   String? _traineeFileName;
   bool _isParsingTrainees = false;
@@ -542,7 +539,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${snap.docs.length} trainee record(s) removed.'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         setState(() {
@@ -879,7 +876,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
               '${placementSnap.docs.length} placement record(s) and ${companySnap.docs.length} '
                   'compan${companySnap.docs.length == 1 ? 'y' : 'ies'} removed.',
             ),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         setState(() {
@@ -907,9 +904,9 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Bulk Import'),
       ),
@@ -939,14 +936,14 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: primaryGreen)),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.appPrimary)),
           const SizedBox(height: 4),
           Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 14),
@@ -967,7 +964,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           icon: const Icon(Icons.upload_file, color: Colors.white),
           label: Text(_traineeFileName == null ? 'Select Enrollment File (.xlsx)' : 'Change File',
               style: const TextStyle(color: Colors.white)),
-          style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.appPrimary),
         ),
         if (_traineeFileName != null) ...[
           const SizedBox(height: 8),
@@ -975,7 +972,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         ],
         if (_isParsingTrainees) ...[
           const SizedBox(height: 12),
-          const LinearProgressIndicator(color: primaryGreen),
+          const LinearProgressIndicator(color: AppColors.appPrimary),
         ],
         if (_sheetPreviews.isNotEmpty && !_isImportingTrainees && !_traineeImportFinished) ...[
           const SizedBox(height: 16),
@@ -986,7 +983,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
             dense: true,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
-            activeColor: primaryGreen,
+            activeColor: AppColors.appPrimary,
             value: _sheetSelected[p.sheetName] ?? true,
             onChanged: (v) => setState(() => _sheetSelected[p.sheetName] = v ?? true),
             title: Text('${p.sheetName}  (${p.rows.length} rows)',
@@ -1006,14 +1003,14 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           const SizedBox(height: 14),
           ElevatedButton(
             onPressed: _importSelectedTrainees,
-            style: ElevatedButton.styleFrom(backgroundColor: accentGold),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.appAccent),
             child: const Text('Import Selected', style: TextStyle(color: Colors.black87)),
           ),
         ],
         if (_isImportingTrainees) ...[
           const SizedBox(height: 16),
           LinearProgressIndicator(
-            color: primaryGreen,
+            color: AppColors.appPrimary,
             value: _traineeProgressTotal == 0 ? null : _traineeProgressDone / _traineeProgressTotal,
           ),
           const SizedBox(height: 6),
@@ -1029,7 +1026,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: primaryGreen.withOpacity(0.06), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: AppColors.appPrimary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1096,7 +1093,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           icon: const Icon(Icons.upload_file, color: Colors.white),
           label: Text(_placementFileName == null ? 'Select Placement File (.xlsx)' : 'Change File',
               style: const TextStyle(color: Colors.white)),
-          style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.appPrimary),
         ),
         if (_placementFileName != null) ...[
           const SizedBox(height: 8),
@@ -1104,7 +1101,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         ],
         if (_isParsingPlacements) ...[
           const SizedBox(height: 12),
-          const LinearProgressIndicator(color: primaryGreen),
+          const LinearProgressIndicator(color: AppColors.appPrimary),
         ],
         if (_placementRows.isNotEmpty && !_isImportingPlacements && !_placementImportFinished) ...[
           const SizedBox(height: 16),
@@ -1113,14 +1110,14 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
           const SizedBox(height: 14),
           ElevatedButton(
             onPressed: _importPlacements,
-            style: ElevatedButton.styleFrom(backgroundColor: accentGold),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.appAccent),
             child: const Text('Import Placement Records', style: TextStyle(color: Colors.black87)),
           ),
         ],
         if (_isImportingPlacements) ...[
           const SizedBox(height: 16),
           LinearProgressIndicator(
-            color: primaryGreen,
+            color: AppColors.appPrimary,
             value: _placementProgressTotal == 0 ? null : _placementProgressDone / _placementProgressTotal,
           ),
           const SizedBox(height: 6),
@@ -1136,7 +1133,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: primaryGreen.withOpacity(0.06), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: AppColors.appPrimary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_company_screen.dart';
 import 'edit_company_screen.dart';
+import 'app_colors.dart';
 
 class CompanyListScreen extends StatefulWidget {
   const CompanyListScreen({super.key});
@@ -12,19 +13,17 @@ class CompanyListScreen extends StatefulWidget {
 
 class _CompanyListScreenState extends State<CompanyListScreen> {
   String _searchQuery = '';
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         title: const Text('Companies'),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: accentGold,
+        backgroundColor: AppColors.appAccent,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const AddCompanyScreen()),
@@ -44,7 +43,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'Search by company name or location',
-                prefixIcon: Icon(Icons.search, color: primaryGreen),
+                prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -62,7 +61,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
                 final allDocs = snapshot.data?.docs ?? [];
                 final docs = allDocs.where((doc) {
@@ -114,7 +113,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3))
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3))
                             ],
                           ),
                           child: Row(
@@ -122,10 +121,10 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: primaryGreen.withOpacity(0.1),
+                                  color: AppColors.appPrimary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.business_outlined, color: primaryGreen),
+                                child: const Icon(Icons.business_outlined, color: AppColors.appPrimary),
                               ),
                               const SizedBox(width: 12),
                               Expanded(

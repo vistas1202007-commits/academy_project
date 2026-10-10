@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'edit_placement_screen.dart';
+import 'app_colors.dart';
 
 class PlacementDetailScreen extends StatelessWidget {
   final String placementId;
@@ -9,16 +10,13 @@ class PlacementDetailScreen extends StatelessWidget {
 
   const PlacementDetailScreen({super.key, required this.placementId, required this.data});
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   Widget _infoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: primaryGreen, size: 20),
+          Icon(icon, color: AppColors.appPrimary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -45,9 +43,9 @@ class PlacementDetailScreen extends StatelessWidget {
         : '-';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Placement Details'),
       ),
@@ -60,7 +58,7 @@ class PlacementDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: primaryGreen,
+                  color: AppColors.appPrimary,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -74,7 +72,7 @@ class PlacementDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -92,7 +90,7 @@ class PlacementDetailScreen extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4)),
                   ],
                 ),
                 child: Column(
@@ -131,7 +129,7 @@ class PlacementDetailScreen extends StatelessWidget {
                 icon: const Icon(Icons.edit_outlined, color: Colors.white),
                 label: const Text('Edit Placement', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: accentGold,
+                  backgroundColor: AppColors.appAccent,
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),

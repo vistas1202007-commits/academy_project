@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'course_data.dart';
+import 'app_colors.dart';
 
 class AddEnquiryScreen extends StatefulWidget {
   final String currentUserRole;
@@ -23,9 +24,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   bool _isSaving = false;
   String _errorMessage = '';
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   final List<String> _statusOptions = ['New', 'Follow-up', 'Registered', 'Not Interested'];
 
   Future<void> _pickEnquiryDate() async {
@@ -37,7 +35,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -100,7 +98,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: const Text('Phir bhi save karo', style: TextStyle(color: Colors.white)),
@@ -132,7 +130,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Enquiry saved successfully!'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -154,16 +152,16 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -180,9 +178,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('New Enquiry'),
       ),
@@ -278,7 +276,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _saveEnquiry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

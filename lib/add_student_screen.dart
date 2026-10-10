@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -43,9 +44,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   String? _selectedGender;
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   final List<String> _statusOptions = ['Registered', 'Joined', 'Ongoing', 'Completed', 'Dropped'];
 
   Future<void> _pickAdmissionDate() async {
@@ -57,7 +55,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -80,7 +78,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: primaryGreen),
+            colorScheme: const ColorScheme.light(primary: AppColors.appPrimary),
           ),
           child: child!,
         );
@@ -164,7 +162,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Trainee added successfully! ID: $traineeId'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
         Navigator.of(context).pop();
@@ -186,16 +184,16 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey[600]),
-      prefixIcon: Icon(icon, color: primaryGreen),
+      prefixIcon: Icon(icon, color: AppColors.appPrimary),
       filled: true,
-      fillColor: const Color(0xFFF5F7F5),
+      fillColor: AppColors.appBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
       ),
     );
   }
@@ -208,7 +206,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w700,
-          color: primaryGreen,
+          color: AppColors.appPrimary,
           letterSpacing: 0.3,
         ),
       ),
@@ -279,9 +277,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Add Trainee'),
       ),
@@ -426,14 +424,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: (isFullyPaid ? primaryGreen : accentGold).withOpacity(0.1),
+                    color: (isFullyPaid ? AppColors.success : AppColors.warning).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     'Pending: ₹${pending.clamp(0, double.infinity).toStringAsFixed(0)}'
                         '${isFullyPaid ? ' • Fully Paid ✓' : ''}',
                     style: TextStyle(
-                      color: isFullyPaid ? primaryGreen : accentGold.withAlpha(230),
+                      color: isFullyPaid ? AppColors.success : AppColors.warning.withAlpha(230),
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -461,7 +459,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _saveStudent,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: AppColors.appPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

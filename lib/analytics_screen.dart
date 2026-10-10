@@ -36,17 +36,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
         title: const Text('Analytics'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
       body: FutureBuilder<bool>(
         future: _isAdminFuture,
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
           if (snap.data != true) return const _AccessDenied();
           return const _AnalyticsBody();
@@ -188,13 +188,13 @@ _Stats _compute(List<QueryDocumentSnapshot> docs, {DateTime? asOf}) {
 }
 
 // ---------------------------------------------------------------------------
-// Colors: sirf green aur gold ke shades
+// Colors: sirf teal family ke shades
 // ---------------------------------------------------------------------------
 
-/// t = 0 -> green, t = 1 -> gold
-Color _shade(double t) => Color.lerp(AppColors.primary, AppColors.accent, t)!;
+/// t = 0 -> appPrimary, t = 1 -> aurora
+Color _shade(double t) => Color.lerp(AppColors.appPrimary, AppColors.aurora, t)!;
 
-Color _seriesColor(int i, int count) => count <= 1 ? AppColors.primary : _shade(i / (count - 1));
+Color _seriesColor(int i, int count) => count <= 1 ? AppColors.appPrimary : _shade(i / (count - 1));
 
 /// Y-axis ke liye ~4 saaf steps
 double _niceInterval(int maxValue) => math.max(1, (maxValue / 4).ceil()).toDouble();
@@ -637,7 +637,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           initialDateRange: current != null && !current.end.isAfter(today) ? current : null,
           builder: (context, child) => Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(primary: AppColors.primary, secondary: AppColors.accent),
+              colorScheme: const ColorScheme.light(primary: AppColors.appPrimary, secondary: AppColors.appAccent),
             ),
             child: child!,
           ),
@@ -693,7 +693,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           title: title,
           hasData: true,
           height: 100,
-          child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          child: const Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
         ),
       ];
     }
@@ -709,7 +709,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     }
     final a = _analytics;
     if (a == null) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
     }
     final stats = a.stats;
     final allReady = _collections.every(_ready);
@@ -774,13 +774,13 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
                 icon: Icons.account_balance_wallet_outlined,
                 label: 'Total Collected',
                 value: _money(a.feeCollected),
-                color: AppColors.primary,
+                color: AppColors.appPrimary,
               ),
               _KpiCard(
                 icon: Icons.hourglass_bottom,
                 label: 'Total Pending',
                 value: _money(a.feePending),
-                color: AppColors.accent,
+                color: AppColors.warning,
               ),
               _KpiCard(
                 icon: Icons.percent,
@@ -821,7 +821,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
                       label: 'Placement %',
                       value: a.placementPct,
                       subtitle: '${a.placed} placed / ${stats.completed} completed',
-                      color: AppColors.primary,
+                      color: AppColors.appPrimary,
                     ),
                     _KpiCard(
                       icon: Icons.payments_outlined,
@@ -834,7 +834,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
                       icon: Icons.stacked_line_chart,
                       label: 'Median Salary',
                       value: a.medianSalary == null ? '--' : _money(a.medianSalary!),
-                      color: AppColors.accent,
+                      color: AppColors.teal,
                     ),
                   ]),
                   const SizedBox(height: 16),
@@ -882,7 +882,7 @@ class _FilterBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.date_range, color: AppColors.primary),
+                const Icon(Icons.date_range, color: AppColors.appPrimary),
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
@@ -892,12 +892,12 @@ class _FilterBar extends StatelessWidget {
                 ),
                 FilledButton.icon(
                   onPressed: onExport,
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.appPrimary),
                   icon: exporting
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.appPrimary),
                         )
                       : const Icon(Icons.download, size: 18),
                   label: const Text('Export Excel'),
@@ -914,7 +914,7 @@ class _FilterBar extends StatelessWidget {
                     label: Text(_presetLabels[p]!),
                     selected: filter.preset == p,
                     showCheckmark: false,
-                    selectedColor: AppColors.primary,
+                    selectedColor: AppColors.appPrimary,
                     labelStyle: TextStyle(color: filter.preset == p ? Colors.white : AppColors.textDark),
                     onSelected: (_) => onSelect(p),
                   ),
@@ -939,7 +939,7 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 12),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary),
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
       ),
     );
   }
@@ -976,7 +976,7 @@ class _KpiGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final dropoutPct = stats.total == 0 ? '--' : '${(stats.dropped * 100 / stats.total).toStringAsFixed(1)}%';
     final cards = [
-      _KpiCard(icon: Icons.groups_outlined, label: 'Total Trainees', value: '${stats.total}', color: AppColors.primary),
+      _KpiCard(icon: Icons.groups_outlined, label: 'Total Trainees', value: '${stats.total}', color: AppColors.appPrimary),
       _KpiCard(icon: Icons.play_circle_outline, label: 'Active', value: '${stats.active}', color: _shade(0.35)),
       _KpiCard(icon: Icons.verified_outlined, label: 'Completed', value: '${stats.completed}', color: _shade(0.7)),
       _KpiCard(
@@ -984,13 +984,13 @@ class _KpiGrid extends StatelessWidget {
         label: 'Dropped',
         value: '${stats.dropped}',
         subtitle: 'Dropout $dropoutPct',
-        color: AppColors.accent,
+        color: AppColors.danger,
       ),
       _KpiCard(
         icon: Icons.trending_up,
         label: 'Enquiry → Registered',
         value: conversion,
-        color: AppColors.primary,
+        color: AppColors.appPrimary,
       ),
     ];
     return LayoutBuilder(
@@ -1185,7 +1185,7 @@ class _EnrollmentLineChart extends StatelessWidget {
         ),
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => AppColors.primary,
+            getTooltipColor: (_) => AppColors.appPrimary,
             getTooltipItems: (spots) => spots
                 .map((s) => LineTooltipItem(
                       '${DateFormat('MMM yyyy').format(stats.months[s.x.toInt()])}\n${s.y.toInt()}',
@@ -1201,19 +1201,19 @@ class _EnrollmentLineChart extends StatelessWidget {
             ],
             isCurved: true,
             preventCurveOverShooting: true,
-            color: AppColors.primary,
+            color: AppColors.appPrimary,
             barWidth: 3,
             dotData: FlDotData(
               getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
                 radius: 3.5,
-                color: AppColors.accent,
+                color: AppColors.appAccent,
                 strokeWidth: 1.5,
-                strokeColor: AppColors.primary,
+                strokeColor: AppColors.appPrimary,
               ),
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: AppColors.primary.withValues(alpha: 0.12),
+              color: AppColors.appPrimary.withValues(alpha: 0.12),
             ),
           ),
         ],
@@ -1263,7 +1263,7 @@ class _SimpleBarChart extends StatelessWidget {
         ),
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => AppColors.primary,
+            getTooltipColor: (_) => AppColors.appPrimary,
             getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
               '${entries[group.x].key}\n${rod.toY.toInt()}',
               const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
@@ -1298,11 +1298,11 @@ class _GenderDonut extends StatelessWidget {
   Color _colorFor(String g) {
     switch (g) {
       case 'Male':
-        return AppColors.primary;
+        return AppColors.appPrimary;
       case 'Female':
-        return AppColors.accent;
+        return AppColors.teal;
       default:
-        return AppColors.primary.withValues(alpha: 0.4);
+        return AppColors.appPrimary.withValues(alpha: 0.4);
     }
   }
 
@@ -1531,7 +1531,7 @@ class _FunnelBars extends StatelessWidget {
   }
 }
 
-/// Har batch ka ek bar: hara hissa Collected, gold hissa Pending
+/// Har batch ka ek bar: hara hissa Collected, amber hissa Pending
 class _FeeStackedBars extends StatelessWidget {
   final List<_BatchFee> batches;
   const _FeeStackedBars({required this.batches});
@@ -1545,8 +1545,8 @@ class _FeeStackedBars extends StatelessWidget {
         const Wrap(
           spacing: 16,
           children: [
-            _LegendDot(color: AppColors.primary, label: 'Collected'),
-            _LegendDot(color: AppColors.accent, label: 'Pending'),
+            _LegendDot(color: AppColors.appPrimary, label: 'Collected'),
+            _LegendDot(color: AppColors.warning, label: 'Pending'),
           ],
         ),
         const SizedBox(height: 8),
@@ -1584,8 +1584,8 @@ class _FeeStackedBars extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(height: 18, width: width * b.collected / b.total, color: AppColors.primary),
-                            Container(height: 18, width: width * b.pending / b.total, color: AppColors.accent),
+                            Container(height: 18, width: width * b.collected / b.total, color: AppColors.appPrimary),
+                            Container(height: 18, width: width * b.pending / b.total, color: AppColors.warning),
                           ],
                         ),
                       ),
@@ -1600,7 +1600,7 @@ class _FeeStackedBars extends StatelessWidget {
   }
 }
 
-/// 0-100 scale; 75% se neeche gold bar aur laal text
+/// 0-100 scale; 75% se neeche amber bar aur laal text
 class _AttendanceBars extends StatelessWidget {
   final List<MapEntry<String, double>> entries;
   const _AttendanceBars({required this.entries});
@@ -1633,7 +1633,7 @@ class _AttendanceBars extends StatelessWidget {
                         height: 18,
                         width: math.max(4, constraints.maxWidth * e.value.clamp(0, 100) / 100),
                         decoration: BoxDecoration(
-                          color: e.value < _attendanceThreshold ? AppColors.accent : AppColors.primary,
+                          color: e.value < _attendanceThreshold ? AppColors.warning : AppColors.appPrimary,
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
@@ -1658,7 +1658,7 @@ class _AttendanceBars extends StatelessWidget {
           ),
         const SizedBox(height: 6),
         Text(
-          '${_attendanceThreshold.toInt()}% se neeche wale batch gold me',
+          '${_attendanceThreshold.toInt()}% se neeche wale batch amber me',
           style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],

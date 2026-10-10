@@ -6,6 +6,8 @@ import 'login_screen.dart';
 import 'dashboard_screen.dart';
 import 'firebase_options.dart';
 import 'app_lock.dart';
+import 'app_colors.dart';
+import 'app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,22 +21,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Vistas Academy',
+      title: 'Vistas',
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       // Fingerprint lock poore app ke upar (Profile se on hota hai)
       builder: (context, child) => AppLock(child: child ?? const SizedBox.shrink()),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1B6B4A)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home: const AuthCheckScreen(),
     );
   }
 }
-
-const Color primaryGreen = Color(0xFF1B6B4A);
-const Color backgroundGrey = Color(0xFFF5F7F5);
 
 class AuthCheckScreen extends StatelessWidget {
   const AuthCheckScreen({super.key});
@@ -160,8 +156,8 @@ class _LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: backgroundGrey,
-      body: Center(child: CircularProgressIndicator(color: primaryGreen)),
+      backgroundColor: AppColors.appBackground,
+      body: Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
     );
   }
 }
@@ -176,14 +172,14 @@ class _ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundGrey,
+      backgroundColor: AppColors.appBackground,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off, size: 56, color: primaryGreen),
+              const Icon(Icons.cloud_off, size: 56, color: AppColors.appPrimary),
               const SizedBox(height: 16),
               Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 24),
@@ -191,7 +187,7 @@ class _ErrorScreen extends StatelessWidget {
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
-                style: FilledButton.styleFrom(backgroundColor: primaryGreen),
+                style: FilledButton.styleFrom(backgroundColor: AppColors.appPrimary),
               ),
               TextButton(onPressed: onLogout, child: const Text('Logout')),
             ],

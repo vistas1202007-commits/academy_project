@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'student_profile_screen.dart';
+import 'app_colors.dart';
 
 class FeesReportScreen extends StatefulWidget {
   const FeesReportScreen({super.key});
@@ -13,17 +14,14 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
   String _searchQuery = '';
   String _filter = 'All'; // All | Pending | Fully Paid
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   final List<String> _filterOptions = ['All', 'Pending', 'Fully Paid'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Fees Report'),
       ),
@@ -37,7 +35,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
             return const Center(child: Text('Something went wrong.'));
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
 
           final allDocs = snapshot.data!.docs;
@@ -82,17 +80,17 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: primaryGreen.withOpacity(0.08),
+                          color: AppColors.appPrimary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.check_circle_outline, color: primaryGreen, size: 20),
+                            Icon(Icons.check_circle_outline, color: AppColors.appPrimary, size: 20),
                             const SizedBox(height: 8),
                             Text(
                               '₹${totalCollected.toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
                             ),
                             const SizedBox(height: 2),
                             Text('Total Collected', style: TextStyle(fontSize: 11, color: Colors.grey[700])),
@@ -105,17 +103,17 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: accentGold.withOpacity(0.12),
+                          color: AppColors.warning.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.pending_outlined, color: accentGold.withAlpha(230), size: 20),
+                            Icon(Icons.pending_outlined, color: AppColors.warning.withAlpha(230), size: 20),
                             const SizedBox(height: 8),
                             Text(
                               '₹${totalPending.toStringAsFixed(0)}',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentGold.withAlpha(230)),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.warning.withAlpha(230)),
                             ),
                             const SizedBox(height: 2),
                             Text('Total Pending', style: TextStyle(fontSize: 11, color: Colors.grey[700])),
@@ -138,7 +136,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search by name or Trainee ID',
-                    prefixIcon: Icon(Icons.search, color: primaryGreen),
+                    prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -163,7 +161,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                     return ChoiceChip(
                       label: Text(option),
                       selected: isSelected,
-                      selectedColor: primaryGreen,
+                      selectedColor: AppColors.appPrimary,
                       backgroundColor: Colors.white,
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
@@ -212,7 +210,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -221,12 +219,12 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         leading: CircleAvatar(
-                          backgroundColor: primaryGreen.withOpacity(0.12),
+                          backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
                           child: Text(
                             (data['name'] ?? '?').toString().isNotEmpty
                                 ? data['name'][0].toUpperCase()
                                 : '?',
-                            style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.bold),
                           ),
                         ),
                         title: Text(
@@ -248,7 +246,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
-                                color: isFullyPaid ? primaryGreen : accentGold.withAlpha(230),
+                                color: isFullyPaid ? AppColors.success : AppColors.warning.withAlpha(230),
                               ),
                             ),
                             const SizedBox(height: 2),

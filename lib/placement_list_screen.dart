@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_placement_screen.dart';
 import 'placement_detail_screen.dart';
+import 'app_colors.dart';
 
 class PlacementListScreen extends StatefulWidget {
   const PlacementListScreen({super.key});
@@ -13,20 +14,17 @@ class PlacementListScreen extends StatefulWidget {
 class _PlacementListScreenState extends State<PlacementListScreen> {
   String _searchQuery = '';
 
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-
   Color _statusColor(String status) {
     switch (status) {
       case 'Selected':
       case 'Joined':
       case 'Self-Employed':
-        return primaryGreen;
+        return AppColors.appPrimary;
       case 'Rejected':
       case 'Not Joined':
-        return Colors.red;
+        return AppColors.danger;
       case 'Interview Scheduled':
-        return accentGold;
+        return AppColors.teal;
       default:
         return Colors.grey;
     }
@@ -35,13 +33,13 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         title: const Text('Placements'),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: accentGold,
+        backgroundColor: AppColors.appAccent,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const AddPlacementScreen()),
@@ -57,7 +55,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
               onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
               decoration: InputDecoration(
                 hintText: 'Search by name, company, or trainee ID',
-                prefixIcon: Icon(Icons.search, color: primaryGreen),
+                prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -72,7 +70,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
                 final allDocs = snapshot.data?.docs ?? [];
                 final docs = allDocs.where((doc) {
@@ -124,7 +122,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
                             ],
                           ),
                           child: Column(
@@ -142,7 +140,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: _statusColor(status).withOpacity(0.12),
+                                      color: _statusColor(status).withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(

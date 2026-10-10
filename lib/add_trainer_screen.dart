@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'app_colors.dart';
 
 class AddTrainerScreen extends StatefulWidget {
 const AddTrainerScreen({super.key});
@@ -23,9 +24,6 @@ final _addressController = TextEditingController();
 String _selectedRole = 'trainer';
 bool _isSaving = false;
 String _errorMessage = '';
-
-static const Color primaryGreen = Color(0xFF1B6B4A);
-static const Color accentGold = Color(0xFFD4AF37);
 
 Future<void> _saveTrainer() async {
 if (!_formKey.currentState!.validate()) return;
@@ -71,7 +69,7 @@ if (mounted) {
 ScaffoldMessenger.of(context).showSnackBar(
 const SnackBar(
 content: Text('Staff account created successfully!'),
-backgroundColor: primaryGreen,
+backgroundColor: AppColors.appPrimary,
 ),
 );
 Navigator.of(context).pop();
@@ -108,16 +106,16 @@ InputDecoration _inputStyle(String label, IconData icon) {
 return InputDecoration(
 labelText: label,
 labelStyle: TextStyle(color: Colors.grey[600]),
-prefixIcon: Icon(icon, color: primaryGreen),
+prefixIcon: Icon(icon, color: AppColors.appPrimary),
 filled: true,
-fillColor: const Color(0xFFF5F7F5),
+fillColor: AppColors.appBackground,
 border: OutlineInputBorder(
 borderRadius: BorderRadius.circular(10),
 borderSide: BorderSide.none,
 ),
 focusedBorder: OutlineInputBorder(
 borderRadius: BorderRadius.circular(10),
-borderSide: const BorderSide(color: primaryGreen, width: 1.5),
+borderSide: const BorderSide(color: AppColors.appPrimary, width: 1.5),
 ),
 );
 }
@@ -136,9 +134,9 @@ super.dispose();
 @override
 Widget build(BuildContext context) {
 return Scaffold(
-backgroundColor: const Color(0xFFF5F7F5),
+backgroundColor: AppColors.appBackground,
 appBar: AppBar(
-backgroundColor: primaryGreen,
+backgroundColor: AppColors.appPrimary,
 elevation: 0,
 title: const Text('Add Staff Account'),
 ),
@@ -231,7 +229,7 @@ height: 50,
 child: ElevatedButton(
 onPressed: _isSaving ? null : _saveTrainer,
 style: ElevatedButton.styleFrom(
-backgroundColor: primaryGreen,
+backgroundColor: AppColors.appPrimary,
 elevation: 0,
 shape: RoundedRectangleBorder(
 borderRadius: BorderRadius.circular(10),

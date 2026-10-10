@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'add_enquiry_screen.dart';
 import 'current_user.dart';
+import 'app_colors.dart';
 
 class EnquiryListScreen extends StatefulWidget {
   final List<String>? filterStatuses;
@@ -20,23 +21,19 @@ class EnquiryListScreen extends StatefulWidget {
 }
 
 class _EnquiryListScreenState extends State<EnquiryListScreen> {
-  static const Color primaryGreen = Color(0xFF1B6B4A);
-  static const Color accentGold = Color(0xFFD4AF37);
-  static const Color lightGreen = Color(0xFF6FA98C);
-
   String _filter = 'All';
   final List<String> _filterOptions = ['All', 'New', 'Follow-up', 'Registered', 'Not Interested'];
 
   Color _statusColor(String status) {
     switch (status) {
       case 'Registered':
-        return primaryGreen;
+        return AppColors.appPrimary;
       case 'Follow-up':
-        return accentGold;
+        return AppColors.teal;
       case 'Not Interested':
         return Colors.grey;
       default:
-        return lightGreen;
+        return AppColors.appAccent;
     }
   }
 
@@ -96,7 +93,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.appPrimary),
             child: const Text('Convert', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -135,7 +132,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registered successfully! Trainee ID: $traineeId'),
-            backgroundColor: primaryGreen,
+            backgroundColor: AppColors.appPrimary,
           ),
         );
       }
@@ -180,7 +177,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                   children: [
                     Text(
                       data['traineeName'] ?? 'Unnamed',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text('Enquiry Date: $enquiryDate', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
@@ -195,9 +192,9 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                       initialValue: selectedStatus,
                       decoration: InputDecoration(
                         labelText: 'Follow-up Status',
-                        prefixIcon: const Icon(Icons.flag_outlined, color: primaryGreen),
+                        prefixIcon: const Icon(Icons.flag_outlined, color: AppColors.appPrimary),
                         filled: true,
-                        fillColor: const Color(0xFFF5F7F5),
+                        fillColor: AppColors.appBackground,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
@@ -214,9 +211,9 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: 'Remarks / Follow-up Notes',
-                        prefixIcon: const Icon(Icons.notes_outlined, color: primaryGreen),
+                        prefixIcon: const Icon(Icons.notes_outlined, color: AppColors.appPrimary),
                         filled: true,
-                        fillColor: const Color(0xFFF5F7F5),
+                        fillColor: AppColors.appBackground,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
@@ -249,12 +246,12 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                           if (context.mounted) {
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Enquiry updated'), backgroundColor: primaryGreen),
+                              const SnackBar(content: Text('Enquiry updated'), backgroundColor: AppColors.appPrimary),
                             );
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryGreen,
+                          backgroundColor: AppColors.appPrimary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         child: const Text('Save Update', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
@@ -270,10 +267,10 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                             Navigator.of(context).pop();
                             _convertToRegistration(context, enquiryId, data);
                           },
-                          icon: const Icon(Icons.person_add_alt_1_outlined, color: accentGold),
-                          label: const Text('Convert to Registration', style: TextStyle(color: accentGold)),
+                          icon: const Icon(Icons.person_add_alt_1_outlined, color: AppColors.appAccent),
+                          label: const Text('Convert to Registration', style: TextStyle(color: AppColors.appAccent)),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: accentGold),
+                            side: const BorderSide(color: AppColors.appAccent),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
@@ -284,12 +281,12 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: primaryGreen.withOpacity(0.08),
+                          color: AppColors.appPrimary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           'Already registered. Trainee ID: ${data['convertedTraineeId'] ?? '-'}',
-                          style: const TextStyle(color: primaryGreen, fontSize: 12, fontWeight: FontWeight.w600),
+                          style: const TextStyle(color: AppColors.appPrimary, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -311,14 +308,14 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         .orderBy('createdAt', descending: true);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: AppColors.appBackground,
       appBar: AppBar(
-        backgroundColor: primaryGreen,
+        backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(widget.screenTitle ?? 'Enquiries'),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: accentGold,
+        backgroundColor: AppColors.appAccent,
         onPressed: () async {
           // Fetch the current user's role first so the enquiry this button
           // creates is correctly tagged (Admin-created vs Mobilizer-created)
@@ -351,7 +348,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                   return ChoiceChip(
                     label: Text(option),
                     selected: isSelected,
-                    selectedColor: primaryGreen,
+                    selectedColor: AppColors.appPrimary,
                     backgroundColor: Colors.white,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black87,
@@ -368,7 +365,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
               stream: query.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
 
                 var docs = snapshot.data!.docs;
@@ -407,7 +404,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -417,10 +414,10 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         onTap: () => _showDetail(context, doc.id, data),
                         leading: CircleAvatar(
-                          backgroundColor: primaryGreen.withOpacity(0.12),
+                          backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
                           child: Text(
                             rawName.isNotEmpty ? rawName[0].toUpperCase() : '?',
-                            style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: AppColors.appPrimary, fontWeight: FontWeight.bold),
                           ),
                         ),
                         title: Text(
@@ -434,7 +431,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: _statusColor(status).withOpacity(0.15),
+                            color: _statusColor(status).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
