@@ -9,7 +9,7 @@ import 'app_lock.dart';
 import 'app_colors.dart';
 import 'app_theme.dart';
 import 'open_screen.dart';
-import 'web_frame.dart';
+import 'app_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,10 +26,10 @@ class MyApp extends StatelessWidget {
       title: 'Vistas',
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
-      // Fingerprint lock poore app ke upar (Profile se on hota hai)
-      // Web/chaudi screen par app 720 ke frame me (open screen/login poori width),
-      // phone par koi farak nahi
-      builder: (context, child) => WebFrame(child: AppLock(child: child ?? const SizedBox.shrink())),
+      navigatorObservers: [shellRouteObserver],
+      // Fingerprint lock poore app ke upar (Profile se on hota hai).
+      // Desktop par AppShell sidebar lagata hai; phone par koi farak nahi.
+      builder: (context, child) => AppLock(child: AppShell(child: child ?? const SizedBox.shrink())),
       theme: AppTheme.light,
       home: const AuthCheckScreen(),
     );

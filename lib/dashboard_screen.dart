@@ -22,37 +22,32 @@ import 'fees_report_screen.dart';
 import 'analytics_screen.dart';
 import 'app_colors.dart';
 import 'brand.dart';
+import 'app_shell.dart';
+import 'nav_items.dart';
+import 'responsive.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String role;
   final String name;
   const DashboardScreen({super.key, required this.role, required this.name});
 
-  String get _roleLabel {
-    switch (role) {
-      case 'admin':
-        return 'Admin';
-      case 'trainer':
-        return 'Trainer';
-      case 'placementOfficer':
-        return 'Placement Officer';
-      case 'mobilizer':
-        return 'Mobilizer';
-      default:
-        return 'Staff';
-    }
-  }
+  String get _roleLabel => roleLabelFor(role);
 
+  // Sidebar ko naam aur role yahin se milta hai
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ShellUser(name: name, role: role, child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    // Desktop par menu sidebar me hai: na drawer, na hamburger
+    final desktop = isDesktop(context);
     return Scaffold(
       backgroundColor: AppColors.appBackground,
-      drawer: AppDrawer(name: name, roleLabel: _roleLabel),
+      drawer: desktop ? null : AppDrawer(name: name, roleLabel: _roleLabel),
       appBar: AppBar(
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
-        title: const VistasAppBarTitle(),
+        title: desktop ? const Text('Dashboard') : const VistasAppBarTitle(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -147,9 +142,9 @@ class DashboardScreen extends StatelessWidget {
                         return GridView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+                          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
                           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
+                            maxCrossAxisExtent: 220,
                             crossAxisSpacing: 14,
                             mainAxisSpacing: 14,
                             childAspectRatio: 1.25,
@@ -196,19 +191,22 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              // Parent ki width se, kyunki web par app 720 ke frame me hai
+              // Parent ki width se: phone par 2, desktop par ~180 ke jitne aa jayein
               LayoutBuilder(
-                builder: (context, constraints) => Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    for (final action in _actionsForRole(context))
-                      SizedBox(
-                        width: (constraints.maxWidth - 12) / 2,
-                        child: action,
-                      ),
-                  ],
-                ),
+                builder: (context, constraints) {
+                  final columns = ((constraints.maxWidth + 12) / (180 + 12)).floor().clamp(2, 8);
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      for (final action in _actionsForRole(context))
+                        SizedBox(
+                          width: (constraints.maxWidth - 12 * (columns - 1)) / columns,
+                          child: action,
+                        ),
+                    ],
+                  );
+                },
               ),
             ],
           ],
@@ -343,7 +341,10 @@ class DashboardScreen extends StatelessWidget {
             label: 'Analytics',
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
+                MaterialPageRoute(
+                  settings: const RouteSettings(name: NavIds.analytics),
+                  builder: (context) => const AnalyticsScreen(),
+                ),
               );
             },
           ),
@@ -527,9 +528,9 @@ class _AdminOverview extends StatelessWidget {
                 return GridView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+                  // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
+                    maxCrossAxisExtent: 220,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,
                     childAspectRatio: 1.25,
@@ -640,9 +641,9 @@ class _TrainerOverview extends StatelessWidget {
         return GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 200,
+            maxCrossAxisExtent: 220,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
             childAspectRatio: 1.25,
@@ -701,9 +702,9 @@ class _MobilizerOverview extends StatelessWidget {
         return GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          // Max ~200 chaude cards: phone par 2, web frame me 4 ek line me
+          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 200,
+            maxCrossAxisExtent: 220,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
             childAspectRatio: 1.25,

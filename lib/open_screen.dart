@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'aurora_background.dart';
 import 'brand.dart';
-import 'web_frame.dart';
+import 'app_shell.dart';
 
 /// App khulte waqt (login check aur profile load tak) dikhne wali screen:
 /// aurora, barfeela pahaad aur Vistas wordmark.
@@ -14,9 +14,6 @@ class OpenScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final wordmarkWidth = math.min(size.width * 0.62, 340.0);
-
     return FullBleed(
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
@@ -38,12 +35,15 @@ class OpenScreen extends StatelessWidget {
                       opacity: value,
                       child: Transform.translate(offset: Offset(0, 8 * (1 - value)), child: child),
                     ),
-                    child: Semantics(
-                      label: BrandAssets.appName,
-                      child: Image.asset(
-                        BrandAssets.wordmarkLight,
-                        width: wordmarkWidth,
-                        filterQuality: FilterQuality.medium,
+                    // Wordmark apni jagah ki width se, poori screen ki size se nahi
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => Semantics(
+                        label: BrandAssets.appName,
+                        child: Image.asset(
+                          BrandAssets.wordmarkLight,
+                          width: math.min(constraints.maxWidth * 0.62, 340.0),
+                          filterQuality: FilterQuality.medium,
+                        ),
                       ),
                     ),
                   ),

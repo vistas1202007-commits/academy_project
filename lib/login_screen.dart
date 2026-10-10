@@ -7,7 +7,7 @@ import 'auth_service.dart';
 import 'app_colors.dart';
 import 'aurora_background.dart';
 import 'brand.dart';
-import 'web_frame.dart';
+import 'app_shell.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
