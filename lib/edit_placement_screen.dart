@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
@@ -115,8 +116,9 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
         Navigator.of(context).pop();
       }
     } catch (e) {
+      debugPrint('Update placement failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyError(e))));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -152,8 +154,9 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
         );
       }
     } catch (e) {
+      debugPrint('Delete placement failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyError(e))));
       }
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
@@ -34,8 +35,9 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
         Navigator.of(context).pop();
       }
     } catch (e) {
+      debugPrint('Update batch failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyError(e))));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

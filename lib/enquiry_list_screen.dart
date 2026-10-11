@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
@@ -138,9 +139,10 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         );
       }
     } catch (e) {
+      debugPrint('Convert enquiry failed: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to convert: $e')),
+          SnackBar(content: Text(friendlyError(e))),
         );
       }
     }

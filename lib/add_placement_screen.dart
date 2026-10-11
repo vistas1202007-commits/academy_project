@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'current_user.dart';
@@ -98,9 +99,10 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
         Navigator.of(context).pop();
       }
     } catch (e) {
+      debugPrint('Save placement failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: $e')),
+          SnackBar(content: Text(friendlyError(e))),
         );
       }
     } finally {

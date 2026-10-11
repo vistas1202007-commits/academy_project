@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -121,27 +122,38 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        if (e.code == 'user-not-found') {
-          _errorMessage = 'No account found with this email.';
-        } else if (e.code == 'wrong-password') {
-          _errorMessage = 'Invalid email or password.';
-        } else if (e.code == 'invalid-email') {
-          _errorMessage = 'Please enter a valid email.';
-        } else {
-          _errorMessage = 'Login failed: ${e.message}';
-        }
-      });
+      debugPrint('Email login failed: $e');
+      setState(() => _errorMessage = _signInErrorMessage(e.code));
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Something went wrong. Please try again.';
-      });
+      debugPrint('Email login failed: $e');
+      setState(() => _errorMessage = friendlyError(e));
     } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// Email login ke errors. User-not-found aur wrong-password ka ek hi
+  /// message, taaki koi email guess na kar sake.
+  String _signInErrorMessage(String code) {
+    switch (code) {
+      case 'wrong-password':
+      case 'user-not-found':
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'user-disabled':
+        return 'This account has been deactivated. Contact your Admin.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network problem. Please check your connection.';
+      default:
+        return 'Could not sign in. Please try again.';
     }
   }
 

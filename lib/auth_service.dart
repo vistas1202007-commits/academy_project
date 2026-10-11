@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'app_colors.dart';
@@ -106,7 +107,7 @@ String authErrorMessage(FirebaseAuthException e) {
     case 'user-disabled':
       return 'This account has been disabled. Please contact the admin.';
     default:
-      return e.message ?? 'Something went wrong. Please try again.';
+      return friendlyError(e);
   }
 }
 

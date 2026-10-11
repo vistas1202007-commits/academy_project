@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
@@ -42,9 +43,10 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
         Navigator.of(context).pop();
       }
     } catch (e) {
+      debugPrint('Save company failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: $e')),
+          SnackBar(content: Text(friendlyError(e))),
         );
       }
     } finally {

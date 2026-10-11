@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'friendly_error.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -84,12 +85,14 @@ _errorMessage = 'Password must be at least 8 characters with letters and numbers
 } else if (e.code == 'invalid-email') {
 _errorMessage = 'Please enter a valid email.';
 } else {
-_errorMessage = 'Failed: ${e.message}';
+debugPrint('Add staff failed: $e');
+_errorMessage = friendlyError(e);
 }
 });
 } catch (e) {
+debugPrint('Add staff failed: $e');
 setState(() {
-_errorMessage = 'Something went wrong. Please try again.';
+_errorMessage = friendlyError(e);
 });
 } finally {
 if (tempApp != null) {
