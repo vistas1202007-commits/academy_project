@@ -6,6 +6,7 @@ import 'package:excel/excel.dart' as xls;
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class BulkImportScreen extends StatefulWidget {
@@ -184,12 +185,18 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return map;
   }
 
-  Future<Set<String>> _fetchExistingStudentPhones() async {
+  /// phone -> true agar trainee live hai, false agar Recycle Bin me.
+  /// Bin wale bhi duplicate gine jaate hain, taaki restore par double na ho.
+  Future<Map<String, bool>> _fetchExistingStudentPhones() async {
     final snap = await FirebaseFirestore.instance.collection('students').get();
-    return snap.docs
-        .map((d) => (d.data()['phone'] ?? '').toString().trim())
-        .where((p) => p.isNotEmpty)
-        .toSet();
+    final map = <String, bool>{};
+    for (final d in snap.docs) {
+      final phone = (d.data()['phone'] ?? '').toString().trim();
+      if (phone.isEmpty) continue;
+      // Ek hi phone ke do record hon to live wala jeetta hai
+      map[phone] = (map[phone] ?? false) || isLive(d.data());
+    }
+    return map;
   }
 
   /// phone -> traineeId, used to link placement records back to trainees
@@ -207,14 +214,19 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return map;
   }
 
-  Future<Map<String, String>> _fetchCompanyNameToId() async {
+  /// lowercase naam -> doc id. Recycle Bin wali companies bhi isme hain
+  /// (nayi company na bane); unke naam [binnedKeys] me alag se.
+  Future<({Map<String, String> ids, Set<String> binnedKeys})> _fetchCompanyNameToId() async {
     final snap = await FirebaseFirestore.instance.collection('companies').get();
     final map = <String, String>{};
+    final live = <String>{};
     for (final doc in snap.docs) {
       final name = (doc.data()['companyName'] ?? '').toString().trim().toLowerCase();
-      if (name.isNotEmpty) map[name] = doc.id;
+      if (name.isEmpty) continue;
+      map.putIfAbsent(name, () => doc.id);
+      if (isLive(doc.data())) live.add(name);
     }
-    return map;
+    return (ids: map, binnedKeys: map.keys.where((k) => !live.contains(k)).toSet());
   }
 
   Future<String> _generateTraineeId() async {
@@ -406,8 +418,14 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     for (final row in allRows) {
       // ---- duplicate check (by phone) ----
       final phoneKey = row.phone.trim();
+      if (phoneKey.isNotEmpty && existingPhones[phoneKey] == false) {
+        _traineeSkippedLog.add(
+            '${row.name} (${row.batch}) — Skipped: in Recycle Bin (restore it or delete it forever first)');
+        setState(() => _traineeProgressDone++);
+        continue;
+      }
       if (phoneKey.isNotEmpty &&
-          (existingPhones.contains(phoneKey) || seenPhonesThisRun.contains(phoneKey))) {
+          (existingPhones.containsKey(phoneKey) || seenPhonesThisRun.contains(phoneKey))) {
         _traineeSkippedLog.add('${row.name} (${row.batch}) — duplicate phone number $phoneKey');
         setState(() => _traineeProgressDone++);
         continue;
@@ -718,7 +736,9 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     });
 
     final phoneToTraineeId = await _fetchPhoneToTraineeId();
-    final companyNameToId = await _fetchCompanyNameToId();
+    final companies = await _fetchCompanyNameToId();
+    final companyNameToId = companies.ids;
+    final warnedBinnedCompanies = <String>{};
     final stamp = await creatorStamp();
 
     WriteBatch batch = FirebaseFirestore.instance.batch();
@@ -740,6 +760,10 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         // an existing company that already had records is left untouched,
         // so undoing this import will never delete a pre-existing company.
         final key = row.companyName.trim().toLowerCase();
+        // Bin wali company dobara nahi banti; placement phir bhi import hoti hai
+        if (companies.binnedKeys.contains(key) && warnedBinnedCompanies.add(key)) {
+          _placementWarningLog.add('Company ${row.companyName.trim()} is in the Recycle Bin');
+        }
         if (key.isNotEmpty && !companyNameToId.containsKey(key)) {
           final companyRef = FirebaseFirestore.instance.collection('companies').doc();
           batch.set(companyRef, {

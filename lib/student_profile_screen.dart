@@ -5,6 +5,7 @@ import 'edit_student_screen.dart';
 import 'current_user.dart';
 import 'fee_receipt_pdf.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class StudentProfileScreen extends StatelessWidget {
@@ -115,7 +116,7 @@ class StudentProfileScreen extends StatelessWidget {
             ),
           ]);
         }
-        final docs = snap.data!.docs;
+        final docs = liveDocs(snap.data!);
         if (docs.isEmpty) {
           return _sectionCard('PLACEMENT', [
             _infoRow(Icons.work_off_outlined, 'Status', 'Not placed yet'),
@@ -159,6 +160,9 @@ class StudentProfileScreen extends StatelessWidget {
           }
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
+          if (!isLive(data)) {
+            return const Center(child: Text('This trainee is in the Recycle Bin.'));
+          }
           final admissionDate = data['admissionDate'] != null
               ? DateFormat('dd MMM yyyy').format((data['admissionDate'] as Timestamp).toDate())
               : '-';

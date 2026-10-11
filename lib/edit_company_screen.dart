@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
+import 'current_user.dart';
+import 'recycle_bin_screen.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class EditCompanyScreen extends StatefulWidget {
@@ -21,6 +24,9 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   late TextEditingController _contactNumberController;
   late TextEditingController _locationController;
   bool _isSaving = false;
+
+  /// Recycle Bin me bhejna sirf Admin ka kaam
+  late final Future<String> _role = currentUserRole();
 
   @override
   void initState() {
@@ -55,6 +61,25 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _confirmDelete() async {
+    final name = _companyNameController.text.trim();
+    if (!await confirmMoveToBin(context, name.isEmpty ? 'This company' : name)) return;
+    try {
+      await softDelete(FirebaseFirestore.instance.collection('companies').doc(widget.companyId));
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Company moved to Recycle Bin.'), backgroundColor: AppColors.appPrimary),
+        );
+      }
+    } catch (e) {
+      debugPrint('Delete company failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyError(e))));
+      }
     }
   }
 
@@ -128,6 +153,27 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                       : const Text('Update Company', style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
+              ),
+              FutureBuilder<String>(
+                future: _role,
+                builder: (context, roleSnap) {
+                  if (roleSnap.data != 'admin') return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: SizedBox(
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        onPressed: _confirmDelete,
+                        icon: Icon(Icons.delete_outline, color: Colors.red[700]),
+                        label: Text('Delete Company', style: TextStyle(color: Colors.red[700])),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.red[700]!),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

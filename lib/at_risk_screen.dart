@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'admin_gate.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'at_risk_logic.dart';
 import 'friendly_error.dart';
 import 'notification_log.dart';
@@ -12,6 +13,13 @@ import 'student_profile_screen.dart';
 /// Students docs ko plain maps me badalta hai; har map me 'id' = doc id
 List<Map<String, dynamic>> studentMapsFrom(QuerySnapshot<Map<String, dynamic>> snap) =>
     snap.docs.map((d) => {...d.data(), 'id': d.id}).toList();
+
+/// [studentMapsFrom] jaisa, par Recycle Bin wale trainees ke bina
+List<Map<String, dynamic>> liveStudentMapsFrom(QuerySnapshot<Map<String, dynamic>> snap) =>
+    studentMapsFrom(snap).where(isLive).toList();
+
+/// Live trainees ke doc id, [liveAttendance] ke liye
+Set<String> idsOf(Iterable<Map<String, dynamic>> students) => {for (final s in students) s['id'] as String};
 
 /// Attendance docs se [AttendanceDay]; bina date wale docs chhod deta hai
 List<AttendanceDay> attendanceDaysFrom(QuerySnapshot<Map<String, dynamic>> snap) {
@@ -77,9 +85,9 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
       db.collection('students').get(),
       db.collection('attendance').get(),
     ]);
-    final students = studentMapsFrom(results[0]);
+    final students = liveStudentMapsFrom(results[0]);
     _studentsById = {for (final s in students) s['id'] as String: s};
-    return assessTrainees(students, attendanceDaysFrom(results[1]), DateTime.now());
+    return assessTrainees(students, liveAttendance(attendanceDaysFrom(results[1]), idsOf(students)), DateTime.now());
   }
 
   /// High-risk trainee ke guardian ke liye simulated alert

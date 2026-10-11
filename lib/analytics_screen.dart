@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'analytics_export.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'soft_delete.dart';
 
 /// Admin-only analytics. Students, enquiries, attendance aur placements ke
 /// plain streams aate hain; date filter aur saari calculation client-side.
@@ -359,6 +360,8 @@ _Analytics _computeAll({
   required _DateFilter filter,
 }) {
   final a = _Analytics();
+  // Sirf live trainees ki attendance ginti me (students pehle se live filtered hain)
+  final liveIds = {for (final d in students) d.id};
 
   // F2: wahi _compute, bas filtered students ke saath
   final studentsInRange =
@@ -461,6 +464,7 @@ _Analytics _computeAll({
       final status = _str(value);
       if (status != 'present' && status != 'absent' && status != 'leave') return;
       final id = studentId.toString();
+      if (!liveIds.contains(id)) return;
       final present = status == 'present' ? 1 : 0;
       batchMarked[batch] = (batchMarked[batch] ?? 0) + 1;
       batchPresent[batch] = (batchPresent[batch] ?? 0) + present;
@@ -604,17 +608,24 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
 
   void _recompute() {
     if (!mounted) return;
-    final students = _docs['students'];
+    final allStudents = _docs['students'];
     setState(() {
-      _analytics = students == null
-          ? null
-          : _computeAll(
-              students: students,
-              enquiries: _docs['enquiries'],
-              attendance: _docs['attendance'],
-              placements: _docs['placements'],
-              filter: _filter,
-            );
+      if (allStudents == null) {
+        _analytics = null;
+        return;
+      }
+      // Recycle Bin wale records charts, KPI aur export me nahi aate
+      bool live(QueryDocumentSnapshot d) => isLive(_data(d));
+      final binnedIds = deletedTraineeIds(allStudents.map(_data).whereType<Map<String, dynamic>>());
+      _analytics = _computeAll(
+        students: allStudents.where(live).toList(),
+        enquiries: _docs['enquiries']?.where(live).toList(),
+        attendance: _docs['attendance'],
+        placements: _docs['placements']
+            ?.where((d) => _data(d) != null && isCountablePlacement(_data(d)!, binnedIds))
+            .toList(),
+        filter: _filter,
+      );
     });
   }
 

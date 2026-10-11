@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class AddEnquiryScreen extends StatefulWidget {
@@ -62,25 +63,24 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         FirebaseFirestore.instance
             .collection('enquiries')
             .where('mobile', isEqualTo: mobile)
-            .limit(1)
             .get(),
         FirebaseFirestore.instance
             .collection('students')
             .where('phone', isEqualTo: mobile)
-            .limit(1)
             .get(),
       ]);
-      final enquiryMatch = results[0];
-      final studentMatch = results[1];
+      // Recycle Bin wale record duplicate warning nahi dete
+      final enquiryMatch = liveDocs(results[0]);
+      final studentMatch = liveDocs(results[1]);
 
       String? existingName;
       String source = '';
-      if (studentMatch.docs.isNotEmpty) {
-        existingName = (studentMatch.docs.first.data()['name'] ?? 'a trainee').toString();
+      if (studentMatch.isNotEmpty) {
+        existingName = (studentMatch.first.data()['name'] ?? 'a trainee').toString();
         source = 'Student';
-      } else if (enquiryMatch.docs.isNotEmpty) {
+      } else if (enquiryMatch.isNotEmpty) {
         existingName =
-            (enquiryMatch.docs.first.data()['traineeName'] ?? 'a trainee').toString();
+            (enquiryMatch.first.data()['traineeName'] ?? 'a trainee').toString();
         source = 'Enquiry';
       }
 

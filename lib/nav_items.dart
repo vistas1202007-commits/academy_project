@@ -8,6 +8,7 @@ import 'analytics_screen.dart';
 import 'at_risk_screen.dart';
 import 'ask_data_screen.dart';
 import 'notifications_screen.dart';
+import 'recycle_bin_screen.dart';
 
 /// Menu items ke ids. Menu se khule route ka RouteSettings.name yahi hota
 /// hai, taaki sidebar kholi hui screen highlight kar sake.
@@ -20,10 +21,11 @@ class NavIds {
   static const String atRisk = 'atRisk';
   static const String askData = 'askData';
   static const String notifications = 'notifications';
+  static const String recycleBin = 'recycleBin';
   static const String help = 'help';
   static const String about = 'about';
 
-  static const Set<String> all = {dashboard, reports, analytics, atRisk, askData, notifications, help, about};
+  static const Set<String> all = {dashboard, reports, analytics, atRisk, askData, notifications, recycleBin, help, about};
 }
 
 class NavItem {
@@ -79,6 +81,13 @@ List<NavItem> navItemsFor(String role) => [
       label: 'Notifications',
       icon: Icons.notifications_outlined,
       builder: (context) => const NotificationsScreen(),
+    ),
+  if (role == 'admin')
+    NavItem(
+      id: NavIds.recycleBin,
+      label: 'Recycle Bin',
+      icon: Icons.delete_sweep_outlined,
+      builder: (context) => const RecycleBinScreen(),
     ),
   NavItem(
     id: NavIds.help,

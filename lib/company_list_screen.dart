@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_company_screen.dart';
 import 'edit_company_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class CompanyListScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
-                final allDocs = snapshot.data?.docs ?? [];
+                final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
                 final docs = allDocs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   final companyName = (data['companyName'] ?? '').toString().toLowerCase();

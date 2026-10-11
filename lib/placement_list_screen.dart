@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_placement_screen.dart';
 import 'placement_detail_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class PlacementListScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
-                final allDocs = snapshot.data?.docs ?? [];
+                final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
                 final docs = allDocs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   final name = (data['studentName'] ?? '').toString().toLowerCase();

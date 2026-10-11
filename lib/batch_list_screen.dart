@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'batch_detail_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class BatchListScreen extends StatefulWidget {
@@ -235,7 +236,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                                             .snapshots(),
                                         builder: (context, studentSnap) {
                                           final count = studentSnap.hasData
-                                              ? studentSnap.data!.docs.length
+                                              ? liveDocsOf(studentSnap.data!).length
                                               : (data['studentCount'] ?? 0);
                                           return Text(
                                             '$count trainees',

@@ -8,6 +8,7 @@ import 'at_risk_screen.dart';
 import 'friendly_error.dart';
 import 'notification_log.dart';
 import 'responsive.dart';
+import 'soft_delete.dart';
 
 /// Admin-only simulated notification log. Koi asli message nahi jaata.
 class NotificationsScreen extends StatelessWidget {
@@ -65,7 +66,7 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
   }
 
   Future<List<Map<String, dynamic>>> _students() async =>
-      studentMapsFrom(await FirebaseFirestore.instance.collection('students').get());
+      liveStudentMapsFrom(await FirebaseFirestore.instance.collection('students').get());
 
   Future<bool> _confirm(String title, String body) async {
     final ok = await showDialog<bool>(
@@ -129,7 +130,9 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
           db.collection('students').get(),
           db.collection('attendance').get(),
         ]);
-        return absentAlerts(studentMapsFrom(results[0]), attendanceDaysFrom(results[1]), DateTime.now());
+        final students = liveStudentMapsFrom(results[0]);
+        return absentAlerts(
+            students, liveAttendance(attendanceDaysFrom(results[1]), idsOf(students)), DateTime.now());
       });
 
   Future<void> _batchAlert() async {
@@ -173,10 +176,11 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
         db.collection('attendance').get(),
         db.collection('enquiries').get(),
       ]);
+      final students = liveStudentMapsFrom(results[0]);
       final summary = dailySummary(
-        studentMapsFrom(results[0]),
-        attendanceDaysFrom(results[1]),
-        results[2].docs.map((d) => d.data()),
+        students,
+        liveAttendance(attendanceDaysFrom(results[1]), idsOf(students)),
+        results[2].docs.map((d) => d.data()).where(isLive),
         DateTime.now(),
       );
       if (!mounted) return;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
@@ -288,7 +289,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                   }
-                  final students = snapshot.data!.docs;
+                  final students = liveDocsOf(snapshot.data!);
 
                   if (students.isEmpty) {
                     return Center(

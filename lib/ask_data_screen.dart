@@ -7,6 +7,7 @@ import 'app_colors.dart';
 import 'at_risk_logic.dart';
 import 'at_risk_screen.dart';
 import 'responsive.dart';
+import 'soft_delete.dart';
 
 // ---------------------------------------------------------------------------
 // Data aur jawab (pure functions, koi AI nahi; sab client-side ginti)
@@ -381,11 +382,14 @@ class _AskBodyState extends State<_AskBody> {
       db.collection('placements').get(),
       db.collection('enquiries').get(),
     ]);
+    // Recycle Bin wale records kisi jawab me nahi gine jaate
+    final students = liveStudentMapsFrom(results[0]);
+    final binnedIds = deletedTraineeIds(results[0].docs.map((d) => d.data()));
     return AskDataSet(
-      students: studentMapsFrom(results[0]),
-      attendance: attendanceDaysFrom(results[1]),
-      placements: results[2].docs.map((d) => d.data()).toList(),
-      enquiries: results[3].docs.map((d) => d.data()).toList(),
+      students: students,
+      attendance: liveAttendance(attendanceDaysFrom(results[1]), idsOf(students)),
+      placements: results[2].docs.map((d) => d.data()).where((p) => isCountablePlacement(p, binnedIds)).toList(),
+      enquiries: results[3].docs.map((d) => d.data()).where(isLive).toList(),
       loadedAt: DateTime.now(),
     );
   }

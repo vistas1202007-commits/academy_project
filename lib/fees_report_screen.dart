@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'student_profile_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class FeesReportScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
             return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
           }
 
-          final allDocs = snapshot.data!.docs;
+          final allDocs = liveDocsOf(snapshot.data!);
 
           double totalCollected = 0;
           double totalPending = 0;

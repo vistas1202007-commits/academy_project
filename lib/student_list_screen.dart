@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'student_profile_screen.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'recycle_bin_screen.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class StudentListScreen extends StatefulWidget {
@@ -50,38 +52,13 @@ class _StudentListScreenState extends State<StudentListScreen> {
   }
 
   Future<void> _confirmDelete(BuildContext context, String docId, String name) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Delete Trainee?'),
-        content: Text(
-          "This will permanently delete $name's record. This action cannot be undone. Continue?",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey[700])),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
+    if (!await confirmMoveToBin(context, name)) return;
 
     try {
-      await FirebaseFirestore.instance.collection('students').doc(docId).delete();
+      await softDelete(FirebaseFirestore.instance.collection('students').doc(docId));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$name deleted.'), backgroundColor: AppColors.appPrimary),
+          SnackBar(content: Text('$name moved to Recycle Bin.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -93,7 +70,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
     }
   }
 
-  Widget _buildStudentList(List<QueryDocumentSnapshot> allDocs) {
+  Widget _buildStudentList(List<QueryDocumentSnapshot> snapDocs) {
+    // Recycle Bin wale trainees list, ginti aur search me nahi aate
+    final allDocs = snapDocs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
     final filteredDocs = allDocs.where((doc) {
       final data = doc.data() as Map<String, dynamic>;
       final name = (data['name'] ?? '').toString().toLowerCase();

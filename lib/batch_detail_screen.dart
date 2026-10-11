@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'student_profile_screen.dart';
 import 'edit_batch_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class BatchDetailScreen extends StatelessWidget {
@@ -151,7 +152,7 @@ class BatchDetailScreen extends StatelessWidget {
                         ),
                       );
                     }
-                    final students = studentSnap.data!.docs;
+                    final students = liveDocsOf(studentSnap.data!);
                     if (students.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),

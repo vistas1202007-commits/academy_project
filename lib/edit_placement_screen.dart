@@ -3,6 +3,9 @@ import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'course_data.dart';
 import 'app_colors.dart';
+import 'current_user.dart';
+import 'recycle_bin_screen.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class EditPlacementScreen extends StatefulWidget {
@@ -31,6 +34,9 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   late String _employmentType;
   late String _status;
   bool _isSaving = false;
+
+  /// Recycle Bin me bhejna sirf Admin ka kaam
+  late final Future<String> _role = currentUserRole();
 
   final List<String> _foodOptions = ['Yes', 'No'];
   final List<String> _employmentOptions = ['Salaried', 'Waged', 'Self-employed'];
@@ -126,31 +132,16 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   }
 
   Future<void> _confirmDelete() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Delete Placement Record?'),
-        content: const Text('This action cannot be undone. Continue?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[700]),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-    if (confirm != true) return;
+    final name = widget.currentData['studentName']?.toString().trim() ?? '';
+    if (!await confirmMoveToBin(context, name.isEmpty ? 'This placement' : "$name's placement")) return;
 
     try {
-      await FirebaseFirestore.instance.collection('placements').doc(widget.placementId).delete();
+      await softDelete(FirebaseFirestore.instance.collection('placements').doc(widget.placementId));
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Placement record deleted.'), backgroundColor: AppColors.appPrimary),
+          const SnackBar(content: Text('Placement moved to Recycle Bin.'), backgroundColor: AppColors.appPrimary),
         );
       }
     } catch (e) {
@@ -298,18 +289,26 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
                     : const Text('Update Placement', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 50,
-              child: OutlinedButton.icon(
-                onPressed: _confirmDelete,
-                icon: Icon(Icons.delete_outline, color: Colors.red[700]),
-                label: Text('Delete Placement', style: TextStyle(color: Colors.red[700])),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.red[700]!),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
+            FutureBuilder<String>(
+              future: _role,
+              builder: (context, roleSnap) {
+                if (roleSnap.data != 'admin') return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      onPressed: _confirmDelete,
+                      icon: Icon(Icons.delete_outline, color: Colors.red[700]),
+                      label: Text('Delete Placement', style: TextStyle(color: Colors.red[700])),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.red[700]!),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

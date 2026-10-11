@@ -24,6 +24,7 @@ import 'at_risk_screen.dart';
 import 'ask_data_screen.dart';
 import 'notifications_screen.dart';
 import 'app_colors.dart';
+import 'soft_delete.dart';
 import 'brand.dart';
 import 'app_shell.dart';
 import 'nav_items.dart';
@@ -129,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                   stream: FirebaseFirestore.instance.collection('placements').snapshots(),
                   builder: (context, placementSnap) {
                     final placedCount = placementSnap.hasData
-                        ? placementSnap.data!.docs
+                        ? liveDocsOf(placementSnap.data!)
                         .where((d) {
                       final s = (d.data() as Map<String, dynamic>)['status'];
                       return s == 'Joined' || s == 'Selected' || s == 'Self-Employed';
@@ -141,7 +142,7 @@ class DashboardScreen extends StatelessWidget {
                       stream: FirebaseFirestore.instance.collection('companies').snapshots(),
                       builder: (context, companySnap) {
                         final companyCount =
-                        companySnap.hasData ? companySnap.data!.docs.length.toString() : '--';
+                        companySnap.hasData ? liveDocsOf(companySnap.data!).length.toString() : '--';
                         return GridView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -539,7 +540,10 @@ class _AdminOverview extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('students').snapshots(),
       builder: (context, studentSnap) {
-        final studentDocs = studentSnap.data?.docs ?? [];
+        final allStudentDocs = studentSnap.data?.docs ?? [];
+        final studentDocs = allStudentDocs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
+        // Bin wale trainees ki placements "Placed" me nahi ginti
+        final binnedTraineeIds = deletedTraineeIds(allStudentDocs.map((d) => d.data() as Map<String, dynamic>));
         final totalStudents = studentSnap.hasData ? studentDocs.length.toString() : '--';
         int joined = 0, completed = 0, dropped = 0;
         for (final doc in studentDocs) {
@@ -551,14 +555,16 @@ class _AdminOverview extends StatelessWidget {
         return StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('enquiries').snapshots(),
           builder: (context, enquirySnap) {
-            final totalEnquiries = enquirySnap.hasData ? enquirySnap.data!.docs.length.toString() : '--';
+            final totalEnquiries = enquirySnap.hasData ? liveDocsOf(enquirySnap.data!).length.toString() : '--';
             return StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('placements').snapshots(),
               builder: (context, placementSnap) {
                 int placedCount = 0;
                 if (placementSnap.hasData) {
                   for (final doc in placementSnap.data!.docs) {
-                    final status = (doc.data() as Map<String, dynamic>)['status'];
+                    final p = doc.data() as Map<String, dynamic>;
+                    if (!isCountablePlacement(p, binnedTraineeIds)) continue;
+                    final status = p['status'];
                     if (status == 'Joined' || status == 'Selected' || status == 'Self-Employed') {
                       placedCount++;
                     }
@@ -729,7 +735,7 @@ class _MobilizerOverview extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         // Mobilizer saari enquiries dekhta hai (koi createdBy filter nahi)
-        final allDocs = snapshot.data?.docs ?? [];
+        final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
         final totalEnquiries = snapshot.hasData ? allDocs.length.toString() : '--';
         int pendingFollowUp = 0;
         int registered = 0;

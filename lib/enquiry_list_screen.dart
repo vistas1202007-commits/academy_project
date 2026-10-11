@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'add_enquiry_screen.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
+import 'recycle_bin_screen.dart';
+import 'soft_delete.dart';
 import 'responsive.dart';
 
 class EnquiryListScreen extends StatefulWidget {
@@ -155,6 +157,8 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         ? DateFormat('dd MMM yyyy').format((data['enquiryDate'] as Timestamp).toDate())
         : '-';
     final alreadyRegistered = selectedStatus == 'Registered';
+    // Sheet band hone ke baad snackbar screen ke context par dikhana hai
+    final screenContext = context;
 
     showModalBottomSheet(
       context: context,
@@ -293,6 +297,50 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         ),
                       ),
                     ],
+                    // Recycle Bin me bhejna sirf Admin ka kaam
+                    FutureBuilder<String>(
+                      future: currentUserRole(),
+                      builder: (context, roleSnap) {
+                        if (roleSnap.data != 'admin') return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 46,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final name = (data['traineeName'] ?? '').toString().trim();
+                                final label = name.isEmpty ? 'This enquiry' : "$name's enquiry";
+                                if (!await confirmMoveToBin(context, label)) return;
+                                if (context.mounted) Navigator.of(context).pop();
+                                try {
+                                  await softDelete(FirebaseFirestore.instance.collection('enquiries').doc(enquiryId));
+                                  if (screenContext.mounted) {
+                                    ScaffoldMessenger.of(screenContext).showSnackBar(
+                                      SnackBar(
+                                        content: Text('$label moved to Recycle Bin.'),
+                                        backgroundColor: AppColors.appPrimary,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (screenContext.mounted) {
+                                    ScaffoldMessenger.of(screenContext)
+                                        .showSnackBar(SnackBar(content: Text(friendlyError(e))));
+                                  }
+                                }
+                              },
+                              icon: Icon(Icons.delete_outline, color: Colors.red[700]),
+                              label: Text('Delete Enquiry', style: TextStyle(color: Colors.red[700])),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Colors.red[700]!),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -371,7 +419,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                   return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
                 }
 
-                var docs = snapshot.data!.docs;
+                var docs = liveDocsOf(snapshot.data!);
 
                 if (widget.filterStatuses != null) {
                   docs = docs.where((doc) {
