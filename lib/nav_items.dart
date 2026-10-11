@@ -5,6 +5,8 @@ import 'help_screen.dart';
 import 'about_screen.dart';
 import 'report_list_screen.dart';
 import 'analytics_screen.dart';
+import 'at_risk_screen.dart';
+import 'ask_data_screen.dart';
 
 /// Menu items ke ids. Menu se khule route ka RouteSettings.name yahi hota
 /// hai, taaki sidebar kholi hui screen highlight kar sake.
@@ -14,10 +16,12 @@ class NavIds {
   static const String dashboard = 'dashboard';
   static const String reports = 'reports';
   static const String analytics = 'analytics';
+  static const String atRisk = 'atRisk';
+  static const String askData = 'askData';
   static const String help = 'help';
   static const String about = 'about';
 
-  static const Set<String> all = {dashboard, reports, analytics, help, about};
+  static const Set<String> all = {dashboard, reports, analytics, atRisk, askData, help, about};
 }
 
 class NavItem {
@@ -52,6 +56,20 @@ List<NavItem> navItemsFor(String role) => [
       label: 'Analytics',
       icon: Icons.insights_outlined,
       builder: (context) => const AnalyticsScreen(),
+    ),
+  if (role == 'admin')
+    NavItem(
+      id: NavIds.atRisk,
+      label: 'At-Risk Trainees',
+      icon: Icons.warning_amber_outlined,
+      builder: (context) => const AtRiskScreen(),
+    ),
+  if (role == 'admin')
+    NavItem(
+      id: NavIds.askData,
+      label: 'Ask Your Data',
+      icon: Icons.question_answer_outlined,
+      builder: (context) => const AskDataScreen(),
     ),
   NavItem(
     id: NavIds.help,

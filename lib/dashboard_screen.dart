@@ -20,6 +20,8 @@ import 'profile_screen.dart';
 import 'bulk_import_screen.dart';
 import 'fees_report_screen.dart';
 import 'analytics_screen.dart';
+import 'at_risk_screen.dart';
+import 'ask_data_screen.dart';
 import 'app_colors.dart';
 import 'brand.dart';
 import 'app_shell.dart';
@@ -344,6 +346,30 @@ class DashboardScreen extends StatelessWidget {
                 MaterialPageRoute(
                   settings: const RouteSettings(name: NavIds.analytics),
                   builder: (context) => const AnalyticsScreen(),
+                ),
+              );
+            },
+          ),
+          _QuickActionButton(
+            icon: Icons.warning_amber_outlined,
+            label: 'At-Risk Trainees',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  settings: const RouteSettings(name: NavIds.atRisk),
+                  builder: (context) => const AtRiskScreen(),
+                ),
+              );
+            },
+          ),
+          _QuickActionButton(
+            icon: Icons.question_answer_outlined,
+            label: 'Ask Your Data',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  settings: const RouteSettings(name: NavIds.askData),
+                  builder: (context) => const AskDataScreen(),
                 ),
               );
             },
