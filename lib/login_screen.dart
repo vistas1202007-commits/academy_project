@@ -157,6 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  static const String _resetSentMessage = 'If an account exists for this email, a reset link has been sent.';
+  static const String _networkMessage = 'Network problem. Please check your connection and try again.';
+
   void _showForgotPasswordDialog() {
     final resetEmailController = TextEditingController(text: _emailController.text.trim());
     bool isSending = false;
@@ -235,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               final email = resetEmailController.text.trim();
                               if (email.isEmpty || !email.contains('@')) {
                                 setDialogState(() {
-                                  dialogMessage = 'Please enter a valid email.';
+                                  dialogMessage = 'Please enter a valid email address.';
                                   isError = true;
                                 });
                                 return;
@@ -249,21 +252,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                 setDialogState(() {
                                   isSending = false;
                                   isError = false;
-                                  dialogMessage = 'Reset link sent! Check your email (and spam folder).';
+                                  dialogMessage = _resetSentMessage;
                                 });
                               } on FirebaseAuthException catch (e) {
+                                debugPrint('Password reset failed: $e');
+                                // Account ho ya na ho, ek hi jawab, taaki koi email guess na kar sake
+                                final message = switch (e.code) {
+                                  'invalid-email' => 'Please enter a valid email address.',
+                                  'network-request-failed' => _networkMessage,
+                                  _ => null,
+                                };
                                 setDialogState(() {
                                   isSending = false;
-                                  isError = true;
-                                  dialogMessage = e.code == 'user-not-found'
-                                      ? 'No account found with this email.'
-                                      : 'Failed to send reset link. Please try again.';
+                                  isError = message != null;
+                                  dialogMessage = message ?? _resetSentMessage;
                                 });
                               } catch (e) {
+                                debugPrint('Password reset failed: $e');
+                                final isNetwork = friendlyError(e) == _networkMessage;
                                 setDialogState(() {
                                   isSending = false;
-                                  isError = true;
-                                  dialogMessage = 'Something went wrong. Please try again.';
+                                  isError = isNetwork;
+                                  dialogMessage = isNetwork ? _networkMessage : _resetSentMessage;
                                 });
                               }
                             },
