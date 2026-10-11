@@ -92,16 +92,7 @@ class DashboardScreen extends StatelessWidget {
                       builder: (context, companySnap) {
                         final companyCount =
                         companySnap.hasData ? liveDocsOf(companySnap.data!).length.toString() : '--';
-                        return GridView(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 220,
-                            crossAxisSpacing: 14,
-                            mainAxisSpacing: 14,
-                            childAspectRatio: 1.25,
-                          ),
+                        return _StatGrid(
                           children: _staggered([
                             _DashboardCard(
                               icon: Icons.work_outline,
@@ -520,16 +511,7 @@ class _AdminOverview extends StatelessWidget {
                     }
                   }
                 }
-                return GridView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 220,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 1.25,
-                  ),
+                return _StatGrid(
                   children: _staggered([
                     _DashboardCard(
                       icon: Icons.contact_mail_outlined,
@@ -633,16 +615,7 @@ class _TrainerOverview extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         final myBatches = snapshot.hasData ? snapshot.data!.docs.length.toString() : '--';
-        return GridView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 220,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            childAspectRatio: 1.25,
-          ),
+        return _StatGrid(
           children: _staggered([
             _DashboardCard(
               icon: Icons.class_outlined,
@@ -691,16 +664,7 @@ class _MobilizerOverview extends StatelessWidget {
           if (status == 'Follow-up' || status == 'New') pendingFollowUp++;
           if (status == 'Registered') registered++;
         }
-        return GridView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          // Max ~220 chaude cards: phone par 2, desktop par 5-6 ek line me
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 220,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            childAspectRatio: 1.25,
-          ),
+        return _StatGrid(
           children: _staggered([
             _DashboardCard(
               icon: Icons.contact_mail_outlined,
@@ -744,6 +708,73 @@ class _MobilizerOverview extends StatelessWidget {
               },
             ),
           ]),
+        );
+      },
+    );
+  }
+}
+
+/// Overview ke stat cards. Phone par pehle jaisa (max 220 chaude); desktop par
+/// columns aise ki aakhri line me ek card akela na bache (6 = 6, 3+3, 2+2+2).
+class _StatGrid extends StatelessWidget {
+  final List<Widget> children;
+  const _StatGrid({required this.children});
+
+  static const double _gap = 14;
+  static const double _minCard = 150;
+  static const double _maxCard = 240;
+  static const double _aspect = 1.25;
+
+  /// Jitne fit hon unme se: sab ek line me, warna sabse bada barabar bantwara,
+  /// warna aisa jisme aakhri line me akela card na ho
+  static int _columns(int count, int fit) {
+    if (count <= fit) return count;
+    for (var c = fit; c >= 2; c--) {
+      if (count % c == 0) return c;
+    }
+    for (var c = fit; c >= 2; c--) {
+      if (count % c != 1) return c;
+    }
+    return fit;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isDesktop(context)) {
+      return GridView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 220,
+          crossAxisSpacing: _gap,
+          mainAxisSpacing: _gap,
+          childAspectRatio: _aspect,
+        ),
+        children: children,
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final fit = ((width + _gap) / (_minCard + _gap)).floor().clamp(1, 99);
+        final columns = _columns(children.length, fit).clamp(1, 99);
+        final card = ((width - _gap * (columns - 1)) / columns).clamp(0.0, _maxCard);
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: card * columns + _gap * (columns - 1),
+            child: GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: _gap,
+                mainAxisSpacing: _gap,
+                childAspectRatio: _aspect,
+              ),
+              children: children,
+            ),
+          ),
         );
       },
     );
