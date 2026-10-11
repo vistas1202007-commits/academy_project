@@ -14,7 +14,7 @@ class ExportSheet {
 /// Sheets se .xlsx banake Downloads me save karta hai. Web pe browser download
 /// hota hai, Android pe public Downloads folder. dart:io use nahi hota.
 Future<void> saveSheetsAsXlsx(String fileName, List<ExportSheet> sheets) async {
-  if (sheets.isEmpty) throw ArgumentError('Koi sheet nahi hai');
+  if (sheets.isEmpty) throw ArgumentError('No sheets to export.');
 
   final book = xl.Excel.createExcel();
   // Default "Sheet1" ko pehli sheet ka naam de do, taaki khaali sheet na bache
@@ -38,7 +38,7 @@ Future<void> saveSheetsAsXlsx(String fileName, List<ExportSheet> sheets) async {
   book.setDefaultSheet(sheets.first.name);
 
   final bytes = book.encode();
-  if (bytes == null) throw StateError('Excel file ban nahi payi');
+  if (bytes == null) throw StateError('Could not create the Excel file.');
 
   await FileSaver.instance.saveToDownloads(
     name: fileName,

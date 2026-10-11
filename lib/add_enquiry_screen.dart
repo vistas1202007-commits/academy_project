@@ -90,7 +90,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           builder: (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             title: const Text('Duplicate Mobile Number'),
-            content: Text('Ye number pehle se hai: $existingName ($source)'),
+            content: Text('This number already exists: $existingName ($source)'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
@@ -102,7 +102,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   backgroundColor: AppColors.appPrimary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Phir bhi save karo', style: TextStyle(color: Colors.white)),
+                child: const Text('Save anyway', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),

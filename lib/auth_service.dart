@@ -11,8 +11,8 @@ final ValueNotifier<String?> loginNotice = ValueNotifier<String?>(null);
 /// Login screen pe Mobile/Google fail hone par (provider band, account link
 /// nahi, setup ki dikkat) yahi ek message dikhta hai
 const String kAltLoginUnavailableMessage =
-    'Mobile OTP aur Google login unhi accounts ke liye hai jo My Profile se link hain. '
-    'Demo ke liye Email aur Password use karein.';
+    'Mobile OTP and Google sign-in work for accounts linked from My Profile. '
+    'For the demo, please use Email and Password.';
 
 /// Login screen ke Mobile/Google errors. Jo galti user khud sudhar sake
 /// (galat number/OTP, internet) uska apna message; baaki sab ke liye

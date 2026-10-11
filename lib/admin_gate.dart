@@ -40,7 +40,7 @@ class _AdminGateState extends State<AdminGate> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${widget.screenName} sirf Admin dekh sakte hain.',
+                  'Only Admin can view ${widget.screenName}.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.textMuted),
                 ),

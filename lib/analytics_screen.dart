@@ -76,7 +76,7 @@ class _AccessDenied extends StatelessWidget {
             ),
             SizedBox(height: 6),
             Text(
-              'Analytics sirf Admin dekh sakte hain.',
+              'Only Admin can view Analytics.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textMuted),
             ),
@@ -661,12 +661,12 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
       final stamp = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
       await saveSheetsAsXlsx('vti_analytics_$stamp', _exportSheets(a, _filter));
       messenger.showSnackBar(const SnackBar(
-        content: Text('Excel Downloads me save ho gaya'),
+        content: Text('Excel saved to Downloads.'),
         backgroundColor: AppColors.success,
       ));
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        content: Text('Export nahi ho paya: $e'),
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(
+        content: Text('Could not export. Please try again.'),
         backgroundColor: AppColors.danger,
       ));
     } finally {
@@ -683,7 +683,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           hasData: true,
           height: 100,
           child: const Center(
-            child: Text('Data load nahi ho paya', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('Could not load data.', style: TextStyle(color: AppColors.textMuted)),
           ),
         ),
       ];
@@ -705,7 +705,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
   Widget build(BuildContext context) {
     if (_errors.contains('students')) {
       return const Center(
-        child: Text('Data load nahi ho paya', style: TextStyle(color: AppColors.textMuted)),
+        child: Text('Could not load data.', style: TextStyle(color: AppColors.textMuted)),
       );
     }
     final a = _analytics;
@@ -718,7 +718,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     final desktop = isDesktop(context);
 
     final enrollment = _ChartCard(
-      title: 'Enrollment Trend (pichhle 12 mahine)',
+      title: 'Enrollment Trend (last 12 months)',
       hasData: stats.monthCounts.any((c) => c > 0),
       child: _EnrollmentLineChart(stats: stats),
     );
@@ -835,7 +835,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
                 child: _AttendanceBars(entries: a.batchAttendance),
               ),
               _ChartCard(
-                title: 'Chronic Absentees (sabse kam present %)',
+                title: 'Chronic Absentees (lowest present %)',
                 hasData: a.absentees.isNotEmpty,
                 height: null,
                 child: _AbsenteeList(absentees: a.absentees),
@@ -1158,7 +1158,7 @@ class _EmptyChart extends StatelessWidget {
         children: [
           Icon(Icons.bar_chart_outlined, size: 40, color: AppColors.textMuted),
           SizedBox(height: 8),
-          Text('Data aate hi chart dikhega', style: TextStyle(color: AppColors.textMuted)),
+          Text('The chart will appear once data is available.', style: TextStyle(color: AppColors.textMuted)),
         ],
       ),
     );
@@ -1547,7 +1547,7 @@ class _FunnelBars extends StatelessWidget {
                       SizedBox(
                         width: 120,
                         child: Text(
-                          '${steps[i].pctOfPrev} pichhle se',
+                          '${steps[i].pctOfPrev} of previous',
                           textAlign: TextAlign.right,
                           style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                         ),
@@ -1705,7 +1705,7 @@ class _AttendanceBars extends StatelessWidget {
           ),
         const SizedBox(height: 6),
         Text(
-          '${_attendanceThreshold.toInt()}% se neeche wale batch amber me',
+          'Batches below ${_attendanceThreshold.toInt()}% are shown in amber',
           style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
@@ -1742,7 +1742,7 @@ class _AbsenteeList extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textDark),
                       ),
                       Text(
-                        '${absentees[i].batch} · ${absentees[i].days} din mark',
+                        '${absentees[i].batch} · ${absentees[i].days} days marked',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 12, color: AppColors.textMuted),

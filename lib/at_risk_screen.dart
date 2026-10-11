@@ -93,7 +93,7 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
         if (snap.hasError) {
           return _Message(
             icon: Icons.cloud_off_outlined,
-            text: 'Data load nahi ho paaya. Internet check karke dobara try karein.',
+            text: 'Could not load data. Check your internet connection and try again.',
             onRetry: _refresh,
           );
         }
@@ -101,7 +101,7 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
         if (list.isEmpty) {
           return _Message(
             icon: Icons.groups_outlined,
-            text: 'Abhi koi Joined/Ongoing trainee nahi hai.',
+            text: 'No active (Joined/Ongoing) trainees yet.',
             onRetry: _refresh,
           );
         }
@@ -141,7 +141,7 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Pichhle $kRiskWindowDays din ki attendance aur fees ke hisaab se. High = 60+, Medium = 30-59.',
+            'Based on attendance and fees in the last $kRiskWindowDays days. High = 60+, Medium = 30-59.',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
         ],

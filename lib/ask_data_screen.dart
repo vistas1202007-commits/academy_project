@@ -46,16 +46,16 @@ class Question {
 }
 
 final List<Question> kQuestions = [
-  const Question('Kitne trainees at-risk hain?', Icons.warning_amber_outlined, answerAtRisk),
-  const Question('Kis batch me sabse zyada dropout %?', Icons.trending_down, answerBatchDropout),
-  const Question('Kis batch ki attendance sabse kam?', Icons.event_busy_outlined, answerBatchAttendance),
-  const Question('Total fees collected aur pending?', Icons.currency_rupee, answerFees),
+  const Question('How many trainees are at risk?', Icons.warning_amber_outlined, answerAtRisk),
+  const Question('Which batch has the highest dropout %?', Icons.trending_down, answerBatchDropout),
+  const Question('Which batch has the lowest attendance?', Icons.event_busy_outlined, answerBatchAttendance),
+  const Question('Total fees collected vs pending?', Icons.currency_rupee, answerFees),
   const Question('Course-wise placement %?', Icons.work_outline, answerCoursePlacement),
   const Question('Course-wise average salary?', Icons.payments_outlined, answerCourseSalary),
-  const Question('Kis village se sabse zyada dropout?', Icons.location_on_outlined, answerVillageDropout),
-  const Question('Enquiry se registration conversion %?', Icons.swap_horiz, answerConversion),
-  const Question('Top 5 hire karne wali companies?', Icons.business_outlined, answerTopCompanies),
-  const Question('Kitne trainees ka koi attendance record nahi?', Icons.person_off_outlined, answerNoAttendance),
+  const Question('Which village has the most dropouts?', Icons.location_on_outlined, answerVillageDropout),
+  const Question('Enquiry to registration conversion %?', Icons.swap_horiz, answerConversion),
+  const Question('Top 5 hiring companies?', Icons.business_outlined, answerTopCompanies),
+  const Question('How many trainees have no attendance record?', Icons.person_off_outlined, answerNoAttendance),
 ];
 
 /// Village dropout me itne se kam trainees wale village nahi gine jaate (1/1 = 100% na aaye)
@@ -94,14 +94,14 @@ class _Ratio {
 
 Answer answerAtRisk(AskDataSet d) {
   final list = assessTrainees(d.students, d.attendance, DateTime.now());
-  if (list.isEmpty) return const Answer('Abhi koi Joined/Ongoing trainee nahi hai.');
+  if (list.isEmpty) return const Answer('No active (Joined/Ongoing) trainees yet.');
   final counts = {for (final l in RiskLevel.values) l: 0};
   for (final t in list) {
     counts[t.result.level] = counts[t.result.level]! + 1;
   }
   final atRisk = counts[RiskLevel.high]! + counts[RiskLevel.medium]!;
   return Answer(
-    '${list.length} active trainees me se $atRisk at-risk hain '
+    '$atRisk of ${list.length} active trainees are at risk '
     '(High ${counts[RiskLevel.high]}, Medium ${counts[RiskLevel.medium]}).',
     ['Level', 'Trainees'],
     [for (final l in RiskLevel.values) [l.label, '${counts[l]}']],
@@ -128,11 +128,11 @@ List<MapEntry<String, _Ratio>> _sortedDesc(Map<String, _Ratio> map) => map.entri
 
 Answer answerBatchDropout(AskDataSet d) {
   final sorted = _sortedDesc(_dropoutBy(d.students, (s) => _s(s['batch'])));
-  if (sorted.isEmpty) return const Answer('Kisi trainee ka batch set nahi hai.');
+  if (sorted.isEmpty) return const Answer('No trainee has a batch set.');
   final top = sorted.first;
-  if (top.value.part == 0) return const Answer('Kisi batch me abhi koi dropout nahi hai.');
+  if (top.value.part == 0) return const Answer('No dropouts in any batch yet.');
   return Answer(
-    '${top.key} me sabse zyada dropout: ${_pct(top.value.part, top.value.total)} '
+    '${top.key} has the highest dropout: ${_pct(top.value.part, top.value.total)} '
     '(${top.value.part}/${top.value.total}).',
     ['Batch', 'Dropped', 'Total', 'Dropout %'],
     [
@@ -153,11 +153,11 @@ Answer answerBatchAttendance(AskDataSet d) {
     });
   }
   map.removeWhere((_, r) => r.total == 0);
-  if (map.isEmpty) return const Answer('Abhi tak koi attendance mark nahi hui.');
+  if (map.isEmpty) return const Answer('No attendance has been marked yet.');
   final sorted = map.entries.toList()..sort((a, b) => a.value.value.compareTo(b.value.value));
   final low = sorted.first;
   return Answer(
-    '${low.key} ki attendance sabse kam hai: ${_pct(low.value.part, low.value.total)} present (ab tak ke saare records).',
+    '${low.key} has the lowest attendance: ${_pct(low.value.part, low.value.total)} present (all records).',
     ['Batch', 'Present', 'Records', 'Present %'],
     [
       for (final e in sorted.take(5))
@@ -179,9 +179,9 @@ Answer answerFees(AskDataSet d) {
     pending += due;
     if (due > 0) pendingCount++;
   }
-  if (total == 0 && paid == 0) return const Answer('Abhi kisi trainee ki fees entry nahi hai.');
+  if (total == 0 && paid == 0) return const Answer('No fee entries yet.');
   return Answer(
-    '${_money(paid)} collected, ${_money(pending)} pending ($pendingCount trainees ki fees baaki).',
+    '${_money(paid)} collected, ${_money(pending)} pending ($pendingCount trainees with dues).',
     ['', 'Amount'],
     [
       ['Total Fee', _money(total)],
@@ -201,7 +201,7 @@ Answer answerCoursePlacement(AskDataSet d) {
     final tid = _s(s['traineeId']);
     if (tid.isNotEmpty) courseOfTrainee[tid] = course;
   }
-  if (traineesByCourse.isEmpty) return const Answer('Kisi trainee ka course set nahi hai.');
+  if (traineesByCourse.isEmpty) return const Answer('No trainee has a course set.');
 
   // Ek trainee ki do placements ek hi gini jaati hain
   final placed = <String, Set<String>>{};
@@ -224,7 +224,7 @@ Answer answerCoursePlacement(AskDataSet d) {
   final totalTrainees = rows.fold<int>(0, (s, r) => s + r.trainees);
   return Answer(
     'Overall placement ${_pct(totalPlaced, totalTrainees)} ($totalPlaced/$totalTrainees); '
-    'sabse aage ${rows.first.course} (${_pct(rows.first.placed, rows.first.trainees)}).',
+    'highest is ${rows.first.course} (${_pct(rows.first.placed, rows.first.trainees)}).',
     ['Course', 'Trainees', 'Placed', 'Placement %'],
     [for (final r in rows) [r.course, '${r.trainees}', '${r.placed}', _pct(r.placed, r.trainees)]],
   );
@@ -242,15 +242,15 @@ Answer answerCourseSalary(AskDataSet d) {
     final course = _s(p['course']).isEmpty ? 'Unknown' : _s(p['course']);
     sums.putIfAbsent(course, () => []).add(salary);
   }
-  if (sums.isEmpty) return const Answer('Kisi placement me salary number me nahi mili.');
+  if (sums.isEmpty) return const Answer('No placement has a numeric salary.');
   final rows = sums.entries
       .map((e) => (course: e.key, count: e.value.length, avg: e.value.reduce((a, b) => a + b) / e.value.length))
       .toList()
     ..sort((a, b) => b.avg.compareTo(a.avg));
   final top = rows.first;
   return Answer(
-    '${top.course} ki average salary sabse zyada: ${_money(top.avg)}'
-    '${skipped > 0 ? ' ($skipped placements bina saaf salary ke chhode)' : ''}.',
+    '${top.course} has the highest average salary: ${_money(top.avg)}'
+    '${skipped > 0 ? ' ($skipped placements skipped, no clear salary)' : ''}.',
     ['Course', 'Placements', 'Avg Salary'],
     [for (final r in rows) [r.course, '${r.count}', _money(r.avg)]],
   );
@@ -261,13 +261,13 @@ Answer answerVillageDropout(AskDataSet d) {
     ..removeWhere((_, r) => r.total < kMinVillageTrainees);
   final sorted = _sortedDesc(map);
   if (sorted.isEmpty) {
-    return const Answer('Kisi village me $kMinVillageTrainees ya zyada trainees nahi hain.');
+    return const Answer('No village has $kMinVillageTrainees or more trainees.');
   }
   final top = sorted.first;
-  if (top.value.part == 0) return const Answer('Kisi village se abhi koi dropout nahi hai.');
+  if (top.value.part == 0) return const Answer('No dropouts from any village yet.');
   return Answer(
-    '${_titleCase(top.key)} se sabse zyada dropout: ${_pct(top.value.part, top.value.total)} '
-    '(${top.value.part}/${top.value.total}). Sirf $kMinVillageTrainees+ trainees wale village.',
+    '${_titleCase(top.key)} has the most dropouts: ${_pct(top.value.part, top.value.total)} '
+    '(${top.value.part}/${top.value.total}). Only villages with $kMinVillageTrainees+ trainees.',
     ['Village', 'Dropped', 'Total', 'Dropout %'],
     [
       for (final e in sorted.take(5))
@@ -277,12 +277,12 @@ Answer answerVillageDropout(AskDataSet d) {
 }
 
 Answer answerConversion(AskDataSet d) {
-  if (d.enquiries.isEmpty) return const Answer('Abhi koi enquiry nahi hai.');
+  if (d.enquiries.isEmpty) return const Answer('No enquiries yet.');
   final converted = d.enquiries
       .where((e) => _s(e['convertedTraineeId']).isNotEmpty || _s(e['followUpStatus']) == 'Registered')
       .length;
   return Answer(
-    '${d.enquiries.length} enquiries me se $converted registered: ${_pct(converted, d.enquiries.length)} conversion.',
+    '$converted of ${d.enquiries.length} enquiries registered: ${_pct(converted, d.enquiries.length)} conversion.',
     ['', 'Count'],
     [
       ['Enquiries', '${d.enquiries.length}'],
@@ -302,11 +302,11 @@ Answer answerTopCompanies(AskDataSet d) {
     names.putIfAbsent(key, () => name);
     counts[key] = (counts[key] ?? 0) + 1;
   }
-  if (counts.isEmpty) return const Answer('Abhi koi placement nahi hai.');
+  if (counts.isEmpty) return const Answer('No placements yet.');
   final sorted = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
   final top = sorted.first;
   return Answer(
-    '${names[top.key]} ne sabse zyada ${top.value} trainees hire kiye.',
+    '${names[top.key]} hired the most trainees (${top.value}).',
     ['#', 'Company', 'Hires'],
     [
       for (var i = 0; i < sorted.length && i < 5; i++)
@@ -321,14 +321,14 @@ Answer answerNoAttendance(AskDataSet d) {
     seen.addAll(day.statusMap.keys);
   }
   final active = d.students.where((s) => isActiveTrainee(_s(s['status']))).toList();
-  if (active.isEmpty) return const Answer('Abhi koi Joined/Ongoing trainee nahi hai.');
+  if (active.isEmpty) return const Answer('No active (Joined/Ongoing) trainees yet.');
   final missing = active.where((s) => !seen.contains(_s(s['id']))).toList()
     ..sort((a, b) => _s(a['name']).toLowerCase().compareTo(_s(b['name']).toLowerCase()));
-  if (missing.isEmpty) return Answer('Sabhi ${active.length} active trainees ka attendance record hai.');
+  if (missing.isEmpty) return Answer('All ${active.length} active trainees have an attendance record.');
   const shown = 10;
   return Answer(
-    '${active.length} active trainees me se ${missing.length} ka koi attendance record nahi'
-    '${missing.length > shown ? ' (pehle $shown dikh rahe hain)' : ''}.',
+    '${missing.length} of ${active.length} active trainees have no attendance record'
+    '${missing.length > shown ? ' (showing first $shown)' : ''}.',
     ['Name', 'Batch'],
     [
       for (final s in missing.take(shown))
@@ -403,7 +403,7 @@ class _AskBodyState extends State<_AskBody> {
         if (snap.hasError) {
           return _CenterMessage(
             icon: Icons.cloud_off_outlined,
-            text: 'Data load nahi ho paaya. Internet check karke dobara try karein.',
+            text: 'Could not load data. Check your internet connection and try again.',
             onRefresh: _refresh,
           );
         }
@@ -411,7 +411,7 @@ class _AskBodyState extends State<_AskBody> {
         if (data.isEmpty) {
           return _CenterMessage(
             icon: Icons.inbox_outlined,
-            text: 'Abhi koi data nahi hai. Trainees, attendance ya placements jodne ke baad yahan jawab dikhenge.',
+            text: 'No data yet. Answers will appear once trainees, attendance or placements are added.',
             onRefresh: _refresh,
           );
         }
@@ -468,7 +468,7 @@ class _AskBodyState extends State<_AskBody> {
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  'Upar koi sawaal chuniye.',
+                  'Select a question above.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.textMuted),
                 ),

@@ -130,7 +130,7 @@ class _ProfileGateState extends State<_ProfileGate> {
         // Network / permission error -> keep the session, let the user retry
         if (profileSnapshot.hasError) {
           return _ErrorScreen(
-            message: 'Profile load nahi ho payi. Internet check karke dobara try karein.',
+            message: 'Could not load your profile. Check your internet connection and try again.',
             onRetry: _retry,
             onLogout: () => FirebaseAuth.instance.signOut(),
           );

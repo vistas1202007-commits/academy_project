@@ -408,8 +408,8 @@ class _ReceiptButtonState extends State<_ReceiptButton> {
     if (!mounted) return;
     setState(() => _busy = false);
     final message = switch (result) {
-      ReceiptResult.denied => 'Access denied: receipt sirf Admin bana sakte hain.',
-      ReceiptResult.failed => 'Receipt nahi ban paayi. Dobara try karein.',
+      ReceiptResult.denied => 'Access denied: only Admin can generate receipts.',
+      ReceiptResult.failed => 'Could not create the receipt. Please try again.',
       ReceiptResult.shared => null,
     };
     if (message == null) return;
