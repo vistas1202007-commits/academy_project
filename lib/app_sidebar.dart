@@ -111,7 +111,10 @@ class _SidebarTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
-          hoverColor: Colors.white.withValues(alpha: 0.06),
+          // Hover / press par halka aurora; active wala tint upar Material par
+          hoverColor: AppColors.aurora.withValues(alpha: 0.08),
+          splashColor: AppColors.aurora.withValues(alpha: 0.10),
+          highlightColor: AppColors.aurora.withValues(alpha: 0.10),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(

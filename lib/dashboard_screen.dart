@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,6 +31,7 @@ import 'brand.dart';
 import 'app_shell.dart';
 import 'nav_items.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String role;
@@ -52,70 +55,16 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: desktop ? const Text('Dashboard') : const VistasAppBarTitle(),
+        flexibleSpace: const AppBarRibbon(),
       ),
-      body: SingleChildScrollView(
+      body: PageWash(child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.appPrimary,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.appPrimary.withValues(alpha: 0.25),
-                    blurRadius: 15,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Welcome back',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.aurora.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      _roleLabel,
-                      style: const TextStyle(
-                        color: AppColors.aurora,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Entrance(child: _WelcomeCard(name: name, roleLabel: _roleLabel)),
             const SizedBox(height: 24),
-            const Text(
-              'Overview',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
+            const SectionHeading('Overview'),
             const SizedBox(height: 12),
             // ---------------- OVERVIEW SECTIONS PER ROLE ----------------
             if (role == 'admin')
@@ -153,7 +102,7 @@ class DashboardScreen extends StatelessWidget {
                             mainAxisSpacing: 14,
                             childAspectRatio: 1.25,
                           ),
-                          children: [
+                          children: _staggered([
                             _DashboardCard(
                               icon: Icons.work_outline,
                               label: 'Trainees Placed',
@@ -169,14 +118,14 @@ class DashboardScreen extends StatelessWidget {
                               icon: Icons.business_outlined,
                               label: 'Active Companies',
                               value: companyCount,
-                              color: AppColors.teal,
+                              color: AppColors.appAccent,
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (context) => const CompanyListScreen()),
                                 );
                               },
                             ),
-                          ],
+                          ]),
                         );
                       },
                     );
@@ -186,14 +135,7 @@ class DashboardScreen extends StatelessWidget {
                   const _MobilizerOverview(),
             const SizedBox(height: 24),
             if (_actionsForRole(context).isNotEmpty) ...[
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
+              const SectionHeading('Quick Actions'),
               const SizedBox(height: 12),
               // Parent ki width se: phone par 2, desktop par ~180 ke jitne aa jayein
               LayoutBuilder(
@@ -203,10 +145,11 @@ class DashboardScreen extends StatelessWidget {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      for (final action in _actionsForRole(context))
+                      // Entrance stat cards ke baad se aage chalta hai
+                      for (final (i, action) in _actionsForRole(context).indexed)
                         SizedBox(
                           width: (constraints.maxWidth - 12 * (columns - 1)) / columns,
-                          child: action,
+                          child: Entrance(index: _statCardCount + i, child: action),
                         ),
                     ],
                   );
@@ -215,9 +158,16 @@ class DashboardScreen extends StatelessWidget {
             ],
           ],
         ),
-      ),
+      )),
     );
   }
+
+  /// Har role ke Overview me kitne stat cards hain (entrance ka stagger)
+  int get _statCardCount => switch (role) {
+        'admin' => 6,
+        'mobilizer' => 3,
+        _ => 2,
+      };
 
   List<_QuickActionButton> _actionsForRole(BuildContext context) {
     switch (role) {
@@ -580,12 +530,12 @@ class _AdminOverview extends StatelessWidget {
                     mainAxisSpacing: 14,
                     childAspectRatio: 1.25,
                   ),
-                  children: [
+                  children: _staggered([
                     _DashboardCard(
                       icon: Icons.contact_mail_outlined,
                       label: 'Total Enquiries',
                       value: totalEnquiries,
-                      color: AppColors.teal,
+                      color: AppColors.appAccent,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => const EnquiryListScreen()),
@@ -601,15 +551,15 @@ class _AdminOverview extends StatelessWidget {
                     ),
                     _DashboardCard(
                       icon: Icons.how_to_reg_outlined,
-                      label: 'Joined',
+                      label: 'Enrolled',
                       value: joined.toString(),
-                      color: AppColors.teal,
+                      color: AppColors.appAccent,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const StudentListScreen(
                               filterStatuses: ['Joined', 'Ongoing', 'Completed'],
-                              screenTitle: 'Joined Trainees',
+                              screenTitle: 'Enrolled Trainees',
                             ),
                           ),
                         );
@@ -635,7 +585,7 @@ class _AdminOverview extends StatelessWidget {
                       icon: Icons.person_off_outlined,
                       label: 'Dropped',
                       value: dropped.toString(),
-                      color: AppColors.teal,
+                      color: AppColors.appAccent,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -658,7 +608,7 @@ class _AdminOverview extends StatelessWidget {
                         );
                       },
                     ),
-                  ],
+                  ]),
                 );
               },
             );
@@ -693,7 +643,7 @@ class _TrainerOverview extends StatelessWidget {
             mainAxisSpacing: 14,
             childAspectRatio: 1.25,
           ),
-          children: [
+          children: _staggered([
             _DashboardCard(
               icon: Icons.class_outlined,
               label: 'My Batches',
@@ -705,18 +655,15 @@ class _TrainerOverview extends StatelessWidget {
                 );
               },
             ),
-            _DashboardCard(
-              icon: Icons.event_available_outlined,
-              label: "Today's Attendance",
-              value: '--',
-              color: AppColors.teal,
+            _TodayAttendanceCard(
+              batchIds: snapshot.hasData ? snapshot.data!.docs.map((d) => d.id).toList() : null,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const AttendanceHistoryScreen(trainerOnly: true)),
                 );
               },
             ),
-          ],
+          ]),
         );
       },
     );
@@ -754,7 +701,7 @@ class _MobilizerOverview extends StatelessWidget {
             mainAxisSpacing: 14,
             childAspectRatio: 1.25,
           ),
-          children: [
+          children: _staggered([
             _DashboardCard(
               icon: Icons.contact_mail_outlined,
               label: 'Enquiries',
@@ -770,7 +717,7 @@ class _MobilizerOverview extends StatelessWidget {
               icon: Icons.pending_actions_outlined,
               label: 'Pending Follow-up',
               value: pendingFollowUp.toString(),
-              color: AppColors.teal,
+              color: AppColors.appAccent,
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -796,9 +743,205 @@ class _MobilizerOverview extends StatelessWidget {
                 );
               },
             ),
-          ],
+          ]),
         );
       },
+    );
+  }
+}
+
+/// Grid ke cards ek ke baad ek (50ms gap) aate hain
+List<Widget> _staggered(List<Widget> cards) => [
+      for (final (i, card) in cards.indexed) Entrance(index: i, child: card),
+    ];
+
+class _WelcomeCard extends StatelessWidget {
+  final String name;
+  final String roleLabel;
+  const _WelcomeCard({required this.name, required this.roleLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.night, AppColors.appPrimary],
+        ),
+        boxShadow: [
+          BoxShadow(color: AppColors.night.withValues(alpha: 0.18), blurRadius: 16, offset: const Offset(0, 6)),
+        ],
+      ),
+      child: Stack(
+        children: [
+          const Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: AuroraRibbonPainter(opacity: 0.6)))),
+          // Kone me chhota pahaad, bahut halka
+          Positioned(
+            right: 12,
+            bottom: 0,
+            child: IgnorePointer(
+              child: Opacity(
+                opacity: 0.10,
+                child: Image.asset(
+                  BrandAssets.mountainGlyph,
+                  height: 90,
+                  color: Colors.white,
+                  colorBlendMode: BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Welcome back', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  name,
+                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.aurora.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.aurora.withValues(alpha: 0.35), width: 0.5),
+                  ),
+                  child: Text(
+                    roleLabel,
+                    style: const TextStyle(color: AppColors.aurora, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Trainer ke batches ki aaj ki attendance: present (Present/Late) / marked
+/// (Present/Late/Absent). Leave jaise baaki status dono me nahi gine jaate.
+class _TodayAttendanceCard extends StatefulWidget {
+  /// null = batches abhi load ho rahe hain
+  final List<String>? batchIds;
+  final VoidCallback onTap;
+  const _TodayAttendanceCard({required this.batchIds, required this.onTap});
+
+  @override
+  State<_TodayAttendanceCard> createState() => _TodayAttendanceCardState();
+}
+
+class _TodayAttendanceCardState extends State<_TodayAttendanceCard> {
+  /// whereIn me ek baar me 30 se zyada id nahi ja sakti
+  static const _chunk = 30;
+
+  final _subs = <StreamSubscription<QuerySnapshot>>[];
+  final _chunkDocs = <int, List<QueryDocumentSnapshot>>{};
+  String? _key;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscribe();
+  }
+
+  @override
+  void didUpdateWidget(_TodayAttendanceCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _subscribe();
+  }
+
+  /// Batch ids badle tabhi dobara subscribe
+  void _subscribe() {
+    final ids = widget.batchIds;
+    if (ids == null) return;
+    final key = ([...ids]..sort()).join(',');
+    if (key == _key) return;
+    _key = key;
+    _cancel();
+    _chunkDocs.clear();
+    for (var start = 0, n = 0; start < ids.length; start += _chunk, n++) {
+      final part = ids.sublist(start, (start + _chunk).clamp(0, ids.length));
+      final index = n;
+      _subs.add(FirebaseFirestore.instance
+          .collection('attendance')
+          .where('batchId', whereIn: part)
+          .snapshots()
+          .listen((snap) {
+        if (mounted) setState(() => _chunkDocs[index] = snap.docs);
+      }, onError: (Object _) {}));
+    }
+  }
+
+  void _cancel() {
+    for (final s in _subs) {
+      s.cancel();
+    }
+    _subs.clear();
+  }
+
+  @override
+  void dispose() {
+    _cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ids = widget.batchIds;
+    final chunks = ids == null ? 0 : (ids.length + _chunk - 1) ~/ _chunk;
+    final loading = ids == null || _chunkDocs.length < chunks;
+
+    var value = '--';
+    String? subtitle;
+    if (!loading) {
+      final now = DateTime.now();
+      var records = 0, present = 0, marked = 0;
+      for (final docs in _chunkDocs.values) {
+        for (final doc in docs) {
+          final d = doc.data() as Map<String, dynamic>;
+          final date = d['date'];
+          if (date is! Timestamp) continue;
+          final t = date.toDate();
+          if (t.year != now.year || t.month != now.month || t.day != now.day) continue;
+          records++;
+          final map = d['statusMap'];
+          if (map is! Map) continue;
+          for (final v in map.values) {
+            final status = (v ?? '').toString().trim().toLowerCase();
+            if (status == 'present' || status == 'late') {
+              present++;
+              marked++;
+            } else if (status == 'absent') {
+              marked++;
+            }
+          }
+        }
+      }
+      if (records == 0) {
+        value = 'Not marked yet';
+      } else {
+        value = marked == 0 ? '--' : '${(present * 100 / marked).round()}%';
+        subtitle = '$present of $marked present';
+      }
+    }
+
+    return _DashboardCard(
+      icon: Icons.event_available_outlined,
+      label: "Today's Attendance",
+      value: value,
+      subtitle: subtitle,
+      color: AppColors.appAccent,
+      onTap: widget.onTap,
     );
   }
 }
@@ -807,6 +950,7 @@ class _DashboardCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final String? subtitle;
   final Color color;
   final VoidCallback? onTap;
   const _DashboardCard({
@@ -814,58 +958,45 @@ class _DashboardCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
+    this.subtitle,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    // "Not marked yet" jaisi text value chhoti dikhti hai
+    final isText = !RegExp(r'^[\d-]').hasMatch(value);
+    return AppCard(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.mintChipStart, AppColors.mintChipEnd],
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          ],
-        ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const Spacer(),
+          CountUpText(
+            value,
+            style: TextStyle(fontSize: isText ? 15 : 24, fontWeight: FontWeight.bold, color: color, height: 1.15),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle == null ? label : '$label · $subtitle',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+        ],
       ),
     );
   }
@@ -883,26 +1014,28 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: AppColors.appPrimary, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-          ],
+    return Material(
+      color: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppCard.radius,
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            children: [
+              Icon(icon, color: AppColors.appPrimary, size: 24),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
