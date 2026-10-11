@@ -9,6 +9,10 @@ service cloud.firestore {
     function isTrainer() { return isActiveUser() && myRole() == 'trainer'; }
     function isPlacementOfficer() { return isActiveUser() && myRole() == 'placementOfficer'; }
     function isMobilizer() { return isActiveUser() && myRole() == 'mobilizer'; }
+    // Recycle Bin fields: only an Admin may set or change them
+    function binKeys() { return ['isDeleted', 'deletedAt', 'deletedBy']; }
+    function createsBin() { return request.resource.data.keys().hasAny(binKeys()); }
+    function touchesBin() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(binKeys()); }
 
     match /users/{userId} {
       allow read: if isActiveUser() && (request.auth.uid == userId || isAdmin());
@@ -22,7 +26,7 @@ service cloud.firestore {
     }
     match /students/{studentId} {
       allow read: if isActiveUser() && (isAdmin() || isTrainer() || isPlacementOfficer() || isMobilizer());
-      allow create: if isAdmin() || isMobilizer();
+      allow create: if isAdmin() || (isMobilizer() && !createsBin());
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
@@ -38,16 +42,21 @@ service cloud.firestore {
     }
     match /companies/{companyId} {
       allow read: if isActiveUser() && (isAdmin() || isPlacementOfficer());
-      allow create, update: if isAdmin() || isPlacementOfficer();
+      allow create: if isAdmin() || (isPlacementOfficer() && !createsBin());
+      allow update: if isAdmin() || (isPlacementOfficer() && !touchesBin());
       allow delete: if isAdmin();
     }
     match /placements/{placementId} {
       allow read: if isActiveUser() && (isAdmin() || isPlacementOfficer());
-      allow write: if isAdmin() || isPlacementOfficer();
+      allow create: if isAdmin() || (isPlacementOfficer() && !createsBin());
+      allow update: if isAdmin() || (isPlacementOfficer() && !touchesBin());
+      allow delete: if isAdmin();
     }
     match /enquiries/{enquiryId} {
       allow read: if isActiveUser() && (isAdmin() || isMobilizer());
-      allow write: if isAdmin() || isMobilizer();
+      allow create: if isAdmin() || (isMobilizer() && !createsBin());
+      allow update: if isAdmin() || (isMobilizer() && !touchesBin());
+      allow delete: if isAdmin();
     }
     match /reports/{reportId} {
       allow read: if isActiveUser() && (isAdmin() || isMobilizer());
