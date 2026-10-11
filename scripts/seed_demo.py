@@ -1,4 +1,4 @@
-"""One-time demo data seed for VTI ERP (Firestore project skillbridge-3b6c3).
+"""One-time demo data seed for Vistas.
 
 Schema is taken from the app's screens:
   batches     -> lib/add_batch_screen.dart
@@ -576,7 +576,7 @@ def clear(db, dry_run):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='VTI ERP demo data seed')
+    ap = argparse.ArgumentParser(description='Vistas demo data seed')
     ap.add_argument('--excel', default=os.path.join(os.path.dirname(__file__), 'demo_trainees_Vistas.xlsx'),
                     help='path to demo_trainees_Vistas.xlsx')
     ap.add_argument('--dry-run', action='store_true', help='only print counts, write nothing')
