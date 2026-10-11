@@ -22,6 +22,7 @@ import 'fees_report_screen.dart';
 import 'analytics_screen.dart';
 import 'at_risk_screen.dart';
 import 'ask_data_screen.dart';
+import 'notifications_screen.dart';
 import 'app_colors.dart';
 import 'brand.dart';
 import 'app_shell.dart';
@@ -370,6 +371,18 @@ class DashboardScreen extends StatelessWidget {
                 MaterialPageRoute(
                   settings: const RouteSettings(name: NavIds.askData),
                   builder: (context) => const AskDataScreen(),
+                ),
+              );
+            },
+          ),
+          _QuickActionButton(
+            icon: Icons.notifications_outlined,
+            label: 'Notifications',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  settings: const RouteSettings(name: NavIds.notifications),
+                  builder: (context) => const NotificationsScreen(),
                 ),
               );
             },

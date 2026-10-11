@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'admin_gate.dart';
 import 'app_colors.dart';
 import 'at_risk_logic.dart';
+import 'friendly_error.dart';
+import 'notification_log.dart';
 import 'responsive.dart';
 import 'student_profile_screen.dart';
 
@@ -65,13 +67,47 @@ class _AtRiskBody extends StatefulWidget {
 class _AtRiskBodyState extends State<_AtRiskBody> {
   late Future<List<TraineeRisk>> _future = _load();
 
+  /// Guardian alert ke liye poora student data (doc id se)
+  Map<String, Map<String, dynamic>> _studentsById = {};
+  final Set<String> _notifying = {};
+
   Future<List<TraineeRisk>> _load() async {
     final db = FirebaseFirestore.instance;
     final results = await Future.wait([
       db.collection('students').get(),
       db.collection('attendance').get(),
     ]);
-    return assessTrainees(studentMapsFrom(results[0]), attendanceDaysFrom(results[1]), DateTime.now());
+    final students = studentMapsFrom(results[0]);
+    _studentsById = {for (final s in students) s['id'] as String: s};
+    return assessTrainees(students, attendanceDaysFrom(results[1]), DateTime.now());
+  }
+
+  /// High-risk trainee ke guardian ke liye simulated alert
+  Future<void> _notify(TraineeRisk risk) async {
+    final student = _studentsById[risk.id];
+    if (student == null) return;
+    setState(() => _notifying.add(risk.id));
+    String message;
+    var error = false;
+    try {
+      final batch = riskAlert(student, risk.result.reasons, DateTime.now());
+      if (batch.items.isEmpty) {
+        message = 'No guardian phone on record for ${risk.name}.';
+        error = true;
+      } else {
+        final result = await logNotifications(batch.items);
+        message = result.logged > 0 ? 'Risk alert logged (simulated).' : 'Already logged today.';
+      }
+    } catch (e) {
+      debugPrint('Risk alert failed: $e');
+      message = friendlyError(e);
+      error = true;
+    }
+    if (!mounted) return;
+    setState(() => _notifying.remove(risk.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: error ? AppColors.danger : AppColors.appPrimary),
+    );
   }
 
   Future<void> _refresh() async {
@@ -117,7 +153,12 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
             itemCount: list.length + 1,
             itemBuilder: (context, i) {
               if (i == 0) return _header(counts);
-              return _RiskRow(risk: list[i - 1]);
+              final risk = list[i - 1];
+              return _RiskRow(
+                risk: risk,
+                notifying: _notifying.contains(risk.id),
+                onNotify: risk.result.level == RiskLevel.high ? () => _notify(risk) : null,
+              );
             },
           ),
         );
@@ -184,7 +225,11 @@ class _CountCard extends StatelessWidget {
 
 class _RiskRow extends StatelessWidget {
   final TraineeRisk risk;
-  const _RiskRow({required this.risk});
+
+  /// Sirf High-risk rows ke liye; null = button nahi
+  final VoidCallback? onNotify;
+  final bool notifying;
+  const _RiskRow({required this.risk, this.onNotify, this.notifying = false});
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +271,27 @@ class _RiskRow extends StatelessWidget {
                         Text(
                           r.reasons.join(', '),
                           style: const TextStyle(fontSize: 12.5, color: AppColors.textDark),
+                        ),
+                      ],
+                      if (onNotify != null) ...[
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: notifying ? null : onNotify,
+                          icon: notifying
+                              ? const SizedBox(
+                                  height: 14,
+                                  width: 14,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.appPrimary),
+                                )
+                              : const Icon(Icons.notifications_active_outlined, size: 16),
+                          label: const Text('Notify guardian (simulated)'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.appPrimary,
+                            side: const BorderSide(color: AppColors.border),
+                            visualDensity: VisualDensity.compact,
+                            textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
                         ),
                       ],
                     ],
