@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       navigatorObservers: [shellRouteObserver],
-      // Fingerprint lock poore app ke upar (Profile se on hota hai).
-      // Desktop par AppShell sidebar lagata hai; phone par koi farak nahi.
+      // Fingerprint lock over the whole app (turned on from Profile).
+      // On desktop AppShell adds the sidebar; no change on phone.
       builder: (context, child) => AppLock(child: AppShell(child: child ?? const SizedBox.shrink())),
       theme: AppTheme.light,
       home: const AuthCheckScreen(),
@@ -36,8 +36,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Auth check aur profile load dono me ek hi OpenScreen dikhe (aurora ruke
-/// ya dobara fade na ho), isliye ek GlobalKey se wahi element aage jata hai
+/// The same OpenScreen shows during both auth check and profile load (so the
+/// aurora doesn't stop or fade again); a GlobalKey carries that element over
 final GlobalKey _openScreenKey = GlobalKey();
 
 class AuthCheckScreen extends StatelessWidget {

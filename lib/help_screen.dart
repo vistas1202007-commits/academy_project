@@ -3,7 +3,7 @@ import 'app_colors.dart';
 import 'responsive.dart';
 import 'ui_kit.dart';
 
-/// Role chips ke labels
+/// Labels for the role chips
 const String _all = 'All roles';
 const String _admin = 'Admin';
 const String _trainer = 'Trainer';
@@ -24,13 +24,13 @@ class _HelpSection {
   final List<String> roles;
   final List<_HelpItem> items;
 
-  /// Sirf Roles section me role matrix table dikhti hai
+  /// The role matrix table appears only in the Roles section
   final bool showRoleMatrix;
 
   const _HelpSection(this.title, this.icon, this.roles, this.items, {this.showRoleMatrix = false});
 }
 
-/// Role matrix: feature, phir Admin / Trainer / Placement Officer / Mobilizer
+/// Role matrix: feature, then Admin / Trainer / Placement Officer / Mobilizer
 const List<List<String>> _roleMatrix = [
   ['Dashboard, My Profile, Help', '✓', '✓', '✓', '✓'],
   ['Add / edit / delete trainees', '✓', '—', '—', '—'],
@@ -300,7 +300,7 @@ class _HelpScreenState extends State<HelpScreen> {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          // Search badalne par key badalti hai, taaki initiallyExpanded dobara lage
+          // The key changes with the search so initiallyExpanded applies again
           key: ValueKey('${section.title}-$expanded'),
           initiallyExpanded: expanded,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

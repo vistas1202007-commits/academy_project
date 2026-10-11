@@ -8,7 +8,7 @@ import 'responsive.dart';
 import 'soft_delete.dart';
 import 'ui_kit.dart';
 
-/// Ek tab: kaunsa collection, tab ka naam aur row ka title kaise bane
+/// One tab: which collection, the tab name and how the row title is built
 class _BinTab {
   final String collection;
   final String label;
@@ -24,7 +24,7 @@ String _join(List<String> parts) {
   return list.isEmpty ? 'Unnamed' : list.join(' · ');
 }
 
-/// Delete buttons ka common dialog; true = Recycle Bin me bhejo
+/// Shared dialog for Delete buttons; true = move to the Recycle Bin
 Future<bool> confirmMoveToBin(BuildContext context, String name) async {
   final ok = await showDialog<bool>(
     context: context,
@@ -159,7 +159,7 @@ class _BinList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      // Poora collection; deleted wale client-side chhante hain (koi index nahi)
+      // Whole collection; deleted ones are filtered client-side (no index)
       stream: FirebaseFirestore.instance.collection(tab.collection).snapshots(),
       builder: (context, snap) {
         if (snap.hasError) {
@@ -216,7 +216,7 @@ class _BinList extends StatelessWidget {
                       ),
                     ],
                   ),
-                  // Phone par bhi fit ho, isliye buttons neeche alag line me
+                  // Buttons on a separate line below so it fits on phone too
                   Align(
                     alignment: Alignment.centerRight,
                     child: Wrap(

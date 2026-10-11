@@ -1,14 +1,14 @@
 """One-time demo data seed for VTI ERP (Firestore project skillbridge-3b6c3).
 
-Schema app ke screens se liya gaya hai:
+Schema is taken from the app's screens:
   batches     -> lib/add_batch_screen.dart
   students    -> lib/add_student_screen.dart (+ counters/traineeId_<year>)
   attendance  -> lib/mark_attendance_screen.dart (doc id = <batchId>_<yyyy-mm-dd>)
   companies   -> lib/add_company_screen.dart
   placements  -> lib/add_placement_screen.dart
-Har seeded record pe demoSeed: true lagta hai.
+Every seeded record gets demoSeed: true.
 
-Credentials: service account key ka path env var GOOGLE_APPLICATION_CREDENTIALS me do.
+Credentials: put the service account key path in the GOOGLE_APPLICATION_CREDENTIALS env var.
 
 Usage:
   python scripts/seed_demo.py --excel path/to/demo_trainees_Vistas.xlsx --dry-run
@@ -46,7 +46,7 @@ BATCHES = {
     'HSP-01': ('Hospitality', date(2026, 7, 20)),
 }
 
-# lib/course_data.dart ke durations (months)
+# Durations (months) from lib/course_data.dart
 COURSE_MONTHS = {'Electrical': 4, 'BPO': 4, 'Retail': 3, 'Beauty': 4, 'CAD': 4, 'Hospitality': 3}
 BATCH_TIMING = '10:00 AM - 2:00 PM'
 
@@ -92,7 +92,7 @@ def add_months(d, months):
 
 
 def ist_midnight(d):
-    """App local (IST) midnight ka DateTime save karta hai; wahi yahan."""
+    """The app saves the local (IST) midnight DateTime; same here."""
     return datetime(d.year, d.month, d.day, tzinfo=IST)
 
 
@@ -181,7 +181,7 @@ def read_trainees(path):
                 col[key] = i
         missing = [c for c in REQUIRED_COLS if c not in col]
         if missing:
-            raise SystemExit(f'[{ws.title}] header me columns nahi mile: {missing}')
+            raise SystemExit(f'[{ws.title}] columns missing from header: {missing}')
 
         for r, row in enumerate(rows, start=3):
             get = lambda k: row[col[k]] if col[k] < len(row) else None
@@ -191,22 +191,22 @@ def read_trainees(path):
             where = f'[{ws.title} row {r}] {name}'
             batch = norm_batch(get('batch')) or norm_batch(ws.title)
             if batch not in BATCHES:
-                warnings.append(f'{where}: batch "{batch}" list me nahi, skip')
+                warnings.append(f'{where}: batch "{batch}" not in list, skipped')
                 continue
             status = norm_status(get('status'))
             if status is None:
-                warnings.append(f'{where}: status "{cell_str(get("status"))}" app options me nahi, '
-                                f'"Registered" maana')
+                warnings.append(f'{where}: status "{cell_str(get("status"))}" not in app options, '
+                                f'treated as "Registered"')
                 status = 'Registered'
             g = cell_str(get('gender')).upper()[:1]
             gender = {'M': 'Male', 'F': 'Female'}.get(g, 'Other')
             dob = cell_date(get('dob'))
             if get('dob') not in (None, '') and dob is None:
-                warnings.append(f'{where}: DOB "{get("dob")}" parse nahi hua, khali chhoda')
+                warnings.append(f'{where}: DOB "{get("dob")}" could not be parsed, left empty')
             total_fee = cell_num(get('totalFee'))
             fee_paid = cell_num(get('feePaid'))
             if fee_paid > total_fee:
-                warnings.append(f'{where}: fee paid {fee_paid} > total {total_fee}, total ke barabar kiya')
+                warnings.append(f'{where}: fee paid {fee_paid} > total {total_fee}, set equal to total')
                 fee_paid = total_fee
             trainees.append({
                 'name': name,
@@ -230,9 +230,9 @@ def read_trainees(path):
 def init_db():
     cred_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not cred_path:
-        raise SystemExit('GOOGLE_APPLICATION_CREDENTIALS env var set nahi hai.')
+        raise SystemExit('GOOGLE_APPLICATION_CREDENTIALS env var is not set.')
     if not os.path.isfile(cred_path):
-        raise SystemExit('GOOGLE_APPLICATION_CREDENTIALS wali file nahi mili.')
+        raise SystemExit('GOOGLE_APPLICATION_CREDENTIALS file not found.')
 
     import firebase_admin
     from firebase_admin import credentials, firestore
@@ -242,7 +242,7 @@ def init_db():
 
 
 class Writer:
-    """Batched writes (400 per commit); dry-run me sirf ginta hai."""
+    """Batched writes (400 per commit); dry-run only counts."""
 
     def __init__(self, db, dry_run):
         self.db, self.dry_run = db, dry_run
@@ -297,7 +297,7 @@ def find_users(db):
             admin = doc
             break
     if admin is None:
-        raise SystemExit('users me role "admin" wala active user nahi mila.')
+        raise SystemExit('No active user with role "admin" found in users.')
     trainers = [d for d in where_eq(db.collection('users'), 'role', 'trainer').stream()
                 if d.to_dict().get('isActive', True) is not False]
     trainers.sort(key=lambda d: d.id)
@@ -314,7 +314,7 @@ def seed(db, excel_path, dry_run):
     for w in warnings:
         print('WARN', w)
     if len(trainees) != EXPECTED_TRAINEES:
-        print(f'WARN Excel me {len(trainees)} trainees mile (expected {EXPECTED_TRAINEES}).')
+        print(f'WARN Found {len(trainees)} trainees in Excel (expected {EXPECTED_TRAINEES}).')
 
     admin, trainers = find_users(db)
     stamp = {'createdBy': admin.id, 'createdByRole': 'admin'}
@@ -413,7 +413,7 @@ def seed(db, excel_path, dry_run):
         })
         counts['students'] += 1
         seeded.append({**t, 'docId': ref.id, 'traineeId': tid, 'isNew': True})
-        existing_students[key] = (ref.id, tid)  # Excel ke andar duplicate row bhi skip ho
+        existing_students[key] = (ref.id, tid)  # also skip duplicate rows within the Excel file
 
     final_count = next_num - 1
     if counts['students']:
@@ -423,7 +423,7 @@ def seed(db, excel_path, dry_run):
             'demoSeedBaseCount': base_count,
         })
 
-    # --- attendance: har batch ke apne aakhri 6 hafte (Mon-Sat), aaj se pehle tak ---
+    # --- attendance: each batch's own last 6 weeks (Mon-Sat), up to yesterday ---
     profiles = {}
     for s in seeded:
         if rng.random() < 0.08:
@@ -487,7 +487,7 @@ def seed(db, excel_path, dry_run):
         })
         counts['companies'] += 1
 
-    # --- placements (sirf Completed trainees) ---
+    # --- placements (Completed trainees only) ---
     placed_ids = {doc.to_dict().get('traineeId') for doc in db.collection('placements').stream()}
     completed = [s for s in seeded if s['status'] == 'Completed' and s['traineeId']]
     already = [s for s in completed if s['traineeId'] in placed_ids]
@@ -496,7 +496,7 @@ def seed(db, excel_path, dry_run):
     rng.shuffle(candidates)
     to_place = candidates[:max(0, TARGET_PLACEMENTS - len(already))]
     if len(completed) < TARGET_PLACEMENTS:
-        print(f'WARN sirf {len(completed)} Completed trainees hain, placements utne hi banenge.')
+        print(f'WARN Only {len(completed)} Completed trainees, so only that many placements will be created.')
 
     for s in to_place:
         b = batch_info[s['batch']]
@@ -529,9 +529,9 @@ def seed(db, excel_path, dry_run):
     w.flush()
 
     print()
-    print('DRY RUN - kuch likha nahi gaya' if dry_run else 'Seed complete')
+    print('DRY RUN - nothing was written' if dry_run else 'Seed complete')
     for k in counts:
-        print(f'  {k:<11} new: {counts[k]:>4}   skipped (pehle se): {skipped[k]:>4}')
+        print(f'  {k:<11} new: {counts[k]:>4}   skipped (existing): {skipped[k]:>4}')
     if counts['students']:
         print(f'  traineeId   VIS-{YEAR}-{final_count - counts["students"] + 1:04d} .. '
               f'VIS-{YEAR}-{final_count:04d}; counters/{COUNTER_DOC}.count = {final_count}')
@@ -556,7 +556,7 @@ def clear(db, dry_run):
     snap = counter_ref.get()
     data = snap.to_dict() if snap.exists else {}
     if 'demoSeedBaseCount' in data:
-        # Seed ke baad app se bane trainees ke IDs na takrayein
+        # So IDs of trainees created in the app after seeding don't collide
         remaining_max = 0
         for doc in db.collection('students').stream():
             d = doc.to_dict()
@@ -572,19 +572,19 @@ def clear(db, dry_run):
                 'demoSeedBaseCount': firestore.DELETE_FIELD,
             })
         print(f'  counters/{COUNTER_DOC}.count -> {new_count}')
-    print('DRY RUN - kuch delete nahi hua' if dry_run else 'Clear complete')
+    print('DRY RUN - nothing was deleted' if dry_run else 'Clear complete')
 
 
 def main():
     ap = argparse.ArgumentParser(description='VTI ERP demo data seed')
     ap.add_argument('--excel', default=os.path.join(os.path.dirname(__file__), 'demo_trainees_Vistas.xlsx'),
-                    help='demo_trainees_Vistas.xlsx ka path')
-    ap.add_argument('--dry-run', action='store_true', help='sirf counts print karo, kuch mat likho')
-    ap.add_argument('--clear', action='store_true', help='sirf demoSeed: true wale records delete karo')
+                    help='path to demo_trainees_Vistas.xlsx')
+    ap.add_argument('--dry-run', action='store_true', help='only print counts, write nothing')
+    ap.add_argument('--clear', action='store_true', help='delete only records with demoSeed: true')
     args = ap.parse_args()
 
     if not args.clear and not os.path.isfile(args.excel):
-        raise SystemExit(f'Excel file nahi mili: {args.excel}')
+        raise SystemExit(f'Excel file not found: {args.excel}')
 
     db = init_db()
     if args.clear:

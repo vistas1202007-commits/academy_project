@@ -158,7 +158,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         ? DateFormat('dd MMM yyyy').format((data['enquiryDate'] as Timestamp).toDate())
         : '-';
     final alreadyRegistered = selectedStatus == 'Registered';
-    // Sheet band hone ke baad snackbar screen ke context par dikhana hai
+    // After the sheet closes, show the snackbar on the screen's context
     final screenContext = context;
 
     showModalBottomSheet(
@@ -298,7 +298,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                         ),
                       ),
                     ],
-                    // Recycle Bin me bhejna sirf Admin ka kaam
+                    // Only Admin can move items to the Recycle Bin
                     FutureBuilder<String>(
                       future: currentUserRole(),
                       builder: (context, roleSnap) {
@@ -354,7 +354,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Sab roles (Mobilizer bhi) saari enquiries dekhte hain.
+    // All roles (Mobilizer too) see all enquiries.
     final query = FirebaseFirestore.instance
         .collection('enquiries')
         .orderBy('createdAt', descending: true);

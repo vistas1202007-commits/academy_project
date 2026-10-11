@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 String? _cachedUid;
 String? _cachedRole;
 
-/// Logged-in user ka role ('admin', 'trainer', ...). Ek baar fetch hoke
-/// cache ho jata hai; user badalne par dobara fetch hota hai.
+/// The logged-in user's role ('admin', 'trainer', ...). Fetched once and
+/// cached; fetched again when the user changes.
 Future<String> currentUserRole() async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) return '';
@@ -21,8 +21,8 @@ Future<String> currentUserRole() async {
   }
 }
 
-/// Naye record pe createdBy + createdByRole lagane ke liye.
-/// Use: final stamp = await creatorStamp();  phir map me ...stamp
+/// For stamping createdBy + createdByRole on new records.
+/// Usage: final stamp = await creatorStamp();  then ...stamp in the map
 Future<Map<String, dynamic>> creatorStamp() async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) return {};

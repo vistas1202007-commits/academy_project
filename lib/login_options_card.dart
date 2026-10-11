@@ -4,8 +4,8 @@ import 'auth_service.dart';
 import 'app_lock.dart';
 import 'app_colors.dart';
 
-/// Profile screen ka "LOGIN OPTIONS" card: mobile number jodna, Google
-/// account jodna, aur fingerprint lock on/off.
+/// The Profile screen's "LOGIN OPTIONS" card: link a mobile number, link a
+/// Google account, and turn the fingerprint lock on/off.
 class LoginOptionsCard extends StatefulWidget {
   const LoginOptionsCard({super.key});
 
@@ -71,7 +71,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
       final credential = await googleCredential();
       if (credential == null) {
         if (mounted) setState(() => _busy = false);
-        return; // user ne cancel kiya
+        return; // user cancelled
       }
       error = await linkToCurrentUser(credential);
     } catch (e) {
@@ -113,7 +113,7 @@ class _LoginOptionsCardState extends State<LoginOptionsCard> {
 
   Future<void> _toggleLock(bool enable) async {
     if (enable) {
-      // On karne se pehle ek baar fingerprint check, taaki baad me phans na jaayein
+      // Check the fingerprint once before turning on, so the user doesn't get locked out later
       final ok = await AppLockSettings.authenticate('Confirm to turn on app lock');
       if (!ok) {
         _showResult('Could not verify. App lock was not turned on.', '');

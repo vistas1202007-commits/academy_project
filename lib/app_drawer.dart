@@ -15,7 +15,7 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  // Role check hone tak sirf sabke liye wale items
+  // Only items for everyone until the role check finishes
   String _role = '';
 
   @override

@@ -3,54 +3,54 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'at_risk_logic.dart';
 
-/// Recycle Bin ka soft delete: students, enquiries, placements, companies.
-/// Record mitta nahi, bas isDeleted / deletedAt / deletedBy lag jaate hain.
-/// Purane aur seeded docs me ye field nahi hota, isliye query me where nahi,
-/// har jagah client-side [isLive] se filter hota hai.
+/// Recycle Bin soft delete: students, enquiries, placements, companies.
+/// The record isn't erased; it just gets isDeleted / deletedAt / deletedBy.
+/// Older and seeded docs don't have these fields, so there's no query where;
+/// everything is filtered client-side with [isLive].
 
-/// Recycle Bin wale collections
+/// Collections covered by the Recycle Bin
 const List<String> kBinCollections = ['students', 'enquiries', 'placements', 'companies'];
 
-/// true = record Recycle Bin me nahi hai
+/// true = record is not in the Recycle Bin
 bool isLive(Map<String, dynamic>? data) => data != null && data['isDeleted'] != true;
 
-/// Snapshot ke sirf live docs
+/// Only the live docs of a snapshot
 List<QueryDocumentSnapshot<Map<String, dynamic>>> liveDocs(QuerySnapshot<Map<String, dynamic>> snap) =>
     snap.docs.where((d) => isLive(d.data())).toList();
 
-/// Untyped snapshot (`StreamBuilder<QuerySnapshot>`) ke sirf live docs
+/// Only the live docs of an untyped snapshot (`StreamBuilder<QuerySnapshot>`)
 List<QueryDocumentSnapshot> liveDocsOf(QuerySnapshot snap) =>
     snap.docs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
 
-/// Record ko Recycle Bin me bhejta hai
+/// Moves a record to the Recycle Bin
 Future<void> softDelete(DocumentReference ref) => ref.update({
       'isDeleted': true,
       'deletedAt': FieldValue.serverTimestamp(),
       'deletedBy': FirebaseAuth.instance.currentUser?.uid,
     });
 
-/// Teeno field hata deta hai, record bilkul pehle jaisa
+/// Removes all three fields, restoring the record exactly as before
 Future<void> restoreFromBin(DocumentReference ref) => ref.update({
       'isDeleted': FieldValue.delete(),
       'deletedAt': FieldValue.delete(),
       'deletedBy': FieldValue.delete(),
     });
 
-/// Deleted trainees ke Trainee ID (VIS-...). Placements isi se jude hote hain,
-/// isliye ginti me in IDs wali placements chhod di jaati hain. Khali ya
-/// anjaan Trainee ID wali placement ginti me rehti hai.
+/// Trainee IDs (VIS-...) of deleted trainees. Placements are linked by this,
+/// so placements with these IDs are left out of counts. Placements with an
+/// empty or unknown Trainee ID are still counted.
 Set<String> deletedTraineeIds(Iterable<Map<String, dynamic>> students) => students
     .where((s) => !isLive(s))
     .map((s) => (s['traineeId'] ?? '').toString().trim())
     .where((id) => id.isNotEmpty)
     .toSet();
 
-/// Placement kisi deleted trainee ki nahi hai aur khud bhi deleted nahi
+/// Placement doesn't belong to a deleted trainee and isn't deleted itself
 bool isCountablePlacement(Map<String, dynamic> p, Set<String> deletedIds) =>
     isLive(p) && !deletedIds.contains((p['traineeId'] ?? '').toString().trim());
 
-/// Attendance me sirf [liveIds] (live trainees ke doc id) wali entries.
-/// Attendance docs khud nahi badalte, bas ginti me deleted trainee nahi aata.
+/// Only attendance entries for [liveIds] (live trainees' doc ids).
+/// Attendance docs aren't changed; deleted trainees are just left out of counts.
 List<AttendanceDay> liveAttendance(Iterable<AttendanceDay> days, Set<String> liveIds) => [
       for (final d in days)
         AttendanceDay(

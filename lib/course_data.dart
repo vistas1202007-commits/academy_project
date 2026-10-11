@@ -7,7 +7,7 @@ const List<Map<String, String>> kCourseOptions = [
   {'value': 'Hospitality', 'label': 'Hospitality - Hospitality Assistant (3 months)'},
 ];
 
-/// Batch label ka prefix (ELC-01 -> ELC) se course value nikalne ke liye
+/// For getting the course value from a batch label prefix (ELC-01 -> ELC)
 const Map<String, String> kBatchPrefixToCourse = {
   'ELC': 'Electrical',
   'BPO': 'BPO',

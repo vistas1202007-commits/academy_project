@@ -371,7 +371,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             _sectionTitle('TRAINING INFORMATION'),
             Builder(
               builder: (context) {
-                // Purana course value (list se bahar) bhi dikhe, taaki dropdown crash na ho
+                // Also show an old course value (not in the list) so the dropdown doesn't crash
                 final options = [...kCourseOptions];
                 if (_selectedCourse != null &&
                     !options.any((c) => c['value'] == _selectedCourse)) {

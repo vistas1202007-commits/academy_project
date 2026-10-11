@@ -28,7 +28,7 @@ class StudentProfileScreen extends StatelessWidget {
     }
   }
 
-  /// DOB se aaj tak ki poori umar (saal me)
+  /// Age in full years from DOB to today
   int _ageFromDob(DateTime dob) {
     final now = DateTime.now();
     int age = now.year - dob.year;
@@ -96,7 +96,7 @@ class StudentProfileScreen extends StatelessWidget {
     );
   }
 
-  /// placements collection se is trainee ka latest record (orderBy nahi, taaki index na lage)
+  /// This trainee's latest record from placements (no orderBy, so no index is needed)
   Widget _placementSection(String traineeId) {
     if (traineeId.isEmpty) {
       return _sectionCard('PLACEMENT', [
@@ -123,7 +123,7 @@ class StudentProfileScreen extends StatelessWidget {
             _infoRow(Icons.work_off_outlined, 'Status', 'Not placed yet'),
           ]);
         }
-        // Ek se zyada record ho to sabse naya (createdAt) dikhao
+        // If there are several records, show the newest (createdAt)
         final latest = docs.reduce((a, b) {
           final ta = a.data()['createdAt'];
           final tb = b.data()['createdAt'];
@@ -352,7 +352,7 @@ class StudentProfileScreen extends StatelessWidget {
                   const SizedBox(height: 70),
                 ],
               ),
-              // Edit sirf Admin ko dikhe
+              // Edit is visible to Admin only
               FutureBuilder<String>(
                 future: currentUserRole(),
                 builder: (context, roleSnap) {
@@ -395,7 +395,7 @@ class StudentProfileScreen extends StatelessWidget {
   }
 }
 
-/// FEES card ka "Download Receipt"; sirf Admin ko dikhta hai
+/// "Download Receipt" on the FEES card; visible to Admin only
 class _ReceiptButton extends StatefulWidget {
   final Map<String, dynamic> data;
   const _ReceiptButton({required this.data});

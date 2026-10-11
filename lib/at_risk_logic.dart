@@ -1,9 +1,9 @@
-/// At-risk scoring ka saara hisaab. Isme Flutter ya Firestore kuch nahi,
-/// sirf plain data aata hai, taaki baad me [scoreTrainee] ko ML model se
-/// badla ja sake aur baaki screens waise hi chalti rahein.
+/// All the at-risk scoring math. No Flutter or Firestore here, only
+/// plain data, so [scoreTrainee] can later be swapped for an ML model
+/// while the other screens keep working unchanged.
 library;
 
-/// Kitne din pichhe tak ki attendance dekhni hai
+/// How many days of past attendance to look at
 const int kRiskWindowDays = 28;
 
 enum RiskLevel { high, medium, low }
@@ -16,7 +16,7 @@ extension RiskLevelLabel on RiskLevel {
       };
 }
 
-/// Ek din ki attendance: kis student (doc id) ka kya status tha
+/// One day's attendance: each student's (doc id) status
 class AttendanceDay {
   final DateTime date;
   final Map<String, String> statusMap;
@@ -26,12 +26,12 @@ class AttendanceDay {
 
 bool isPresent(String status) => status.toLowerCase() == 'present';
 
-/// Window me ek trainee ke kitne record aur kitne present
+/// A trainee's record count and present count within the window
 class AttendanceTally {
   int records = 0;
   int present = 0;
 
-  /// 0-100; koi record nahi to null
+  /// 0-100; null if there are no records
   double? get percent => records == 0 ? null : present * 100 / records;
 }
 
@@ -52,14 +52,14 @@ class RiskResult {
   final int score;
   final RiskLevel level;
 
-  /// Kaaran, jaise "Attendance 54%", "Fees 70% pending"
+  /// Reasons, e.g. "Attendance 54%", "Fees 70% pending"
   final List<String> reasons;
   const RiskResult(this.score, this.level, this.reasons);
 }
 
-/// Score ke rules:
-/// attendance <60% = +60, warna <75% = +40; fees pending >50% = +25;
-/// window me 5 se kam record = +10; status Joined = +5.
+/// Scoring rules:
+/// attendance <60% = +60, else <75% = +40; fees pending >50% = +25;
+/// fewer than 5 records in the window = +10; status Joined = +5.
 RiskResult scoreTrainee(RiskInput input) {
   var score = 0;
   final reasons = <String>[];
@@ -102,10 +102,10 @@ RiskLevel levelFor(int score) {
   return RiskLevel.low;
 }
 
-/// Sirf in status wale trainees ka risk nikalta hai
+/// Risk is computed only for trainees with these statuses
 bool isActiveTrainee(String status) => status == 'Joined' || status == 'Ongoing';
 
-/// [now] se pichhle [kRiskWindowDays] din ke records, student doc id ke hisaab se
+/// Records from the last [kRiskWindowDays] days before [now], keyed by student doc id
 Map<String, AttendanceTally> tallyAttendance(Iterable<AttendanceDay> days, DateTime now) {
   final today = DateTime(now.year, now.month, now.day);
   final from = today.subtract(const Duration(days: kRiskWindowDays - 1));
@@ -122,7 +122,7 @@ Map<String, AttendanceTally> tallyAttendance(Iterable<AttendanceDay> days, DateT
   return tallies;
 }
 
-/// Ek trainee ka risk, list me dikhane ke liye
+/// One trainee's risk, for display in the list
 class TraineeRisk {
   final String id;
   final String name;
@@ -131,8 +131,8 @@ class TraineeRisk {
   const TraineeRisk(this.id, this.name, this.batch, this.result);
 }
 
-/// Students (har map me 'id' = doc id) aur attendance se Joined/Ongoing
-/// trainees ki list, sabse zyada score pehle
+/// List of Joined/Ongoing trainees from students (each map has 'id' = doc id)
+/// and attendance, highest score first
 List<TraineeRisk> assessTrainees(
   Iterable<Map<String, dynamic>> students,
   Iterable<AttendanceDay> days,
@@ -163,7 +163,7 @@ List<TraineeRisk> assessTrainees(
   return list;
 }
 
-/// Number ya "12,000" jaisa text, dono ko number banata hai; na bane to 0
+/// Turns a number or text like "12,000" into a number; 0 if it can't
 double toAmount(dynamic v) {
   if (v is num) return v.toDouble();
   return double.tryParse((v ?? '').toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;

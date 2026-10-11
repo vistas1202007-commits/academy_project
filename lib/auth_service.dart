@@ -5,19 +5,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'app_colors.dart';
 
-/// Login screen pe dikhane wala message. Mobile/Google login fail hone par
-/// LoginScreen dobara banti hai, isliye message yahan rakhte hain.
+/// Message to show on the login screen. LoginScreen is rebuilt when
+/// Mobile/Google login fails, so the message is kept here.
 final ValueNotifier<String?> loginNotice = ValueNotifier<String?>(null);
 
-/// Login screen pe Mobile/Google fail hone par (provider band, account link
-/// nahi, setup ki dikkat) yahi ek message dikhta hai
+/// The single message shown on the login screen when Mobile/Google fails
+/// (provider disabled, account not linked, setup problem)
 const String kAltLoginUnavailableMessage =
     'Mobile OTP and Google sign-in work for accounts linked from My Profile. '
     'For the demo, please use Email and Password.';
 
-/// Login screen ke Mobile/Google errors. Jo galti user khud sudhar sake
-/// (galat number/OTP, internet) uska apna message; baaki sab ke liye
-/// [kAltLoginUnavailableMessage], taaki Firebase ka raw text na dikhe.
+/// Mobile/Google errors on the login screen. Mistakes the user can fix
+/// (wrong number/OTP, internet) get their own message; everything else gets
+/// [kAltLoginUnavailableMessage], so raw Firebase text is never shown.
 String altLoginErrorMessage(Object e) {
   if (e is FirebaseAuthException) {
     switch (e.code) {
@@ -38,13 +38,13 @@ bool _googleInitialized = false;
 
 Future<void> _ensureGoogleInit() async {
   if (_googleInitialized) return;
-  // Android pe serverClientId google-services.json (default_web_client_id) se aata hai
+  // On Android, serverClientId comes from google-services.json (default_web_client_id)
   await GoogleSignIn.instance.initialize();
   _googleInitialized = true;
 }
 
-/// Google account chunwa ke Firebase credential deta hai.
-/// User ne cancel kiya to null.
+/// Lets the user pick a Google account and returns a Firebase credential.
+/// Null if the user cancels.
 Future<AuthCredential?> googleCredential() async {
   await _ensureGoogleInit();
   try {
@@ -63,7 +63,7 @@ Future<AuthCredential?> googleCredential() async {
   }
 }
 
-/// Google sign-in ke errors ko seedhe message me badalta hai
+/// Turns Google sign-in errors into plain messages
 String googleErrorMessage(Object e) {
   if (e is GoogleSignInException) {
     if (e.code == GoogleSignInExceptionCode.clientConfigurationError ||
@@ -111,9 +111,9 @@ String authErrorMessage(FirebaseAuthException e) {
   }
 }
 
-/// Mobile/Google credential se login. Agar ye credential kisi staff account
-/// se juda nahi hai to Firebase ek naya khaali account bana deta hai — use
-/// turant hata ke signOut karte hain. Error ho to message return karta hai.
+/// Login with a Mobile/Google credential. If the credential isn't linked to a
+/// staff account, Firebase creates a new empty account — it is deleted
+/// right away and we sign out. Returns a message on error.
 Future<String?> signInStaffWithCredential(AuthCredential credential) async {
   try {
     final result = await FirebaseAuth.instance.signInWithCredential(credential);
@@ -131,7 +131,7 @@ Future<String?> signInStaffWithCredential(AuthCredential credential) async {
   }
 }
 
-/// Logged-in account se mobile/Google jodta hai. Error ho to message.
+/// Links mobile/Google to the logged-in account. Returns a message on error.
 Future<String?> linkToCurrentUser(AuthCredential credential) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) return 'You are not logged in.';
@@ -146,8 +146,8 @@ Future<String?> linkToCurrentUser(AuthCredential credential) async {
   }
 }
 
-/// Mobile ('phone') ya Google ('google.com') ko account se hatata hai.
-/// Kam se kam ek aur login tareeka bacha ho tabhi.
+/// Unlinks Mobile ('phone') or Google ('google.com') from the account.
+/// Only when at least one other login method remains.
 Future<String?> unlinkFromCurrentUser(String providerId) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) return 'You are not logged in.';
@@ -166,10 +166,10 @@ Future<String?> unlinkFromCurrentUser(String providerId) async {
   }
 }
 
-/// Mobile number + OTP ka bottom sheet. OTP verify hone par [onVerified]
-/// chalta hai; wo error message return kare to sheet khuli rehti hai.
-/// Kaam ho jaye to true return hota hai. OTP bhejne me error aaye to
-/// [errorMessage] se message banta hai.
+/// Bottom sheet for mobile number + OTP. Once the OTP is verified, [onVerified]
+/// runs; if it returns an error message, the sheet stays open.
+/// Returns true on success. If sending the OTP fails, the message
+/// comes from [errorMessage].
 Future<bool> showPhoneOtpSheet(
   BuildContext context, {
   required String title,
@@ -245,7 +245,7 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
         phoneNumber: '+91$phone',
         timeout: const Duration(seconds: 60),
         forceResendingToken: _resendToken,
-        // Android kabhi kabhi OTP khud padh leta hai
+        // Android sometimes reads the OTP automatically
         verificationCompleted: (credential) => _complete(credential),
         verificationFailed: _failed,
         codeSent: (verificationId, resendToken) {
@@ -260,7 +260,7 @@ class _PhoneOtpSheetState extends State<_PhoneOtpSheet> {
         codeAutoRetrievalTimeout: (_) {},
       );
     } catch (e) {
-      // Web/desktop pe ye seedha throw kar sakta hai
+      // On web/desktop this can throw directly
       _failed(e);
     }
   }

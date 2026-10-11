@@ -82,8 +82,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
-  # Sirf wahi branding images jo app ke andar dikhti hain. App icon wali files
-  # sirf flutter_launcher_icons padhta hai, reference_preview.png design ke liye hai.
+  # Only the branding images shown inside the app. The app icon files are
+  # read only by flutter_launcher_icons; reference_preview.png is for design reference.
   assets:
     - assets/branding/vistas_logo_circle.png
     - assets/branding/vistas_mark_circle.png

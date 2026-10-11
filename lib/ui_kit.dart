@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Andar ki screens ke shared widgets: halka aurora wash, app bar ribbon,
-/// section heading, card, empty state, loader aur ek-baar wala entrance.
-/// Koi animation loop nahi hota; "Reduce motion" on ho to animation skip.
+/// Shared widgets for inner screens: soft aurora wash, app bar ribbon,
+/// section heading, card, empty state, loader and a one-time entrance.
+/// No animation loops; animations are skipped when "Reduce motion" is on.
 
 bool _reduceMotion(BuildContext context) => MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
-/// Content ke upar halka aurora wash (washTop se appBackground tak)
+/// Soft aurora wash above the content (washTop to appBackground)
 class PageWash extends StatelessWidget {
   final Widget child;
 
-  /// Wash kitni oonchai tak dikhe
+  /// How tall the wash is
   final double height;
 
   const PageWash({super.key, required this.child, this.height = 260});
@@ -45,9 +45,9 @@ class PageWash extends StatelessWidget {
   }
 }
 
-/// Aurora ki ek halki lehar, daayin taraf. App bar aur welcome card dono me.
+/// A faint aurora wave on the right. Used in both the app bar and welcome card.
 class AuroraRibbonPainter extends CustomPainter {
-  /// 0-1, ribbon kitni dikhe
+  /// 0-1, how visible the ribbon is
   final double opacity;
   const AuroraRibbonPainter({this.opacity = 1});
 
@@ -55,7 +55,7 @@ class AuroraRibbonPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    // Sirf daayin ~45% hissa
+    // Only the right ~45%
     final left = w * 0.55;
     final band = Path()
       ..moveTo(left, h * 0.95)
@@ -79,7 +79,7 @@ class AuroraRibbonPainter extends CustomPainter {
   bool shouldRepaint(AuroraRibbonPainter oldDelegate) => oldDelegate.opacity != opacity;
 }
 
-/// AppBar ka flexibleSpace: appPrimary par bahut halki static ribbon
+/// AppBar flexibleSpace: a very faint static ribbon on appPrimary
 class AppBarRibbon extends StatelessWidget {
   const AppBarRibbon({super.key});
 
@@ -91,7 +91,7 @@ class AppBarRibbon extends StatelessWidget {
   }
 }
 
-/// "Overview", "Quick Actions" jaisi heading, aage chhoti aurora bar
+/// Headings like "Overview", "Quick Actions", with a small aurora bar in front
 class SectionHeading extends StatelessWidget {
   final String text;
   final EdgeInsetsGeometry padding;
@@ -128,7 +128,7 @@ class SectionHeading extends StatelessWidget {
   }
 }
 
-/// Saari list/stat cards ka ek style: white, radius 12, 0.5px border, halki shadow
+/// One style for all list/stat cards: white, radius 12, 0.5px border, soft shadow
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -166,7 +166,7 @@ class AppCard extends StatelessWidget {
   }
 }
 
-/// Khaali list: icon, ek line, aur chaho to ek button
+/// Empty list: icon, one line, and an optional button
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
@@ -212,7 +212,7 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-/// Saari screens ka ek loader
+/// One loader for all screens
 class AppLoader extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   const AppLoader({super.key, this.padding = EdgeInsets.zero});
@@ -232,8 +232,8 @@ class AppLoader extends StatelessWidget {
   }
 }
 
-/// Ek baar ka entrance: fade + thoda upar slide, [index] * 50ms ke gap se.
-/// Rebuild par dobara nahi chalta.
+/// One-time entrance: fade + slight upward slide, staggered by [index] * 50ms.
+/// Doesn't replay on rebuild.
 class Entrance extends StatefulWidget {
   final int index;
   final Widget child;
@@ -280,8 +280,8 @@ class _EntranceState extends State<Entrance> with SingleTickerProviderStateMixin
   }
 }
 
-/// "42" ya "86%" jaisi value 600ms me ginti karke dikhata hai.
-/// "--" ya "Not marked yet" jaisi text value seedhi dikhti hai.
+/// Counts up values like "42" or "86%" over 600ms.
+/// Text values like "--" or "Not marked yet" are shown as is.
 class CountUpText extends StatelessWidget {
   final String value;
   final TextStyle? style;

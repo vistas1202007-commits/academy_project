@@ -36,7 +36,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   late String _status;
   bool _isSaving = false;
 
-  /// Recycle Bin me bhejna sirf Admin ka kaam
+  /// Only Admin can move items to the Recycle Bin
   late final Future<String> _role = currentUserRole();
 
   final List<String> _foodOptions = ['Yes', 'No'];

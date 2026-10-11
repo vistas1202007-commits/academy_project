@@ -11,10 +11,10 @@ import 'soft_delete.dart';
 import 'ui_kit.dart';
 
 // ---------------------------------------------------------------------------
-// Data aur jawab (pure functions, koi AI nahi; sab client-side ginti)
+// Data and answers (pure functions, no AI; all counted client-side)
 // ---------------------------------------------------------------------------
 
-/// Ek baar load hua saara data
+/// All data, loaded once
 class AskDataSet {
   final List<Map<String, dynamic>> students;
   final List<AttendanceDay> attendance;
@@ -32,7 +32,7 @@ class AskDataSet {
   bool get isEmpty => students.isEmpty && attendance.isEmpty && placements.isEmpty && enquiries.isEmpty;
 }
 
-/// Card me dikhne wala jawab: ek line summary + chhoti table
+/// Answer shown in the card: one-line summary + small table
 class Answer {
   final String summary;
   final List<String> columns;
@@ -60,10 +60,10 @@ final List<Question> kQuestions = [
   const Question('How many trainees have no attendance record?', Icons.person_off_outlined, answerNoAttendance),
 ];
 
-/// Village dropout me itne se kam trainees wale village nahi gine jaate (1/1 = 100% na aaye)
+/// Villages with fewer trainees than this are skipped in village dropout (so 1/1 doesn't show 100%)
 const int kMinVillageTrainees = 3;
 
-/// Isse kam "salary" (jaise "1.5 LPA" ka 1) galat parse maan ke chhod dete hain
+/// "Salary" below this (e.g. the 1 from "1.5 LPA") is treated as a bad parse and skipped
 const int kMinMonthlySalary = 1000;
 
 String _s(dynamic v) => (v ?? '').toString().trim();
@@ -79,7 +79,7 @@ String _titleCase(String s) => s
     .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
     .join(' ');
 
-/// Salary text ka pehla number ("12,000/month" -> 12000); na mile to null
+/// First number in the salary text ("12,000/month" -> 12000); null if none
 int? parseSalary(dynamic v) {
   if (v is num) return v.round();
   final match = RegExp(r'\d[\d,]*').firstMatch(_s(v));
@@ -87,7 +87,7 @@ int? parseSalary(dynamic v) {
   return int.tryParse(match.group(0)!.replaceAll(',', ''));
 }
 
-/// Group ke andar kitne total aur kitne match
+/// Total and matching counts within a group
 class _Ratio {
   int part = 0;
   int total = 0;
@@ -205,7 +205,7 @@ Answer answerCoursePlacement(AskDataSet d) {
   }
   if (traineesByCourse.isEmpty) return const Answer('No trainee has a course set.');
 
-  // Ek trainee ki do placements ek hi gini jaati hain
+  // Two placements of the same trainee count as one
   final placed = <String, Set<String>>{};
   for (final p in d.placements) {
     final tid = _s(p['traineeId']);
@@ -343,7 +343,7 @@ Answer answerNoAttendance(AskDataSet d) {
 // Screen
 // ---------------------------------------------------------------------------
 
-/// Admin-only: 10 fixed sawaal, chip dabao to data se jawab
+/// Admin-only: 10 fixed questions; tap a chip to get the answer from the data
 class AskDataScreen extends StatelessWidget {
   const AskDataScreen({super.key});
 
@@ -384,7 +384,7 @@ class _AskBodyState extends State<_AskBody> {
       db.collection('placements').get(),
       db.collection('enquiries').get(),
     ]);
-    // Recycle Bin wale records kisi jawab me nahi gine jaate
+    // Records in the Recycle Bin are not counted in any answer
     final students = liveStudentMapsFrom(results[0]);
     final binnedIds = deletedTraineeIds(results[0].docs.map((d) => d.data()));
     return AskDataSet(

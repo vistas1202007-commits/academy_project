@@ -18,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  /// Mobile OTP aur Google login; false karte hi dono button chhup jaate hain
+  /// Mobile OTP and Google login; setting this to false hides both buttons
   final bool _showAltLogins = true;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -29,8 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Mobile/Google login fail hone par app LoginScreen dobara banata hai;
-    // pichla message yahan dikhate hain
+    // When Mobile/Google login fails, the app rebuilds LoginScreen;
+    // the previous message is shown here
     _showNotice();
     loginNotice.addListener(_showNotice);
   }
@@ -136,8 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// Email login ke errors. User-not-found aur wrong-password ka ek hi
-  /// message, taaki koi email guess na kar sake.
+  /// Email login errors. User-not-found and wrong-password share one
+  /// message, so nobody can guess emails.
   String _signInErrorMessage(String code) {
     switch (code) {
       case 'wrong-password':
@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 });
                               } on FirebaseAuthException catch (e) {
                                 debugPrint('Password reset failed: $e');
-                                // Account ho ya na ho, ek hi jawab, taaki koi email guess na kar sake
+                                // Same reply whether or not the account exists, so nobody can guess emails
                                 final message = switch (e.code) {
                                   'invalid-email' => 'Please enter a valid email address.',
                                   'network-request-failed' => _networkMessage,
@@ -318,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
         value: SystemUiOverlayStyle.light,
         child: Stack(
           children: [
-            // Keyboard khulne par aurora na simte, isliye Scaffold ke peeche
+            // Behind the Scaffold so the aurora doesn't shrink when the keyboard opens
             const Positioned.fill(child: AuroraBackground()),
             Scaffold(
               backgroundColor: Colors.transparent,
@@ -521,7 +521,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// Sirf login ke andhere card ke rang
+/// Colors for the dark login card only
 class _LoginColors {
   _LoginColors._();
 

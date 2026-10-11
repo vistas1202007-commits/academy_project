@@ -5,8 +5,8 @@ import 'app_sidebar.dart';
 import 'nav_items.dart';
 import 'responsive.dart';
 
-/// Build ya tree finalize ke beech kisi aur widget ka state nahi badal sakte,
-/// isliye us waqt kaam frame khatam hone tak tal dete hain.
+/// Another widget's state can't change during build or tree finalization,
+/// so the work is deferred until the frame ends.
 void _whenSafe(VoidCallback fn) {
   final phase = SchedulerBinding.instance.schedulerPhase;
   if (phase == SchedulerPhase.idle || phase == SchedulerPhase.postFrameCallbacks) {
@@ -16,7 +16,7 @@ void _whenSafe(VoidCallback fn) {
   }
 }
 
-/// Kitni [FullBleed] screens abhi tree me hain
+/// How many [FullBleed] screens are currently in the tree
 final ValueNotifier<int> _fullBleedCount = ValueNotifier<int>(0);
 
 class _ShellUserInfo {
@@ -25,11 +25,11 @@ class _ShellUserInfo {
   const _ShellUserInfo(this.name, this.role);
 }
 
-/// Logged-in user, jab tak Dashboard tree me hai
+/// Logged-in user, while the Dashboard is in the tree
 final ValueNotifier<_ShellUserInfo?> _shellUser = ValueNotifier<_ShellUserInfo?>(null);
 
-/// Is widget ke andar wali screen (open screen, login) desktop par bhi
-/// poori width leti hai; jab tak ye tree me hai, sidebar nahi dikhta.
+/// The screen inside this widget (open screen, login) takes the full width
+/// on desktop too; while it is in the tree, the sidebar is hidden.
 class FullBleed extends StatefulWidget {
   final Widget child;
   const FullBleed({super.key, required this.child});
@@ -55,7 +55,7 @@ class _FullBleedState extends State<FullBleed> {
   Widget build(BuildContext context) => widget.child;
 }
 
-/// Dashboard isse lapet ke sidebar ko user ka naam aur role batata hai
+/// The Dashboard wraps itself in this to give the sidebar the user's name and role
 class ShellUser extends StatefulWidget {
   final String name;
   final String role;
@@ -88,7 +88,7 @@ class _ShellUserState extends State<ShellUser> {
   @override
   void dispose() {
     final info = _info;
-    // Naya dashboard pehle hi aa chuka ho to use na mitaayein
+    // Don't clear it if a new dashboard has already arrived
     _whenSafe(() {
       if (identical(_shellUser.value, info)) _shellUser.value = null;
     });
@@ -99,13 +99,13 @@ class _ShellUserState extends State<ShellUser> {
   Widget build(BuildContext context) => widget.child;
 }
 
-/// App navigator ke routes dekhta hai aur batata hai ki sidebar me kaunsa
-/// item highlight ho: stack me sabse upar wala menu route, warna Dashboard.
+/// Watches the app navigator's routes and reports which sidebar item to
+/// highlight: the topmost menu route in the stack, else Dashboard.
 class ShellRouteObserver extends NavigatorObserver {
   final ValueNotifier<String> current = ValueNotifier<String>(NavIds.dashboard);
   final List<Route<dynamic>> _stack = [];
 
-  /// Sabse upar wale route ka menu id (menu se na khula ho to null)
+  /// Menu id of the topmost route (null if it wasn't opened from the menu)
   String? get topId => _stack.isEmpty ? null : _navId(_stack.last);
 
   static String? _navId(Route<dynamic> route) {
@@ -161,7 +161,7 @@ class ShellRouteObserver extends NavigatorObserver {
 
 final ShellRouteObserver shellRouteObserver = ShellRouteObserver();
 
-/// Menu item kholta hai: pehle Dashboard tak wapas, phir naya screen
+/// Opens a menu item: first pops back to the Dashboard, then pushes the new screen
 void openNavItem(NavItem item) {
   final navigator = appNavigatorKey.currentState;
   if (navigator == null || shellRouteObserver.topId == item.id) return;
@@ -169,11 +169,11 @@ void openNavItem(NavItem item) {
   if (item.builder != null) navigator.push(item.route());
 }
 
-/// Poore app ka dhaancha. Desktop par (900 se chaudi window) baayin taraf
-/// sidebar aur baaki jagah navigator; phone par sirf navigator, jaisa pehle.
-/// Navigator hamesha Row ke doosre bachche ki jagah rehta hai, taaki resize
-/// ya sidebar aane-jaane par uska state na khoye. Dialog bhi navigator ke
-/// overlay me khulte hain, isliye content area ke andar hi rehte hain.
+/// The whole app's frame. On desktop (window wider than 900), sidebar on the
+/// left and the navigator in the rest; on phone only the navigator, as before.
+/// The navigator always stays in the Row's second child slot, so it keeps its
+/// state across resizes or the sidebar showing/hiding. Dialogs also open in the
+/// navigator's overlay, so they stay inside the content area.
 class AppShell extends StatelessWidget {
   final Widget child;
   const AppShell({super.key, required this.child});
@@ -203,7 +203,7 @@ class AppShell extends StatelessWidget {
                     child: showSidebar ? AppSidebar(name: user.name, role: user.role) : null,
                   ),
                   Expanded(
-                    // Date picker jaise widgets ko content ki hi width dikhe
+                    // Widgets like the date picker should see only the content width
                     child: MediaQuery(
                       data: showSidebar
                           ? mediaQuery.copyWith(size: Size(contentWidth, mediaQuery.size.height))

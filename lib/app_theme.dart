@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// App ka poora theme (colors + fonts) ek jagah.
+/// The whole app theme (colors + fonts) in one place.
 class AppTheme {
   AppTheme._();
 
-  /// assets/fonts me bundled, web par bhi bina network ke chalta hai
+  /// Bundled in assets/fonts, so it works on web without a network
   static const String fontFamily = 'DMSans';
 
   static ThemeData get light {
@@ -124,7 +124,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
       ),
       drawerTheme: const DrawerThemeData(backgroundColor: AppColors.surface),
-      // Android aur web par screens ke beech halka fade-through
+      // Subtle fade-through between screens on Android and web
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),

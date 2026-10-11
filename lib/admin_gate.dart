@@ -4,8 +4,8 @@ import 'app_colors.dart';
 import 'current_user.dart';
 import 'ui_kit.dart';
 
-/// Screen ke andar ka role check: Admin ho to [child], warna "Access denied".
-/// Menu se button chhupana kaafi nahi, isliye screen khud bhi dekhti hai.
+/// In-screen role check: [child] for Admin, otherwise "Access denied".
+/// Hiding the menu button isn't enough, so the screen checks too.
 class AdminGate extends StatefulWidget {
   final String screenName;
   final Widget child;

@@ -13,8 +13,8 @@ import 'responsive.dart';
 import 'soft_delete.dart';
 import 'ui_kit.dart';
 
-/// Admin-only analytics. Students, enquiries, attendance aur placements ke
-/// plain streams aate hain; date filter aur saari calculation client-side.
+/// Admin-only analytics. Students, enquiries, attendance and placements come
+/// in as plain streams; date filtering and all calculations are client-side.
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -100,7 +100,7 @@ class _Stats {
   int completed = 0;
   int dropped = 0;
 
-  /// Pichhle 12 mahine (purane se naya), har mahine ka pehla din
+  /// Last 12 months (oldest first), first day of each month
   final List<DateTime> months = [];
   final List<int> monthCounts = List.filled(12, 0);
 
@@ -126,7 +126,7 @@ String _titleCase(String s) => s
     .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
     .join(' ');
 
-/// [asOf]: trend ke 12 mahine is date pe khatam hote hain (default aaj)
+/// [asOf]: the 12-month trend ends on this date (default: today)
 _Stats _compute(List<QueryDocumentSnapshot> docs, {DateTime? asOf}) {
   final s = _Stats();
   final now = DateTime.now();
@@ -192,7 +192,7 @@ _Stats _compute(List<QueryDocumentSnapshot> docs, {DateTime? asOf}) {
 }
 
 // ---------------------------------------------------------------------------
-// Colors: sirf teal family ke shades
+// Colors: teal-family shades only
 // ---------------------------------------------------------------------------
 
 /// t = 0 -> appPrimary, t = 1 -> aurora
@@ -200,7 +200,7 @@ Color _shade(double t) => Color.lerp(AppColors.appPrimary, AppColors.aurora, t)!
 
 Color _seriesColor(int i, int count) => count <= 1 ? AppColors.appPrimary : _shade(i / (count - 1));
 
-/// Y-axis ke liye ~4 saaf steps
+/// ~4 clean steps for the Y axis
 double _niceInterval(int maxValue) => math.max(1, (maxValue / 4).ceil()).toDouble();
 
 // ---------------------------------------------------------------------------
@@ -219,14 +219,14 @@ const _presetLabels = {
 class _DateFilter {
   final _RangePreset preset;
 
-  /// [start, end) din ki shuruaat se. Dono null = All time
+  /// [start, end) from start of day. Both null = All time
   final DateTime? start;
   final DateTime? end;
   const _DateFilter._(this.preset, this.start, this.end);
 
   static const all = _DateFilter._(_RangePreset.all, null, null);
 
-  /// Aaj samet pichhle [days] din
+  /// Last [days] days, including today
   factory _DateFilter.lastDays(_RangePreset preset, int days) {
     final now = DateTime.now();
     return _DateFilter._(
@@ -244,10 +244,10 @@ class _DateFilter {
 
   bool get isAll => start == null;
 
-  /// Range ka aakhri din (null = All time)
+  /// Last day of the range (null = All time)
   DateTime? get lastDay => end == null ? null : DateTime(end!.year, end!.month, end!.day - 1);
 
-  /// All time me sab; range me jis doc ki date nahi hai wo bahar
+  /// All time includes everything; with a range, docs without a date are excluded
   bool contains(DateTime? d) {
     if (isAll) return true;
     if (d == null) return false;
@@ -268,7 +268,7 @@ class _DateFilter {
 const _placedStatuses = {'Joined', 'Selected', 'Self-Employed'};
 const _inTrainingOrDone = {'Joined', 'Ongoing', 'Completed'};
 
-/// Itne din se kam attendance wale trainees chronic list me nahi aate
+/// Trainees with fewer attendance days than this are left out of the chronic list
 const _minDaysForAbsentee = 5;
 const _attendanceThreshold = 75.0;
 
@@ -276,7 +276,7 @@ class _FunnelStep {
   final String label;
   final int count;
 
-  /// Pichhle step ka kitna % (pehle step ke liye null)
+  /// % of the previous step (null for the first step)
   final String? pctOfPrev;
   const _FunnelStep(this.label, this.count, this.pctOfPrev);
 }
@@ -325,21 +325,21 @@ Map<String, dynamic>? _data(QueryDocumentSnapshot doc) {
   return raw is Map<String, dynamic> ? raw : null;
 }
 
-/// Number ya number-wali string; kuch na mile to 0
+/// Number or numeric string; 0 if nothing is found
 double _num(dynamic v) {
   if (v is num) return v.toDouble();
   if (v is String) return double.tryParse(v.replaceAll(RegExp(r'[^0-9.\-]'), '')) ?? 0;
   return 0;
 }
 
-/// "₹15,000/month" -> 15000. Commas hata ke pehla digits ka group; na mile to null
+/// "₹15,000/month" -> 15000. Strips commas and takes the first digit group; null if none
 int? _parseSalary(dynamic v) {
   final match = RegExp(r'\d+').firstMatch(_str(v).replaceAll(',', ''));
   final value = match == null ? null : int.tryParse(match.group(0)!);
   return (value == null || value <= 0) ? null : value;
 }
 
-/// [whole] 0 ho to "--", divide-by-zero nahi
+/// "--" when [whole] is 0, no divide-by-zero
 String _pct(num part, num whole, {bool cap = false}) {
   if (whole <= 0) return '--';
   var p = part * 100 / whole;
@@ -353,7 +353,7 @@ String _money(num v) => '₹${_inr.format(v.round())}';
 List<MapEntry<String, int>> _sortedDesc(Map<String, int> m) =>
     m.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
-/// Lists null = abhi load ho rahi hain (khaali maan ke chalte hain)
+/// Null lists = still loading (treated as empty)
 _Analytics _computeAll({
   required List<QueryDocumentSnapshot> students,
   required List<QueryDocumentSnapshot>? enquiries,
@@ -362,10 +362,10 @@ _Analytics _computeAll({
   required _DateFilter filter,
 }) {
   final a = _Analytics();
-  // Sirf live trainees ki attendance ginti me (students pehle se live filtered hain)
+  // Only live trainees' attendance is counted (students are already filtered to live)
   final liveIds = {for (final d in students) d.id};
 
-  // F2: wahi _compute, bas filtered students ke saath
+  // F2: same _compute, just with the filtered students
   final studentsInRange =
       students.where((d) => filter.contains(_toDate(_data(d)?['admissionDate']))).toList();
   a.stats = _compute(studentsInRange, asOf: filter.lastDay);
@@ -428,7 +428,7 @@ _Analytics _computeAll({
       _FunnelStep(
         labels[i],
         counts[i],
-        // Placed ka % Placement % jaisa hi 100 pe cap
+        // Placed % is capped at 100, same as Placement %
         i == 0 ? null : _pct(counts[i], counts[i - 1], cap: i == counts.length - 1),
       ),
   ];
@@ -449,7 +449,7 @@ _Analytics _computeAll({
   a.feeBatches = [for (final e in feeByBatch.entries) _BatchFee(e.key, e.value[0], e.value[1])]
     ..sort((x, y) => x.batch.compareTo(y.batch));
 
-  // Attendance: statusMap me studentDocId -> present / absent / leave
+  // Attendance: statusMap holds studentDocId -> present / absent / leave
   final batchPresent = <String, int>{};
   final batchMarked = <String, int>{};
   final stuPresent = <String, int>{};
@@ -478,7 +478,7 @@ _Analytics _computeAll({
     for (final e in batchMarked.entries) MapEntry(e.key, (batchPresent[e.key] ?? 0) * 100 / e.value),
   ]..sort((x, y) => x.key.compareTo(y.key));
 
-  // Naam/batch saare students se (filter attendance date pe laga hai, admission pe nahi)
+  // Name/batch come from all students (the filter applies to attendance date, not admission)
   final studentById = {for (final d in students) d.id: _data(d)};
   final absentees = <_Absentee>[];
   stuMarked.forEach((id, marked) {
@@ -501,7 +501,7 @@ _Analytics _computeAll({
   return a;
 }
 
-/// Excel ki sheets, wahi numbers jo screen pe hain
+/// Excel sheets with the same numbers shown on screen
 List<ExportSheet> _exportSheets(_Analytics a, _DateFilter filter) {
   final s = a.stats;
   double round1(double v) => (v * 10).round() / 10;
@@ -574,7 +574,7 @@ class _AnalyticsBody extends StatefulWidget {
 class _AnalyticsBodyState extends State<_AnalyticsBody> {
   static const _collections = ['students', 'enquiries', 'attendance', 'placements'];
 
-  /// Collection -> latest docs (key na ho = abhi load ho raha hai)
+  /// Collection -> latest docs (missing key = still loading)
   final _docs = <String, List<QueryDocumentSnapshot>>{};
   final _errors = <String>{};
   final _subs = <StreamSubscription<QuerySnapshot>>[];
@@ -616,7 +616,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
         _analytics = null;
         return;
       }
-      // Recycle Bin wale records charts, KPI aur export me nahi aate
+      // Records in the Recycle Bin are left out of charts, KPIs and export
       bool live(QueryDocumentSnapshot d) => isLive(_data(d));
       final binnedIds = deletedTraineeIds(allStudents.map(_data).whereType<Map<String, dynamic>>());
       _analytics = _computeAll(
@@ -687,7 +687,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     }
   }
 
-  /// [needs] ke collections load na hue hon to loader/error card, warna [build]
+  /// Loader/error card until the [needs] collections load, then [build]
   List<Widget> _gated(String title, List<String> needs, List<Widget> Function() build) {
     if (needs.any(_errors.contains)) {
       return [
@@ -727,7 +727,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     }
     final stats = a.stats;
     final allReady = _collections.every(_ready);
-    // Desktop par charts jode me (2 columns), phone par ek ke neeche ek
+    // Charts in pairs (2 columns) on desktop, stacked on phone
     final desktop = isDesktop(context);
 
     final enrollment = _ChartCard(
@@ -957,7 +957,7 @@ class _FilterBar extends StatelessWidget {
   }
 }
 
-/// Desktop par do charts ek line me, barabar chaudai ke
+/// Two equal-width charts per row on desktop
 class _ChartPair extends StatelessWidget {
   final Widget left;
   final Widget right;
@@ -986,7 +986,7 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-/// _KpiGrid jaisa hi layout, kisi bhi cards ke liye
+/// Same layout as _KpiGrid, for any cards
 class _KpiWrap extends StatelessWidget {
   final List<Widget> cards;
   const _KpiWrap({required this.cards});
@@ -1034,7 +1034,7 @@ class _KpiGrid extends StatelessWidget {
         color: AppColors.appPrimary,
       ),
     ];
-    // Desktop par paanchon ek line me, phone par 2
+    // All five in one row on desktop, 2 per row on phone
     final columns = isDesktop(context) ? 5 : 2;
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1107,7 +1107,7 @@ class _ChartCard extends StatelessWidget {
   final bool hasData;
   final Widget child;
 
-  /// null = child apni height khud le
+  /// null = child sizes its own height
   final double? height;
   const _ChartCard({
     required this.title,
@@ -1220,7 +1220,7 @@ class _EnrollmentLineChart extends StatelessWidget {
               getTitlesWidget: (value, meta) {
                 final i = value.toInt();
                 if (i < 0 || i > 11 || value != i.toDouble()) return const SizedBox.shrink();
-                // Phone pe bheed na ho isliye har doosra mahina
+                // Every other month, to avoid crowding on phone
                 final narrow = meta.parentAxisSize < 420;
                 if (narrow && i.isOdd) return const SizedBox.shrink();
                 return Padding(
@@ -1270,7 +1270,7 @@ class _EnrollmentLineChart extends StatelessWidget {
   }
 }
 
-/// Vertical bar chart: course aur age groups dono ke liye
+/// Vertical bar chart, used for both course and age groups
 class _SimpleBarChart extends StatelessWidget {
   final List<MapEntry<String, int>> entries;
   const _SimpleBarChart({required this.entries});
@@ -1424,7 +1424,7 @@ class _GenderDonut extends StatelessWidget {
   }
 }
 
-/// Horizontal bars taaki lambe village naam bhi poore padhe ja sakein
+/// Horizontal bars so long village names stay fully readable
 class _VillageBars extends StatelessWidget {
   final List<MapEntry<String, int>> entries;
   const _VillageBars({required this.entries});
@@ -1514,7 +1514,7 @@ class _LegendDot extends StatelessWidget {
   }
 }
 
-/// Har step ka bar sabse bade step ke hisaab se
+/// Each step's bar is scaled to the largest step
 class _FunnelBars extends StatelessWidget {
   final List<_FunnelStep> steps;
   const _FunnelBars({required this.steps});
@@ -1579,7 +1579,7 @@ class _FunnelBars extends StatelessWidget {
   }
 }
 
-/// Har batch ka ek bar: hara hissa Collected, amber hissa Pending
+/// One bar per batch: green part Collected, amber part Pending
 class _FeeStackedBars extends StatelessWidget {
   final List<_BatchFee> batches;
   const _FeeStackedBars({required this.batches});
@@ -1648,7 +1648,7 @@ class _FeeStackedBars extends StatelessWidget {
   }
 }
 
-/// 0-100 scale; 75% se neeche amber bar aur laal text
+/// 0-100 scale; below 75% shows an amber bar and red text
 class _AttendanceBars extends StatelessWidget {
   final List<MapEntry<String, double>> entries;
   const _AttendanceBars({required this.entries});
@@ -1768,7 +1768,7 @@ class _AbsenteeList extends StatelessWidget {
   }
 }
 
-/// Generic donut + legend (employment type ke liye)
+/// Generic donut + legend (for employment type)
 class _CountDonut extends StatelessWidget {
   final List<MapEntry<String, int>> entries;
   final String centerLabel;

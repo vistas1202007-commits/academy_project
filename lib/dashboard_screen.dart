@@ -40,13 +40,13 @@ class DashboardScreen extends StatelessWidget {
 
   String get _roleLabel => roleLabelFor(role);
 
-  // Sidebar ko naam aur role yahin se milta hai
+  // The sidebar gets the name and role from here
   @override
   Widget build(BuildContext context) => ShellUser(name: name, role: role, child: Builder(builder: _buildPage));
 
   Widget _buildPage(BuildContext context) {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
-    // Desktop par menu sidebar me hai: na drawer, na hamburger
+    // On desktop the menu lives in the sidebar: no drawer, no hamburger
     final desktop = isDesktop(context);
     return Scaffold(
       backgroundColor: AppColors.appBackground,
@@ -128,7 +128,7 @@ class DashboardScreen extends StatelessWidget {
             if (_actionsForRole(context).isNotEmpty) ...[
               const SectionHeading('Quick Actions'),
               const SizedBox(height: 12),
-              // Parent ki width se: phone par 2, desktop par ~180 ke jitne aa jayein
+              // From parent width: 2 on phone, as many ~180-wide as fit on desktop
               LayoutBuilder(
                 builder: (context, constraints) {
                   final columns = ((constraints.maxWidth + 12) / (180 + 12)).floor().clamp(2, 8);
@@ -136,7 +136,7 @@ class DashboardScreen extends StatelessWidget {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      // Entrance stat cards ke baad se aage chalta hai
+                      // Entrance continues after the stat cards
                       for (final (i, action) in _actionsForRole(context).indexed)
                         SizedBox(
                           width: (constraints.maxWidth - 12 * (columns - 1)) / columns,
@@ -153,7 +153,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  /// Har role ke Overview me kitne stat cards hain (entrance ka stagger)
+  /// Number of stat cards in each role's Overview (for the entrance stagger)
   int get _statCardCount => switch (role) {
         'admin' => 6,
         'mobilizer' => 3,
@@ -483,7 +483,7 @@ class _AdminOverview extends StatelessWidget {
       builder: (context, studentSnap) {
         final allStudentDocs = studentSnap.data?.docs ?? [];
         final studentDocs = allStudentDocs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
-        // Bin wale trainees ki placements "Placed" me nahi ginti
+        // Placements of binned trainees don't count as "Placed"
         final binnedTraineeIds = deletedTraineeIds(allStudentDocs.map((d) => d.data() as Map<String, dynamic>));
         final totalStudents = studentSnap.hasData ? studentDocs.length.toString() : '--';
         int joined = 0, completed = 0, dropped = 0;
@@ -654,7 +654,7 @@ class _MobilizerOverview extends StatelessWidget {
           .collection('enquiries')
           .snapshots(),
       builder: (context, snapshot) {
-        // Mobilizer saari enquiries dekhta hai (koi createdBy filter nahi)
+        // Mobilizers see all enquiries (no createdBy filter)
         final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
         final totalEnquiries = snapshot.hasData ? allDocs.length.toString() : '--';
         int pendingFollowUp = 0;
@@ -714,8 +714,8 @@ class _MobilizerOverview extends StatelessWidget {
   }
 }
 
-/// Overview ke stat cards. Phone par pehle jaisa (max 220 chaude); desktop par
-/// columns aise ki aakhri line me ek card akela na bache (6 = 6, 3+3, 2+2+2).
+/// Overview stat cards. On phone, as before (max 220 wide); on desktop the
+/// columns are chosen so no card sits alone on the last row (6 = 6, 3+3, 2+2+2).
 class _StatGrid extends StatelessWidget {
   final List<Widget> children;
   const _StatGrid({required this.children});
@@ -725,8 +725,8 @@ class _StatGrid extends StatelessWidget {
   static const double _maxCard = 240;
   static const double _aspect = 1.25;
 
-  /// Jitne fit hon unme se: sab ek line me, warna sabse bada barabar bantwara,
-  /// warna aisa jisme aakhri line me akela card na ho
+  /// Of the counts that fit: all in one row, else the largest even split,
+  /// else one that leaves no lone card on the last row
   static int _columns(int count, int fit) {
     if (count <= fit) return count;
     for (var c = fit; c >= 2; c--) {
@@ -781,7 +781,7 @@ class _StatGrid extends StatelessWidget {
   }
 }
 
-/// Grid ke cards ek ke baad ek (50ms gap) aate hain
+/// Grid cards appear one after another (50ms apart)
 List<Widget> _staggered(List<Widget> cards) => [
       for (final (i, card) in cards.indexed) Entrance(index: i, child: card),
     ];
@@ -810,7 +810,7 @@ class _WelcomeCard extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: AuroraRibbonPainter(opacity: 0.6)))),
-          // Kone me chhota pahaad, bahut halka
+          // Small, very faint mountain in the corner
           Positioned(
             right: 12,
             bottom: 0,
@@ -859,10 +859,10 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
-/// Trainer ke batches ki aaj ki attendance: present (Present/Late) / marked
-/// (Present/Late/Absent). Leave jaise baaki status dono me nahi gine jaate.
+/// Today's attendance for the trainer's batches: present (Present/Late) / marked
+/// (Present/Late/Absent). Other statuses like Leave count in neither.
 class _TodayAttendanceCard extends StatefulWidget {
-  /// null = batches abhi load ho rahe hain
+  /// null = batches still loading
   final List<String>? batchIds;
   final VoidCallback onTap;
   const _TodayAttendanceCard({required this.batchIds, required this.onTap});
@@ -872,7 +872,7 @@ class _TodayAttendanceCard extends StatefulWidget {
 }
 
 class _TodayAttendanceCardState extends State<_TodayAttendanceCard> {
-  /// whereIn me ek baar me 30 se zyada id nahi ja sakti
+  /// whereIn accepts at most 30 ids per query
   static const _chunk = 30;
 
   final _subs = <StreamSubscription<QuerySnapshot>>[];
@@ -891,7 +891,7 @@ class _TodayAttendanceCardState extends State<_TodayAttendanceCard> {
     _subscribe();
   }
 
-  /// Batch ids badle tabhi dobara subscribe
+  /// Resubscribe only when the batch ids change
   void _subscribe() {
     final ids = widget.batchIds;
     if (ids == null) return;
@@ -995,7 +995,7 @@ class _DashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // "Not marked yet" jaisi text value chhoti dikhti hai
+    // Text values like "Not marked yet" are shown smaller
     final isText = !RegExp(r'^[\d-]').hasMatch(value);
     return AppCard(
       onTap: onTap,

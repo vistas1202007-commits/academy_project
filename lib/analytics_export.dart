@@ -3,21 +3,21 @@ import 'dart:typed_data';
 import 'package:excel/excel.dart' as xl;
 import 'package:file_saver/file_saver.dart';
 
-/// Excel ki ek sheet: pehli row header, baaki data. Values int, double ya
-/// String ho sakti hain (null = khaali cell).
+/// One Excel sheet: first row is the header, the rest is data. Values can be
+/// int, double or String (null = empty cell).
 class ExportSheet {
   final String name;
   final List<List<Object?>> rows;
   const ExportSheet(this.name, this.rows);
 }
 
-/// Sheets se .xlsx banake Downloads me save karta hai. Web pe browser download
-/// hota hai, Android pe public Downloads folder. dart:io use nahi hota.
+/// Builds an .xlsx from the sheets and saves it to Downloads. On web it's a browser
+/// download, on Android the public Downloads folder. dart:io is not used.
 Future<void> saveSheetsAsXlsx(String fileName, List<ExportSheet> sheets) async {
   if (sheets.isEmpty) throw ArgumentError('No sheets to export.');
 
   final book = xl.Excel.createExcel();
-  // Default "Sheet1" ko pehli sheet ka naam de do, taaki khaali sheet na bache
+  // Rename the default "Sheet1" to the first sheet's name so no empty sheet is left
   final defaultSheet = book.getDefaultSheet();
   if (defaultSheet != null && defaultSheet != sheets.first.name) {
     book.rename(defaultSheet, sheets.first.name);

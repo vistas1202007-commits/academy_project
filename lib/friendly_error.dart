@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 
-/// Kisi bhi error ko user ke dikhane layak chhota English message banata hai.
-/// Raw error text user ko kabhi nahi dikhta; use debugPrint se console me daalein.
+/// Turns any error into a short English message fit to show the user.
+/// Raw error text is never shown to the user; send it to the console with debugPrint.
 String friendlyError(Object e) {
   final code = e is FirebaseException ? e.code : '';
   switch (code) {
@@ -20,7 +20,7 @@ String friendlyError(Object e) {
       return 'This record already exists.';
   }
   if (e is TimeoutException) return 'Network problem. Please check your connection and try again.';
-  // Firebase ke bahar ke errors (jaise SocketException) me code nahi hota
+  // Non-Firebase errors (like SocketException) have no code
   if (code.isEmpty) {
     final text = e.toString().toLowerCase();
     if (text.contains('network') || text.contains('unavailable') || text.contains('timeout') ||

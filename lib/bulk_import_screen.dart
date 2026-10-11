@@ -100,13 +100,13 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return stripped.replaceAll(RegExp(r'-\s*$'), '').trim();
   }
 
-  /// Batch label se course: pehle prefix map (ELC-01 -> Electrical), warna label ka prefix hi
+  /// Course from batch label: prefix map first (ELC-01 -> Electrical), else the label's own prefix
   String _courseForBatch(String label) {
     final prefix = label.split('-').first.trim().toUpperCase();
     return kBatchPrefixToCourse[prefix] ?? _courseFromBatchLabel(label);
   }
 
-  /// "M"/"Male" -> Male, "F"/"Female" -> Female, kuch aur ho to jaisa hai waisa
+  /// "M"/"Male" -> Male, "F"/"Female" -> Female, anything else is kept as is
   String _normalizeGender(String raw) {
     final g = raw.trim().toLowerCase();
     if (g == 'm' || g == 'male') return 'Male';
@@ -114,11 +114,11 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return raw.trim();
   }
 
-  /// Header text ko compare karne layak banata hai: "Fees Received  Amount" -> "feesreceivedamount"
+  /// Normalizes header text for comparison: "Fees Received  Amount" -> "feesreceivedamount"
   String _headerKey(String raw) => raw.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
 
-  /// Date cell -> DateTime. Excel date cell, numeric serial (45231) aur
-  /// dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy text teeno sambhalta hai.
+  /// Date cell -> DateTime. Handles Excel date cells, numeric serials (45231) and
+  /// dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy text.
   DateTime? _parseDateCell(xls.Data? cell) {
     if (cell == null || cell.value == null) return null;
     final v = cell.value;
@@ -186,15 +186,15 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return map;
   }
 
-  /// phone -> true agar trainee live hai, false agar Recycle Bin me.
-  /// Bin wale bhi duplicate gine jaate hain, taaki restore par double na ho.
+  /// phone -> true if the trainee is live, false if in the Recycle Bin.
+  /// Binned ones also count as duplicates, so a restore doesn't create doubles.
   Future<Map<String, bool>> _fetchExistingStudentPhones() async {
     final snap = await FirebaseFirestore.instance.collection('students').get();
     final map = <String, bool>{};
     for (final d in snap.docs) {
       final phone = (d.data()['phone'] ?? '').toString().trim();
       if (phone.isEmpty) continue;
-      // Ek hi phone ke do record hon to live wala jeetta hai
+      // If two records share a phone, the live one wins
       map[phone] = (map[phone] ?? false) || isLive(d.data());
     }
     return map;
@@ -215,8 +215,8 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return map;
   }
 
-  /// lowercase naam -> doc id. Recycle Bin wali companies bhi isme hain
-  /// (nayi company na bane); unke naam [binnedKeys] me alag se.
+  /// lowercase name -> doc id. Includes Recycle Bin companies too
+  /// (so no new company is created); their names are also in [binnedKeys].
   Future<({Map<String, String> ids, Set<String> binnedKeys})> _fetchCompanyNameToId() async {
     final snap = await FirebaseFirestore.instance.collection('companies').get();
     final map = <String, String>{};
@@ -312,7 +312,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
 
       // Row index 0 = title, index 1 = header, index 2+ = data.
       // Columns A-I fixed: Sr No, Gender, Name, Batch, DOB, Village, Tehsil,
-      // Contact, Emergency. Fees wale columns header ke naam se dhoondhe jaate hain.
+      // Contact, Emergency. Fees columns are located by header name.
       final headerCols = <String, int>{};
       final headerRow = rows[1];
       for (int c = 0; c < headerRow.length; c++) {
@@ -432,7 +432,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         continue;
       }
 
-      // ---- batch existence check (warning only, still imports) — har batch ka ek hi warning ----
+      // ---- batch existence check (warning only, still imports) — one warning per batch ----
       if (!batchStartDates.containsKey(row.batch) && warnedBatches.add(row.batch)) {
         _traineeWarningLog.add(
             "Batch '${row.batch}' was not found in the system — the trainee was still imported and the batch name was saved as text, but trainer filtering by batch will not work for this record until the batch is created.");
@@ -440,7 +440,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
 
       final admissionTimestamp = batchStartDates[row.batch] ?? Timestamp.fromDate(DateTime.now());
 
-      // Sheet ka Status valid ho to wahi, warna dropdown wala default
+      // Use the sheet's Status if valid, else the dropdown default
       final rowStatus = _statusOptions.firstWhere(
         (s) => s.toLowerCase() == row.status.trim().toLowerCase(),
         orElse: () => _defaultTraineeStatus,
@@ -761,7 +761,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
         // an existing company that already had records is left untouched,
         // so undoing this import will never delete a pre-existing company.
         final key = row.companyName.trim().toLowerCase();
-        // Bin wali company dobara nahi banti; placement phir bhi import hoti hai
+        // A binned company is not recreated; the placement is still imported
         if (companies.binnedKeys.contains(key) && warnedBinnedCompanies.add(key)) {
           _placementWarningLog.add('Company ${row.companyName.trim()} is in the Recycle Bin');
         }

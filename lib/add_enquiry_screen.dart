@@ -59,7 +59,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     try {
       final mobile = _mobileController.text.trim();
-      // Enquiries aur students dono me same number check karo
+      // Check the same number in both enquiries and students
       final results = await Future.wait([
         FirebaseFirestore.instance
             .collection('enquiries')
@@ -70,7 +70,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             .where('phone', isEqualTo: mobile)
             .get(),
       ]);
-      // Recycle Bin wale record duplicate warning nahi dete
+      // Records in the Recycle Bin don't trigger the duplicate warning
       final enquiryMatch = liveDocs(results[0]);
       final studentMatch = liveDocs(results[1]);
 

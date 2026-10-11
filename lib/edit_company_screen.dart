@@ -26,7 +26,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   late TextEditingController _locationController;
   bool _isSaving = false;
 
-  /// Recycle Bin me bhejna sirf Admin ka kaam
+  /// Only Admin can move items to the Recycle Bin
   late final Future<String> _role = currentUserRole();
 
   @override

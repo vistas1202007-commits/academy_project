@@ -5,7 +5,7 @@ import 'app_shell.dart';
 import 'brand.dart';
 import 'nav_items.dart';
 
-/// Desktop ka hamesha khula menu (phone par iski jagah drawer)
+/// Always-open desktop menu (the drawer replaces it on phone)
 class AppSidebar extends StatelessWidget {
   final String name;
   final String role;
@@ -78,7 +78,7 @@ class AppSidebar extends StatelessWidget {
               label: 'Logout',
               color: _logout,
               onTap: () {
-                // Navigator ke context se, taaki dialog content area me khule
+                // Uses the navigator's context so the dialog opens in the content area
                 final navContext = appNavigatorKey.currentContext;
                 if (navContext != null) confirmLogout(navContext);
               },
@@ -111,7 +111,7 @@ class _SidebarTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
-          // Hover / press par halka aurora; active wala tint upar Material par
+          // Soft aurora on hover / press; the active tint sits on the Material above
           hoverColor: AppColors.aurora.withValues(alpha: 0.08),
           splashColor: AppColors.aurora.withValues(alpha: 0.10),
           highlightColor: AppColors.aurora.withValues(alpha: 0.10),

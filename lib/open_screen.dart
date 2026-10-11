@@ -7,8 +7,8 @@ import 'aurora_background.dart';
 import 'brand.dart';
 import 'app_shell.dart';
 
-/// App khulte waqt (login check aur profile load tak) dikhne wali screen:
-/// aurora, barfeela pahaad aur Vistas wordmark.
+/// Screen shown while the app opens (during login check and profile load):
+/// aurora, snowy mountain and the Vistas wordmark.
 class OpenScreen extends StatelessWidget {
   const OpenScreen({super.key});
 
@@ -24,7 +24,7 @@ class OpenScreen extends StatelessWidget {
             peakTop: 0.40,
             child: Stack(
               children: [
-                // Pahaad ke beech, choti se neeche
+                // Centered on the mountain, below the peak
                 Align(
                   alignment: const Alignment(0, 0.36),
                   child: TweenAnimationBuilder<double>(
@@ -35,7 +35,7 @@ class OpenScreen extends StatelessWidget {
                       opacity: value,
                       child: Transform.translate(offset: Offset(0, 8 * (1 - value)), child: child),
                     ),
-                    // Wordmark apni jagah ki width se, poori screen ki size se nahi
+                    // Wordmark sized from its own slot's width, not the full screen size
                     child: LayoutBuilder(
                       builder: (context, constraints) => Semantics(
                         label: BrandAssets.appName,
@@ -48,7 +48,7 @@ class OpenScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Load hone ka halka sa ishaara
+                // Subtle loading hint
                 Positioned(
                   left: 0,
                   right: 0,

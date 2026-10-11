@@ -27,7 +27,7 @@ class StudentListScreen extends StatefulWidget {
 
 class _StudentListScreenState extends State<StudentListScreen> {
   String _searchQuery = '';
-  // Delete sirf Admin ko dikhe
+  // Delete is visible to Admin only
   bool _isAdmin = false;
 
   @override
@@ -72,7 +72,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   }
 
   Widget _buildStudentList(List<QueryDocumentSnapshot> snapDocs) {
-    // Recycle Bin wale trainees list, ginti aur search me nahi aate
+    // Trainees in the Recycle Bin are left out of the list, counts and search
     final allDocs = snapDocs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
     final filteredDocs = allDocs.where((doc) {
       final data = doc.data() as Map<String, dynamic>;

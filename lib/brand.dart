@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Vistas branding ki images. Wordmark kabhi Text widget se nahi banta,
-/// hamesha in images se aata hai.
+/// Vistas branding images. The wordmark is never built with a Text widget;
+/// it always comes from these images.
 class BrandAssets {
   BrandAssets._();
 
@@ -9,17 +9,17 @@ class BrandAssets {
   static const String markCircle = 'assets/branding/vistas_mark_circle.png';
   static const String mountainGlyph = 'assets/branding/vistas_mountain_glyph.png';
 
-  /// Andhere background ke liye (appbar, aurora)
+  /// For dark backgrounds (app bar, aurora)
   static const String wordmarkLight = 'assets/branding/vistas_wordmark_light.png';
 
-  /// Halke background ke liye (About, lock screen)
+  /// For light backgrounds (About, lock screen)
   static const String wordmarkDark = 'assets/branding/vistas_wordmark_dark.png';
 
   static const String appName = 'Vistas';
   static const String tagline = 'Skill Training ERP';
 }
 
-/// Dark appbar ke liye: pahaad glyph + chhota light wordmark
+/// For the dark app bar: mountain glyph + small light wordmark
 class VistasAppBarTitle extends StatelessWidget {
   const VistasAppBarTitle({super.key});
 

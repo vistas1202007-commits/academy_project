@@ -11,7 +11,7 @@ import 'responsive.dart';
 import 'soft_delete.dart';
 import 'ui_kit.dart';
 
-/// Admin-only simulated notification log. Koi asli message nahi jaata.
+/// Admin-only simulated notification log. No real messages are sent.
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -93,7 +93,7 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
     return ok == true;
   }
 
-  /// Data lao, ginti dikha ke poochho, phir log karo
+  /// Fetch data, show the count and confirm, then log
   Future<void> _runBulk(String noun, Future<NotificationBatch> Function() build) async {
     setState(() => _busy = true);
     try {
@@ -289,7 +289,7 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
         final docs = snap.data!.docs.map((d) => d.data()).where((d) {
           return _filter == null || d['type'] == _filter!.id;
         }).toList()
-          // Naya pehle; abhi likha gaya (createdAt null) sabse upar
+          // Newest first; just-written entries (createdAt null) on top
           ..sort((a, b) {
             final ta = _createdAt(a), tb = _createdAt(b);
             if (ta == null) return -1;

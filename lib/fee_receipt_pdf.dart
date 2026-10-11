@@ -11,16 +11,16 @@ import 'current_user.dart';
 
 enum ReceiptResult { shared, denied, failed }
 
-// Sirf #0B4F55 aur #3EE0A0 ke shades
+// Only shades of #0B4F55 and #3EE0A0
 const PdfColor _primary = PdfColor.fromInt(0xFF0B4F55);
 const PdfColor _aurora = PdfColor.fromInt(0xFF3EE0A0);
 const PdfColor _primaryTint = PdfColor.fromInt(0xFFEBF1F1); // primary 8%
 const PdfColor _primaryLine = PdfColor.fromInt(0xFFCEDCDD); // primary 20%
-const PdfColor _muted = PdfColor.fromInt(0xFF5A8589); // primary + safed
+const PdfColor _muted = PdfColor.fromInt(0xFF5A8589); // primary + white
 
 final NumberFormat _inr = NumberFormat('#,##,##0', 'en_IN');
 
-/// Default PDF font me ₹ nahi hota, isliye "Rs. 12,000"
+/// The default PDF font has no ₹, hence "Rs. 12,000"
 String _rs(double v) => 'Rs. ${_inr.format(v.round())}';
 
 String _text(dynamic v) {
@@ -33,7 +33,7 @@ String receiptNoFor(Map<String, dynamic> data) {
   return no.isNotEmpty ? no : 'VIS-R-${(data['traineeId'] ?? '').toString().trim()}';
 }
 
-/// A5 fee receipt ke bytes
+/// Bytes of the A5 fee receipt
 Future<Uint8List> buildFeeReceiptPdf(Map<String, dynamic> data) async {
   final glyph = pw.MemoryImage((await rootBundle.load(BrandAssets.mountainGlyph)).buffer.asUint8List());
   final wordmark = pw.MemoryImage((await rootBundle.load(BrandAssets.wordmarkDark)).buffer.asUint8List());
@@ -149,7 +149,7 @@ Future<Uint8List> buildFeeReceiptPdf(Map<String, dynamic> data) async {
   return doc.save();
 }
 
-/// Admin check, phir PDF bana ke share (Android) / download (web)
+/// Admin check, then build the PDF and share (Android) / download (web)
 Future<ReceiptResult> shareFeeReceipt(Map<String, dynamic> data) async {
   if (await currentUserRole() != 'admin') return ReceiptResult.denied;
   try {

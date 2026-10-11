@@ -6,11 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_colors.dart';
 import 'brand.dart';
 
-/// MaterialApp ka navigator — lock screen se logout karte waqt khule
-/// screens band karne ke liye.
+/// MaterialApp's navigator — used to close open screens when logging out
+/// from the lock screen.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Fingerprint/Face lock ki setting — har user ke liye is phone pe alag.
+/// Fingerprint/Face lock setting — separate per user on this phone.
 class AppLockSettings {
   static String _key(String uid) => 'app_lock_enabled_$uid';
 
@@ -32,7 +32,7 @@ class AppLockSettings {
     await prefs.setBool(_key(uid), enabled);
   }
 
-  /// Phone me fingerprint/face/PIN lock hai ya nahi
+  /// Whether the phone has a fingerprint/face/PIN lock
   static Future<bool> isDeviceSupported() async {
     try {
       return await LocalAuthentication().isDeviceSupported();
@@ -41,7 +41,7 @@ class AppLockSettings {
     }
   }
 
-  /// Fingerprint/face (ya phone ka PIN) maangta hai. Pass hua to true.
+  /// Asks for fingerprint/face (or the phone PIN). True if it passes.
   static Future<bool> authenticate(String reason) async {
     try {
       return await LocalAuthentication().authenticate(
@@ -54,8 +54,8 @@ class AppLockSettings {
   }
 }
 
-/// App khulne par, aur 30 second se zyada background me rehne ke baad,
-/// fingerprint maangta hai (agar user ne Profile se ye on kiya ho).
+/// Asks for a fingerprint when the app opens and after more than 30 seconds
+/// in the background (if the user turned this on in Profile).
 class AppLock extends StatefulWidget {
   final Widget child;
   const AppLock({super.key, required this.child});
@@ -67,7 +67,7 @@ class AppLock extends StatefulWidget {
 class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
   static const Duration _relockAfter = Duration(seconds: 30);
 
-  // App start pe pehla faisla hone tak screen dhak ke rakhte hain
+  // Keep the screen covered until the first decision on app start
   bool _checking = true;
   bool _locked = false;
   bool _authInProgress = false;
@@ -77,7 +77,7 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Sirf pehla auth event = app ka cold start. Baad ke fresh login pe lock nahi.
+    // Only the first auth event = cold start. No lock on later fresh logins.
     FirebaseAuth.instance.authStateChanges().first.then((user) async {
       if (user != null) await _lockIfEnabled();
       if (mounted) setState(() => _checking = false);
@@ -92,7 +92,7 @@ class _AppLockState extends State<AppLock> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_authInProgress) return; // fingerprint dialog khud lifecycle badalta hai
+    if (_authInProgress) return; // the fingerprint dialog itself changes the lifecycle
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
       _backgroundedAt ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {

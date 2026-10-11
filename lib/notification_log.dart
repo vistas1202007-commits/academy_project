@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'at_risk_logic.dart';
 import 'current_user.dart';
 
-/// Simulated notification log. Koi asli SMS/WhatsApp nahi jaata, sirf
-/// 'notifications' collection me record banta hai.
+/// Simulated notification log. No real SMS/WhatsApp is sent; only a
+/// record is written to the 'notifications' collection.
 
 const String kSimulatedStatus = 'Simulated (not sent)';
 const String kSignOff = '- Vistas';
@@ -13,7 +13,7 @@ const String kSignOff = '- Vistas';
 enum NotificationType { feeDue, absentAlert, batchAlert, adminSummary, riskAlert }
 
 extension NotificationTypeInfo on NotificationType {
-  /// Firestore me save hone wali value
+  /// Value stored in Firestore
   String get id => switch (this) {
         NotificationType.feeDue => 'fee_due',
         NotificationType.absentAlert => 'absent_alert',
@@ -30,7 +30,7 @@ extension NotificationTypeInfo on NotificationType {
         NotificationType.riskAlert => 'Risk alert',
       };
 
-  /// Fee reminder SMS se, baaki WhatsApp se
+  /// Fee reminders go by SMS, everything else by WhatsApp
   String get channel => this == NotificationType.feeDue ? 'SMS' : 'WhatsApp';
 }
 
@@ -45,14 +45,14 @@ String _s(dynamic v) => (v ?? '').toString().trim();
 
 final NumberFormat _inr = NumberFormat('#,##,##0', 'en_IN');
 
-/// SMS me ₹ ki dikkat se bachne ke liye "Rs. 12,000"
+/// "Rs. 12,000" to avoid ₹ issues in SMS
 String rupees(num v) => 'Rs. ${_inr.format(v.round())}';
 
 String dayKey(DateTime d) => DateFormat('yyyyMMdd').format(d);
 
 String _prettyDate(DateTime d) => DateFormat('dd MMM yyyy').format(d);
 
-/// "9876543221" -> "98XXXXXX21"; pehle 2 aur aakhri 2 digit dikhte hain
+/// "9876543221" -> "98XXXXXX21"; first 2 and last 2 digits stay visible
 String maskPhone(String phone) {
   var digits = phone.replaceAll(RegExp(r'\D'), '');
   if (digits.length > 10) digits = digits.substring(digits.length - 10);
@@ -60,16 +60,16 @@ String maskPhone(String phone) {
   return '${digits.substring(0, 2)}${'X' * (digits.length - 4)}${digits.substring(digits.length - 2)}';
 }
 
-/// Doc id me sirf letters, digits aur '-'
+/// Doc ids use only letters, digits and '-'
 String _idPart(String s) {
   final cleaned = s.trim().replaceAll(RegExp(r'[^A-Za-z0-9-]+'), '-');
   return cleaned.isEmpty ? 'none' : cleaned;
 }
 
-/// Message text ka chhota hash (8 hex). Web aur Android dono par same aata
-/// hai, isliye String.hashCode use nahi kiya.
+/// Short hash of the message text (8 hex). Same on web and Android,
+/// which is why String.hashCode is not used.
 String shortHash(String text) {
-  const mod = 4294967291; // 2^32 se chhota prime
+  const mod = 4294967291; // prime below 2^32
   var h = 7;
   for (final c in text.trim().codeUnits) {
     h = (h * 31 + c) % mod;
@@ -77,7 +77,7 @@ String shortHash(String text) {
   return h.toRadixString(16).padLeft(8, '0');
 }
 
-/// Ek record jo likha jaana hai
+/// One record to be written
 class PendingNotification {
   final NotificationType type;
   final String traineeId;
@@ -97,8 +97,8 @@ class PendingNotification {
     required this.day,
   });
 
-  /// type_traineeId_yyyyMMdd. Batch alert me batch aur message hash bhi,
-  /// taaki usi din alag message ja sake par same message dobara nahi.
+  /// type_traineeId_yyyyMMdd. Batch alerts also include batch and message hash,
+  /// so a different message can go the same day but not the same one twice.
   String get docId {
     final date = dayKey(day);
     if (type == NotificationType.batchAlert) {
@@ -108,7 +108,7 @@ class PendingNotification {
   }
 }
 
-/// Banne wale records + kitne trainees guardian phone na hone se chhoote
+/// Records to create + how many trainees were skipped for lack of a guardian phone
 class NotificationBatch {
   final List<PendingNotification> items;
   final int noPhone;
@@ -119,8 +119,8 @@ String _traineeIdOf(Map<String, dynamic> s) => _s(s['traineeId']).isNotEmpty ? _
 
 String _nameOf(Map<String, dynamic> s) => _s(s['name']).isEmpty ? 'your ward' : _s(s['name']);
 
-/// Jin students ke liye [messageFor] message de (null = chhodo), unke records.
-/// Guardian phone na ho to trainee chhoot jaata hai aur [NotificationBatch.noPhone] me ginta hai.
+/// Records for students that [messageFor] returns a message for (null = skip).
+/// Trainees without a guardian phone are skipped and counted in [NotificationBatch.noPhone].
 NotificationBatch _forStudents(
   Iterable<Map<String, dynamic>> students,
   NotificationType type,
@@ -156,7 +156,7 @@ double _pendingFee(Map<String, dynamic> s) {
   return pending < 0 ? 0 : pending;
 }
 
-/// Joined/Ongoing trainees jinki fees baaki hai
+/// Joined/Ongoing trainees with pending fees
 NotificationBatch feeReminders(Iterable<Map<String, dynamic>> students, DateTime now) =>
     _forStudents(students, NotificationType.feeDue, now, (s) {
       if (!isActiveTrainee(_s(s['status']))) return null;
@@ -166,7 +166,7 @@ NotificationBatch feeReminders(Iterable<Map<String, dynamic>> students, DateTime
           'Please pay at the centre at your earliest convenience. $kSignOff';
     });
 
-/// Kal ki attendance me jo absent the
+/// Trainees absent in yesterday's attendance
 NotificationBatch absentAlerts(
   Iterable<Map<String, dynamic>> students,
   Iterable<AttendanceDay> days,
@@ -188,7 +188,7 @@ NotificationBatch absentAlerts(
   });
 }
 
-/// Ek batch ke Joined/Ongoing trainees ke guardians ko admin ka message
+/// Admin's message to guardians of a batch's Joined/Ongoing trainees
 NotificationBatch batchAlerts(Iterable<Map<String, dynamic>> students, String batch, String text, DateTime now) {
   final message = 'Dear Parent, update for batch $batch: ${text.trim()} $kSignOff';
   return _forStudents(students, NotificationType.batchAlert, now, (s) {
@@ -197,7 +197,7 @@ NotificationBatch batchAlerts(Iterable<Map<String, dynamic>> students, String ba
   });
 }
 
-/// At-Risk screen se ek High-risk trainee ka alert
+/// Alert for one High-risk trainee from the At-Risk screen
 NotificationBatch riskAlert(Map<String, dynamic> student, List<String> reasons, DateTime now) =>
     _forStudents([student], NotificationType.riskAlert, now, (s) {
       final why = reasons.isEmpty ? '' : ' (${reasons.join(', ')})';
@@ -205,7 +205,7 @@ NotificationBatch riskAlert(Map<String, dynamic> student, List<String> reasons, 
           'Please contact the centre at your earliest convenience. $kSignOff';
     });
 
-/// Admin ke liye aaj ka summary
+/// Today's summary for the admin
 PendingNotification dailySummary(
   Iterable<Map<String, dynamic>> students,
   Iterable<AttendanceDay> days,
@@ -261,8 +261,8 @@ class LogResult {
   const LogResult(this.logged, this.skipped);
 }
 
-/// Har record transaction se likhta hai: doc pehle se ho to chhod deta hai
-/// (duplicate nahi banta), warna naya record.
+/// Writes each record in a transaction: skips it if the doc already exists
+/// (no duplicates), otherwise creates a new record.
 Future<LogResult> logNotifications(List<PendingNotification> items) async {
   final db = FirebaseFirestore.instance;
   final stamp = await creatorStamp();
@@ -295,7 +295,7 @@ Future<LogResult> logNotifications(List<PendingNotification> items) async {
   return LogResult(logged, skipped);
 }
 
-/// Bulk ke baad dikhane wala message
+/// Message shown after a bulk send
 String logResultMessage(LogResult r, {int noPhone = 0}) {
   if (r.logged == 0 && r.skipped > 0 && noPhone == 0) return 'Already logged today.';
   final parts = <String>['Logged ${r.logged}'];

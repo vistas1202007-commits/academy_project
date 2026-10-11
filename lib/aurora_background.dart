@@ -3,16 +3,16 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// Open screen aur login ka raat wala aasmaan: tare, dheere hilti aurora ki
-/// lehrein aur neeche pahaad. Sirf aurora wali layer har frame repaint hoti
-/// hai; aasmaan aur pahaad alag RepaintBoundary me ek hi baar bante hain.
-/// Blur/MaskFilter use nahi hota, taaki web aur purane phone dono par smooth rahe.
+/// Night sky for the open and login screens: stars, slowly moving aurora
+/// waves and mountains below. Only the aurora layer repaints every frame;
+/// sky and mountains are drawn once in separate RepaintBoundaries.
+/// No Blur/MaskFilter, so it stays smooth on web and older phones.
 class AuroraBackground extends StatefulWidget {
-  /// Bada barfeela pahaad beech me (open screen). Login par sirf neeche ki
-  /// halki pahadiyan aati hain.
+  /// Large snowy mountain in the middle (open screen). Login shows only the
+  /// soft low hills.
   final bool showPeak;
 
-  /// Bade pahaad ki choti screen height ke kis hisse par ho (0 = upar)
+  /// Where the big mountain's peak sits as a fraction of screen height (0 = top)
   final double peakTop;
 
   final Widget? child;
@@ -35,7 +35,7 @@ class _AuroraBackgroundState extends State<AuroraBackground> with SingleTickerPr
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // "Reduce motion" on ho to aurora ruki rehti hai
+    // Aurora stays still when "Reduce motion" is on
     if (MediaQuery.of(context).disableAnimations) {
       _controller.stop();
     } else if (!_controller.isAnimating) {
@@ -70,11 +70,11 @@ class _AuroraBackgroundState extends State<AuroraBackground> with SingleTickerPr
   }
 }
 
-/// Aasmaan ka gradient aur kuch tare
+/// Sky gradient and a few stars
 class _SkyPainter extends CustomPainter {
   const _SkyPainter();
 
-  // Fraction me positions, har size par ek jaisa phailav
+  // Positions as fractions, so the spread looks the same at any size
   static const List<Offset> _stars = [
     Offset(0.12, 0.06), Offset(0.31, 0.15), Offset(0.58, 0.04), Offset(0.83, 0.11),
     Offset(0.93, 0.27), Offset(0.07, 0.31), Offset(0.46, 0.24), Offset(0.71, 0.33),
@@ -106,15 +106,15 @@ class _SkyPainter extends CustomPainter {
   bool shouldRepaint(_SkyPainter oldDelegate) => false;
 }
 
-/// Ek aurora lehar: upar ki kinaari sine waves se banti hai, neeche gradient
-/// se dheere gayab hoti hai
+/// One aurora wave: the top edge is built from sine waves, the bottom fades
+/// out gradually with a gradient
 class _Band {
-  final double top; // height ka fraction
-  final double thickness; // height ka fraction
-  final double amplitude; // height ka fraction
-  final double waves; // poori width me kitni lehrein
+  final double top; // fraction of height
+  final double thickness; // fraction of height
+  final double amplitude; // fraction of height
+  final double waves; // number of waves across the full width
   final double phase;
-  final int speed; // ek loop me kitne chakkar (integer, taaki loop seamless rahe)
+  final int speed; // cycles per loop (integer, so the loop is seamless)
   final Color color;
   final double alpha;
 
@@ -138,7 +138,7 @@ class _AuroraPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final t = animation.value * 2 * math.pi;
-    // Bahut chaudi screen par lehrein zyada na khinchein
+    // Don't stretch the waves too much on very wide screens
     final waveScale = (w / 420).clamp(1.0, 3.0);
     final step = math.max(6.0, w / 90);
 
@@ -198,7 +198,7 @@ class _MountainPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Peeche ki pahadiyan, poori width me
+    // Back hills, full width
     canvas.drawPath(
       _ridge(size, const [
         Offset(0, 0.70), Offset(0.14, 0.60), Offset(0.27, 0.67), Offset(0.42, 0.58),
@@ -209,12 +209,12 @@ class _MountainPainter extends CustomPainter {
 
     if (showPeak) {
       final apex = Offset(w / 2, peakTop * h);
-      // Dhalaan height se tay hoti hai, taaki chaudi screen par pahaad na phaile
+      // Slope is based on height, so mountains don't spread out on wide screens
       final halfBase = (h - apex.dy) * 0.95;
       paintSnowPeak(canvas, apex, halfBase, h, Paint()..color = _peakBody);
     }
 
-    // Aage ki sabse gehri pahadiyan
+    // Darkest front hills
     canvas.drawPath(
       _ridge(size, const [
         Offset(0, 0.86), Offset(0.2, 0.79), Offset(0.4, 0.88), Offset(0.62, 0.80),
@@ -239,8 +239,8 @@ class _MountainPainter extends CustomPainter {
       oldDelegate.showPeak != showPeak || oldDelegate.peakTop != peakTop;
 }
 
-/// Ek pahaad jiski choti par barf ho. [apex] choti, [halfBase] neeche aadhi
-/// chaudai, [baseY] pahaad ka neeche ka kinara.
+/// A mountain with a snowy peak. [apex] is the peak, [halfBase] half the base
+/// width, [baseY] the mountain's bottom edge.
 void paintSnowPeak(Canvas canvas, Offset apex, double halfBase, double baseY, Paint body) {
   final height = baseY - apex.dy;
   final slope = halfBase / height;
@@ -254,7 +254,7 @@ void paintSnowPeak(Canvas canvas, Offset apex, double halfBase, double baseY, Pa
     body,
   );
 
-  // Barf: choti se neeche tak, zig-zag kinaare ke saath
+  // Snow: from the peak downward, with a zig-zag edge
   final capH = height * 0.2;
   final capW = capH * slope;
   canvas.drawPath(

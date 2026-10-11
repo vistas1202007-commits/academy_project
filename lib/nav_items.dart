@@ -10,8 +10,8 @@ import 'ask_data_screen.dart';
 import 'notifications_screen.dart';
 import 'recycle_bin_screen.dart';
 
-/// Menu items ke ids. Menu se khule route ka RouteSettings.name yahi hota
-/// hai, taaki sidebar kholi hui screen highlight kar sake.
+/// Menu item ids. A route opened from the menu uses this as its
+/// RouteSettings.name, so the sidebar can highlight the open screen.
 class NavIds {
   NavIds._();
 
@@ -33,7 +33,7 @@ class NavItem {
   final String label;
   final IconData icon;
 
-  /// null = Dashboard (wahan tak wapas jaana hi kaafi hai)
+  /// null = Dashboard (popping back to it is enough)
   final WidgetBuilder? builder;
 
   const NavItem({required this.id, required this.label, required this.icon, this.builder});
@@ -44,7 +44,7 @@ class NavItem {
   );
 }
 
-/// Phone ka drawer aur desktop ka sidebar dono yahi list dikhate hain
+/// Both the phone drawer and the desktop sidebar show this list
 List<NavItem> navItemsFor(String role) => [
   const NavItem(id: NavIds.dashboard, label: 'Dashboard', icon: Icons.dashboard_outlined),
   if (role == 'admin' || role == 'mobilizer')
@@ -113,7 +113,7 @@ String roleLabelFor(String role) {
   }
 }
 
-/// "Logout?" poochta hai; haan par sign out karke Login par le jata hai
+/// Asks "Logout?"; on yes, signs out and goes to Login
 Future<void> confirmLogout(BuildContext context) async {
   final confirm = await showDialog<bool>(
     context: context,

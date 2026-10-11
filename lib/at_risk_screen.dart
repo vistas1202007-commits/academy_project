@@ -11,18 +11,18 @@ import 'responsive.dart';
 import 'student_profile_screen.dart';
 import 'ui_kit.dart';
 
-/// Students docs ko plain maps me badalta hai; har map me 'id' = doc id
+/// Converts student docs to plain maps; each map has 'id' = doc id
 List<Map<String, dynamic>> studentMapsFrom(QuerySnapshot<Map<String, dynamic>> snap) =>
     snap.docs.map((d) => {...d.data(), 'id': d.id}).toList();
 
-/// [studentMapsFrom] jaisa, par Recycle Bin wale trainees ke bina
+/// Like [studentMapsFrom], but without trainees in the Recycle Bin
 List<Map<String, dynamic>> liveStudentMapsFrom(QuerySnapshot<Map<String, dynamic>> snap) =>
     studentMapsFrom(snap).where(isLive).toList();
 
-/// Live trainees ke doc id, [liveAttendance] ke liye
+/// Doc ids of live trainees, for [liveAttendance]
 Set<String> idsOf(Iterable<Map<String, dynamic>> students) => {for (final s in students) s['id'] as String};
 
-/// Attendance docs se [AttendanceDay]; bina date wale docs chhod deta hai
+/// [AttendanceDay] from attendance docs; skips docs without a date
 List<AttendanceDay> attendanceDaysFrom(QuerySnapshot<Map<String, dynamic>> snap) {
   final days = <AttendanceDay>[];
   for (final doc in snap.docs) {
@@ -45,7 +45,7 @@ Color riskColor(RiskLevel level) => switch (level) {
       RiskLevel.low => AppColors.success,
     };
 
-/// Admin-only: Joined/Ongoing trainees ka risk score, sabse zyada pehle
+/// Admin-only: risk scores for Joined/Ongoing trainees, highest first
 class AtRiskScreen extends StatelessWidget {
   const AtRiskScreen({super.key});
 
@@ -77,7 +77,7 @@ class _AtRiskBody extends StatefulWidget {
 class _AtRiskBodyState extends State<_AtRiskBody> {
   late Future<List<TraineeRisk>> _future = _load();
 
-  /// Guardian alert ke liye poora student data (doc id se)
+  /// Full student data for the guardian alert (by doc id)
   Map<String, Map<String, dynamic>> _studentsById = {};
   final Set<String> _notifying = {};
 
@@ -92,7 +92,7 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
     return assessTrainees(students, liveAttendance(attendanceDaysFrom(results[1]), idsOf(students)), DateTime.now());
   }
 
-  /// High-risk trainee ke guardian ke liye simulated alert
+  /// Simulated alert for a High-risk trainee's guardian
   Future<void> _notify(TraineeRisk risk) async {
     final student = _studentsById[risk.id];
     if (student == null) return;
@@ -232,7 +232,7 @@ class _CountCard extends StatelessWidget {
 class _RiskRow extends StatelessWidget {
   final TraineeRisk risk;
 
-  /// Sirf High-risk rows ke liye; null = button nahi
+  /// Only for High-risk rows; null = no button
   final VoidCallback? onNotify;
   final bool notifying;
   const _RiskRow({required this.risk, this.onNotify, this.notifying = false});
