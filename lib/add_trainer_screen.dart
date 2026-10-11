@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AddTrainerScreen extends StatefulWidget {
 const AddTrainerScreen({super.key});
@@ -140,11 +141,12 @@ Widget build(BuildContext context) {
 return Scaffold(
 backgroundColor: AppColors.appBackground,
 appBar: AppBar(
+flexibleSpace: const AppBarRibbon(),
 backgroundColor: AppColors.appPrimary,
 elevation: 0,
 title: const Text('Add Staff Account'),
 ),
-body: ContentWidth(maxWidth: 640, child: Form(
+body: PageWash(child: ContentWidth(maxWidth: 640, child: Form(
 key: _formKey,
 child: ListView(
 padding: const EdgeInsets.all(20),
@@ -260,7 +262,7 @@ color: Colors.white,
 ),
 ],
 ),
-)),
+))),
 );
 }
 }

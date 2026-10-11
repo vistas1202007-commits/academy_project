@@ -7,6 +7,7 @@ import 'edit_batch_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class BatchDetailScreen extends StatelessWidget {
   final String batchId;
@@ -28,6 +29,7 @@ class BatchDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Batch Details'),
@@ -56,11 +58,11 @@ class BatchDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('batches').doc(batchId).snapshots(),
         builder: (context, batchSnap) {
           if (!batchSnap.hasData) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+            return const AppLoader();
           }
           if (!batchSnap.data!.exists) {
             return const Center(child: Text('This batch no longer exists.'));
@@ -145,30 +147,11 @@ class BatchDetailScreen extends StatelessWidget {
                       .snapshots(),
                   builder: (context, studentSnap) {
                     if (!studentSnap.hasData) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(color: AppColors.appPrimary),
-                        ),
-                      );
+                      return const AppLoader(padding: EdgeInsets.all(20));
                     }
                     final students = liveDocsOf(studentSnap.data!);
                     if (students.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(Icons.groups_outlined, size: 48, color: Colors.grey[350]),
-                              const SizedBox(height: 10),
-                              Text(
-                                'No trainees assigned to this batch yet.',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return const EmptyState(icon: Icons.groups_outlined, message: 'No trainees assigned to this batch yet.');
                     }
                     return Column(
                       children: students.map((doc) {
@@ -177,17 +160,7 @@ class BatchDetailScreen extends StatelessWidget {
                         final traineeId = (data['traineeId'] ?? '').toString();
                         return Container(
                           margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
+                          decoration: AppCard.decoration,
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: AppColors.appPrimary.withValues(alpha: 0.12),
@@ -232,7 +205,7 @@ class BatchDetailScreen extends StatelessWidget {
             ],
           );
         },
-      )),
+      ))),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'student_profile_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class FeesReportScreen extends StatefulWidget {
   const FeesReportScreen({super.key});
@@ -23,11 +24,12 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Fees Report'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<QuerySnapshot>(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('students')
             .orderBy('createdAt', descending: true)
@@ -37,7 +39,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
             return const Center(child: Text('Something went wrong.'));
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+            return const AppLoader();
           }
 
           final allDocs = liveDocsOf(snapshot.data!);
@@ -83,7 +85,8 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.appPrimary.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppCard.radius,
+                          border: Border.all(color: AppColors.appPrimary.withValues(alpha: 0.25), width: 0.5),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +109,8 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.warning.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppCard.radius,
+                          border: Border.all(color: AppColors.warning.withValues(alpha: 0.25), width: 0.5),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,19 +184,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
               // ---- List ----
               Expanded(
                 child: filteredDocs.isEmpty
-                    ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.receipt_long_outlined, size: 56, color: Colors.grey[350]),
-                      const SizedBox(height: 12),
-                      Text(
-                        allDocs.isEmpty ? 'No trainees found.' : 'No matching records.',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                )
+                    ? EmptyState(icon: Icons.receipt_long_outlined, message: allDocs.isEmpty ? 'No trainees found.' : 'No matching records.')
                     : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   itemCount: filteredDocs.length,
@@ -207,17 +199,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      decoration: AppCard.decoration,
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         leading: CircleAvatar(
@@ -273,7 +255,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
             ],
           );
         },
-      )),
+      ))),
     );
   }
 }

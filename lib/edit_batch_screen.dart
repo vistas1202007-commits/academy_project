@@ -3,6 +3,7 @@ import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class EditBatchScreen extends StatefulWidget {
   final String batchId;
@@ -48,8 +49,8 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
-      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Batch — Trainer')),
-      body: ContentWidth(maxWidth: 640, child: StreamBuilder<DocumentSnapshot>(
+      appBar: AppBar(flexibleSpace: const AppBarRibbon(), backgroundColor: AppColors.appPrimary, title: const Text('Edit Batch — Trainer')),
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -111,7 +112,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
             ),
           );
         },
-      )),
+      ))),
     );
   }
 }

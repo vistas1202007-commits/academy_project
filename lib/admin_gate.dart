@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 import 'current_user.dart';
+import 'ui_kit.dart';
 
 /// Screen ke andar ka role check: Admin ho to [child], warna "Access denied".
 /// Menu se button chhupana kaafi nahi, isliye screen khud bhi dekhti hai.
@@ -23,7 +24,7 @@ class _AdminGateState extends State<AdminGate> {
       future: _role,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+          return const AppLoader();
         }
         if (snap.data == 'admin') return widget.child;
         return Center(

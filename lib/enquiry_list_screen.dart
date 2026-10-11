@@ -9,6 +9,7 @@ import 'app_colors.dart';
 import 'recycle_bin_screen.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class EnquiryListScreen extends StatefulWidget {
   final List<String>? filterStatuses;
@@ -361,6 +362,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(widget.screenTitle ?? 'Enquiries'),
@@ -381,7 +383,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: ContentWidth(maxWidth: 900, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
         children: [
           // Only show the quick-filter chips when this screen isn't already
           // locked to a specific set of statuses via filterStatuses.
@@ -416,7 +418,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
               stream: query.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
 
                 var docs = liveDocsOf(snapshot.data!);
@@ -434,9 +436,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
                 }
 
                 if (docs.isEmpty) {
-                  return Center(
-                    child: Text('No enquiries found.', style: TextStyle(color: Colors.grey[600])),
-                  );
+                  return EmptyState(icon: Icons.support_agent_outlined, message: 'No enquiries found.');
                 }
 
                 return ListView.builder(
@@ -450,17 +450,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      decoration: AppCard.decoration,
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         onTap: () => _showDetail(context, doc.id, data),
@@ -502,7 +492,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

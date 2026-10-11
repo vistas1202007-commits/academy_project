@@ -5,6 +5,7 @@ import 'placement_detail_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class PlacementListScreen extends StatefulWidget {
   const PlacementListScreen({super.key});
@@ -37,6 +38,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         title: const Text('Placements'),
       ),
@@ -49,7 +51,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: ContentWidth(maxWidth: 900, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -72,7 +74,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
                 final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
                 final docs = allDocs.where((doc) {
@@ -83,16 +85,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                   return name.contains(_searchQuery) || company.contains(_searchQuery) || traineeId.contains(_searchQuery);
                 }).toList();
                 if (docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.work_history_outlined, size: 56, color: Colors.grey[350]),
-                        const SizedBox(height: 12),
-                        Text('No placement records yet.', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                  );
+                  return EmptyState(icon: Icons.work_history_outlined, message: 'No placement records yet.');
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
@@ -105,8 +98,13 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
                     final course = (data['course'] ?? '').toString();
                     final jobPost = (data['jobPost'] ?? '').toString();
                     return Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.surface,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppCard.radius,
+                        side: BorderSide(color: AppColors.border, width: 0.5),
+                      ),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {
@@ -195,7 +193,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

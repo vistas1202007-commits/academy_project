@@ -7,6 +7,7 @@ import 'fee_receipt_pdf.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   final String studentId;
@@ -145,11 +146,12 @@ class StudentProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Trainee Profile'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('students').doc(studentId).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -388,7 +390,7 @@ class StudentProfileScreen extends StatelessWidget {
             ],
           );
         },
-      )),
+      ))),
     );
   }
 }

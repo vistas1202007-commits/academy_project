@@ -5,6 +5,7 @@ import 'course_data.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AddEnquiryScreen extends StatefulWidget {
   final String currentUserRole;
@@ -181,11 +182,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('New Enquiry'),
       ),
-      body: ContentWidth(maxWidth: 640, child: Form(
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -304,7 +306,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             ),
           ],
         ),
-      )),
+      ))),
     );
   }
 }

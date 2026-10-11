@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -162,11 +163,12 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(isEditingExisting ? 'Edit Attendance' : 'Mark Attendance'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: Column(
         children: [
           if (isEditingExisting)
             Container(
@@ -274,9 +276,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
           ),
           if (_selectedBatchId == null)
             Expanded(
-              child: Center(
-                child: Text('Select a batch to mark attendance', style: TextStyle(color: Colors.grey[600])),
-              ),
+              child: EmptyState(icon: Icons.fact_check_outlined, message: 'Select a batch to mark attendance'),
             )
           else
             Expanded(
@@ -287,17 +287,15 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                    return const AppLoader();
                   }
                   final students = liveDocsOf(snapshot.data!);
 
                   if (students.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No trainees found in this batch.\n(Make sure the trainee\'s "Batch" field matches the batch name exactly.)',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
+                    return const EmptyState(
+                      icon: Icons.groups_outlined,
+                      message:
+                          'No trainees found in this batch.\n(Make sure the trainee\'s "Batch" field matches the batch name exactly.)',
                     );
                   }
 
@@ -334,17 +332,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                             return Container(
                               margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.04),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
+                              decoration: AppCard.decoration,
                               child: Row(
                                 children: [
                                   Expanded(
@@ -397,7 +385,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
               ),
             ),
         ],
-      )),
+      ))),
     );
   }
 

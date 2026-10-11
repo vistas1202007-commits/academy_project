@@ -6,6 +6,7 @@ import 'batch_detail_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class BatchListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -33,11 +34,12 @@ class _BatchListScreenState extends State<BatchListScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(widget.trainerOnly ? 'My Batches' : 'Batches'),
       ),
-      body: ContentWidth(maxWidth: 900, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -67,7 +69,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                   return const Center(child: Text('Something went wrong.'));
                 }
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
                 final allDocs = snapshot.data!.docs.toList();
                 if (widget.trainerOnly) {
@@ -88,27 +90,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                       trainerName.contains(_searchQuery);
                 }).toList();
                 if (docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          allDocs.isEmpty ? Icons.class_outlined : Icons.search_off_outlined,
-                          size: 56,
-                          color: Colors.grey[350],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          allDocs.isEmpty
-                              ? (widget.trainerOnly
-                              ? 'No batches assigned to you yet.'
-                              : 'No batches created yet.')
-                              : 'No matching batches found.',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  );
+                  return EmptyState(icon: allDocs.isEmpty ? Icons.class_outlined : Icons.search_off_outlined, message: allDocs.isEmpty ? (widget.trainerOnly ? 'No batches assigned to you yet.' : 'No batches created yet.') : 'No matching batches found.');
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -125,17 +107,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                         : '-';
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      decoration: AppCard.decoration,
                       child: Material(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(14),
@@ -260,7 +232,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

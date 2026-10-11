@@ -11,6 +11,7 @@ import 'analytics_export.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 import 'soft_delete.dart';
+import 'ui_kit.dart';
 
 /// Admin-only analytics. Students, enquiries, attendance aur placements ke
 /// plain streams aate hain; date filter aur saari calculation client-side.
@@ -40,20 +41,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         title: const Text('Analytics'),
         backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
-      body: ContentWidth(maxWidth: 1100, child: FutureBuilder<bool>(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: FutureBuilder<bool>(
         future: _isAdminFuture,
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+            return const AppLoader();
           }
           if (snap.data != true) return const _AccessDenied();
           return const _AnalyticsBody();
         },
-      )),
+      ))),
     );
   }
 }
@@ -705,7 +707,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
           title: title,
           hasData: true,
           height: 100,
-          child: const Center(child: CircularProgressIndicator(color: AppColors.appPrimary)),
+          child: const AppLoader(),
         ),
       ];
     }
@@ -721,7 +723,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
     }
     final a = _analytics;
     if (a == null) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+      return const AppLoader();
     }
     final stats = a.stats;
     final allReady = _collections.every(_ready);
@@ -780,24 +782,9 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
         if (desktop) ...[
           _ChartPair(enrollment, age),
           _ChartPair(course, gender),
-          // Funnel ka title sirf daayin column me; baayin taraf utni hi khali
-          // jagah, taaki dono cards ki upar ki line barabar rahe
-          _ChartPair(
-            Column(children: [
-              const Visibility(
-                visible: false,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: _SectionTitle('Funnel'),
-              ),
-              villages,
-            ]),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [const _SectionTitle('Funnel'), ...funnel],
-            ),
-          ),
+          villages,
+          const _SectionTitle('Funnel'),
+          ...funnel,
         ] else ...[
           enrollment,
           course,
@@ -911,8 +898,11 @@ class _FilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppCard.radius,
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -992,13 +982,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 12),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
-      ),
-    );
+    return SectionHeading(text, padding: const EdgeInsets.only(top: 8, bottom: 12));
   }
 }
 
@@ -1084,8 +1068,11 @@ class _KpiCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppCard.radius,
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -1133,8 +1120,11 @@ class _ChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppCard.radius,
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(

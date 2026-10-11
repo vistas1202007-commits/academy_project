@@ -6,6 +6,7 @@ import 'edit_profile_screen.dart';
 import 'login_options_card.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -92,11 +93,12 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('My Profile'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: uid == null
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: uid == null
           ? const Center(child: Text('Not logged in.'))
           : StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
@@ -235,7 +237,7 @@ class ProfileScreen extends StatelessWidget {
             ],
           );
         },
-      )),
+      ))),
     );
   }
 }

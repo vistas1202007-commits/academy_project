@@ -8,6 +8,7 @@ import 'at_risk_logic.dart';
 import 'at_risk_screen.dart';
 import 'responsive.dart';
 import 'soft_delete.dart';
+import 'ui_kit.dart';
 
 // ---------------------------------------------------------------------------
 // Data aur jawab (pure functions, koi AI nahi; sab client-side ginti)
@@ -351,14 +352,15 @@ class AskDataScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         title: const Text('Ask Your Data'),
         backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
-      body: const ContentWidth(
+      body: PageWash(child: const ContentWidth(
         maxWidth: 900,
         child: AdminGate(screenName: 'Ask Your Data', child: _AskBody()),
-      ),
+      )),
     );
   }
 }
@@ -402,7 +404,7 @@ class _AskBodyState extends State<_AskBody> {
       future: _future,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+          return const AppLoader();
         }
         if (snap.hasError) {
           return _CenterMessage(
@@ -495,11 +497,7 @@ class _AnswerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
+      decoration: AppCard.decoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -579,25 +577,6 @@ class _CenterMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 52, color: AppColors.textMuted),
-            const SizedBox(height: 12),
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textMuted)),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh'),
-              style: TextButton.styleFrom(foregroundColor: AppColors.appPrimary),
-            ),
-          ],
-        ),
-      ),
-    );
+    return EmptyState(icon: icon, message: text, actionLabel: 'Refresh', onAction: onRefresh);
   }
 }

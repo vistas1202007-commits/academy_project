@@ -8,6 +8,7 @@ import 'current_user.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class BulkImportScreen extends StatefulWidget {
   const BulkImportScreen({super.key});
@@ -931,11 +932,12 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Bulk Import'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: ListView(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _sectionCard(
@@ -950,7 +952,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
             child: _buildPlacementSection(),
           ),
         ],
-      )),
+      ))),
     );
   }
 

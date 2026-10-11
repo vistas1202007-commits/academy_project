@@ -7,6 +7,7 @@ import 'app_colors.dart';
 import 'recycle_bin_screen.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class StudentListScreen extends StatefulWidget {
   final bool trainerOnly;
@@ -92,21 +93,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
     }).toList();
 
     if (filteredDocs.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.groups_outlined, size: 56, color: Colors.grey[350]),
-            const SizedBox(height: 12),
-            Text(
-              allDocs.isEmpty
-                  ? 'No trainees found.'
-                  : 'No matching trainees found.',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      );
+      return EmptyState(icon: Icons.groups_outlined, message: allDocs.isEmpty ? 'No trainees found.' : 'No matching trainees found.');
     }
 
     return ListView.builder(
@@ -122,17 +109,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         final village = (data['village'] ?? '').toString().trim();
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+          decoration: AppCard.decoration,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: CircleAvatar(
@@ -201,11 +178,12 @@ class _StudentListScreenState extends State<StudentListScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(title),
       ),
-      body: ContentWidth(maxWidth: 900, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -236,19 +214,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   .snapshots(),
               builder: (context, batchSnap) {
                 if (!batchSnap.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
                 final batchNames = batchSnap.data!.docs
                     .map((d) => (d.data() as Map<String, dynamic>)['batchName'] as String?)
                     .whereType<String>()
                     .toList();
                 if (batchNames.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No batch assigned to you yet.',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  );
+                  return EmptyState(icon: Icons.class_outlined, message: 'No batch assigned to you yet.');
                 }
                 return StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -257,7 +230,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                       .snapshots(),
                   builder: (context, studentSnap) {
                     if (!studentSnap.hasData) {
-                      return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                      return const AppLoader();
                     }
                     return _buildStudentList(studentSnap.data!.docs);
                   },
@@ -274,14 +247,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   return const Center(child: Text('Something went wrong.'));
                 }
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
                 return _buildStudentList(snapshot.data!.docs);
               },
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

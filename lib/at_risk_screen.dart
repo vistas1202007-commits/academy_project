@@ -9,6 +9,7 @@ import 'friendly_error.dart';
 import 'notification_log.dart';
 import 'responsive.dart';
 import 'student_profile_screen.dart';
+import 'ui_kit.dart';
 
 /// Students docs ko plain maps me badalta hai; har map me 'id' = doc id
 List<Map<String, dynamic>> studentMapsFrom(QuerySnapshot<Map<String, dynamic>> snap) =>
@@ -53,14 +54,15 @@ class AtRiskScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         title: const Text('At-Risk Trainees'),
         backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
-      body: const ContentWidth(
+      body: PageWash(child: const ContentWidth(
         maxWidth: 900,
         child: AdminGate(screenName: 'At-Risk Trainees', child: _AtRiskBody()),
-      ),
+      )),
     );
   }
 }
@@ -132,7 +134,7 @@ class _AtRiskBodyState extends State<_AtRiskBody> {
       future: _future,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+          return const AppLoader();
         }
         if (snap.hasError) {
           return _Message(
@@ -209,11 +211,7 @@ class _CountCard extends StatelessWidget {
     final color = riskColor(level);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
+      decoration: AppCard.decoration,
       child: Column(
         children: [
           Text(
@@ -247,17 +245,17 @@ class _RiskRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppCard.radius,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppCard.radius,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => StudentProfileScreen(studentId: risk.id)),
           ),
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              borderRadius: AppCard.radius,
+              border: Border.all(color: AppColors.border, width: 0.5),
             ),
             child: Row(
               children: [
@@ -344,25 +342,6 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 52, color: AppColors.textMuted),
-            const SizedBox(height: 12),
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textMuted)),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh'),
-              style: TextButton.styleFrom(foregroundColor: AppColors.appPrimary),
-            ),
-          ],
-        ),
-      ),
-    );
+    return EmptyState(icon: icon, message: text, actionLabel: 'Refresh', onAction: onRetry);
   }
 }

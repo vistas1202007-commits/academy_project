@@ -5,6 +5,7 @@ import 'edit_company_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class CompanyListScreen extends StatefulWidget {
   const CompanyListScreen({super.key});
@@ -21,6 +22,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         title: const Text('Companies'),
       ),
@@ -33,7 +35,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: ContentWidth(maxWidth: 900, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -63,7 +65,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                  return const AppLoader();
                 }
                 final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
                 final docs = allDocs.where((doc) {
@@ -73,23 +75,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                   return companyName.contains(_searchQuery) || location.contains(_searchQuery);
                 }).toList();
                 if (docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          allDocs.isEmpty ? Icons.business_outlined : Icons.search_off_outlined,
-                          size: 56,
-                          color: Colors.grey[350],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          allDocs.isEmpty ? 'No companies added yet.' : 'No matching companies found.',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  );
+                  return EmptyState(icon: allDocs.isEmpty ? Icons.business_outlined : Icons.search_off_outlined, message: allDocs.isEmpty ? 'No companies added yet.' : 'No matching companies found.');
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -99,8 +85,13 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                     final docId = docs[index].id;
                     final data = docs[index].data() as Map<String, dynamic>;
                     return Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.surface,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppCard.radius,
+                        side: BorderSide(color: AppColors.border, width: 0.5),
+                      ),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {
@@ -161,7 +152,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

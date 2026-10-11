@@ -9,6 +9,7 @@ import 'friendly_error.dart';
 import 'notification_log.dart';
 import 'responsive.dart';
 import 'soft_delete.dart';
+import 'ui_kit.dart';
 
 /// Admin-only simulated notification log. Koi asli message nahi jaata.
 class NotificationsScreen extends StatelessWidget {
@@ -19,14 +20,15 @@ class NotificationsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         title: const Text('Notifications'),
         backgroundColor: AppColors.appPrimary,
         foregroundColor: Colors.white,
       ),
-      body: const ContentWidth(
+      body: PageWash(child: const ContentWidth(
         maxWidth: 900,
         child: AdminGate(screenName: 'Notifications', child: _NotificationsBody()),
-      ),
+      )),
     );
   }
 }
@@ -282,7 +284,7 @@ class _NotificationsBodyState extends State<_NotificationsBody> {
           return const _Empty(text: 'Could not load notifications. Check your internet connection and try again.');
         }
         if (!snap.hasData) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+          return const AppLoader();
         }
         final docs = snap.data!.docs.map((d) => d.data()).where((d) {
           return _filter == null || d['type'] == _filter!.id;
@@ -422,15 +424,15 @@ class _NotificationRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppCard.radius,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppCard.radius,
           onTap: () => _open(context),
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              borderRadius: AppCard.radius,
+              border: Border.all(color: AppColors.border, width: 0.5),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,18 +564,6 @@ class _Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.notifications_none, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 10),
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textMuted)),
-          ],
-        ),
-      ),
-    );
+    return EmptyState(icon: Icons.notifications_none, message: text);
   }
 }

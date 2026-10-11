@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 /// Role chips ke labels
 const String _all = 'All roles';
@@ -201,11 +202,12 @@ class _HelpScreenState extends State<HelpScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Help & User Guide'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: ListView(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Container(
@@ -283,7 +285,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
           const SizedBox(height: 20),
         ],
-      )),
+      ))),
     );
   }
 

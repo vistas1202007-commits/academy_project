@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'edit_placement_screen.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class PlacementDetailScreen extends StatelessWidget {
   final String placementId;
@@ -46,11 +47,12 @@ class PlacementDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Placement Details'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: Stack(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: Stack(
         children: [
           ListView(
             padding: const EdgeInsets.all(20),
@@ -138,7 +140,7 @@ class PlacementDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      )),
+      ))),
     );
   }
 }

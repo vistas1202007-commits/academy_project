@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile_screen.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class StaffListScreen extends StatelessWidget {
   const StaffListScreen({super.key});
@@ -296,31 +297,23 @@ class StaffListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Staff Accounts'),
       ),
-      body: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+            return const AppLoader();
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.badge_outlined, size: 56, color: Colors.grey[350]),
-                  const SizedBox(height: 12),
-                  Text('No staff accounts yet.', style: TextStyle(color: Colors.grey[600])),
-                ],
-              ),
-            );
+            return EmptyState(icon: Icons.badge_outlined, message: 'No staff accounts yet.');
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -332,17 +325,7 @@ class StaffListScreen extends StatelessWidget {
               final rawName = (data['name'] ?? '').toString().trim();
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                decoration: AppCard.decoration,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () => _showDetail(context, doc.id, data),
@@ -379,7 +362,7 @@ class StaffListScreen extends StatelessWidget {
             },
           );
         },
-      )),
+      ))),
     );
   }
 }

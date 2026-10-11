@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:pdfx/pdfx.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AddReportScreen extends StatefulWidget {
   final String currentUserRole;
@@ -339,11 +340,12 @@ class _AddReportScreenState extends State<AddReportScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: Text(_isEditing ? 'Edit Report' : 'New Report'),
       ),
-      body: ContentWidth(maxWidth: 640, child: Form(
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -477,7 +479,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
             ),
           ],
         ),
-      )),
+      ))),
     );
   }
 }

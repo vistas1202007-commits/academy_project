@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'mark_attendance_screen.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
   // true when opened from the Trainer's Quick Actions — restricts the batch
@@ -78,11 +79,12 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Attendance History'),
       ),
-      body: ContentWidth(maxWidth: 1100, child: Column(
+      body: PageWash(child: ContentWidth(maxWidth: 1100, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -145,9 +147,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           ),
           if (_selectedBatchId == null)
             Expanded(
-              child: Center(
-                child: Text('Select a batch to view attendance history', style: TextStyle(color: Colors.grey[600])),
-              ),
+              child: EmptyState(icon: Icons.history_outlined, message: 'Select a batch to view attendance history'),
             )
           else
             Expanded(
@@ -161,7 +161,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                     return const Center(child: Text('Something went wrong.'));
                   }
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+                    return const AppLoader();
                   }
 
                   final records = snapshot.data!.docs.where((doc) {
@@ -170,8 +170,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   }).toList();
 
                   if (records.isEmpty) {
-                    return Center(
-                      child: Text('No attendance marked yet for this batch.', style: TextStyle(color: Colors.grey[600])),
+                    return const EmptyState(
+                      icon: Icons.event_busy_outlined,
+                      message: 'No attendance marked yet for this batch.',
                     );
                   }
 
@@ -193,17 +194,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
+                        decoration: AppCard.decoration,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -273,7 +264,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               ),
             ),
         ],
-      )),
+      ))),
     );
   }
 

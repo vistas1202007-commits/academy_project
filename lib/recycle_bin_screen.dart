@@ -6,6 +6,7 @@ import 'admin_gate.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 import 'soft_delete.dart';
+import 'ui_kit.dart';
 
 /// Ek tab: kaunsa collection, tab ka naam aur row ka title kaise bane
 class _BinTab {
@@ -67,6 +68,7 @@ class RecycleBinScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.appBackground,
         appBar: AppBar(
+          flexibleSpace: const AppBarRibbon(),
           title: const Text('Recycle Bin'),
           backgroundColor: AppColors.appPrimary,
           foregroundColor: Colors.white,
@@ -79,13 +81,13 @@ class RecycleBinScreen extends StatelessWidget {
             tabs: [for (final t in _tabs) Tab(text: t.label)],
           ),
         ),
-        body: ContentWidth(
+        body: PageWash(child: ContentWidth(
           maxWidth: 900,
           child: AdminGate(
             screenName: 'Recycle Bin',
             child: TabBarView(children: [for (final t in _tabs) _BinList(tab: t)]),
           ),
-        ),
+        )),
       ),
     );
   }
@@ -161,12 +163,10 @@ class _BinList extends StatelessWidget {
       stream: FirebaseFirestore.instance.collection(tab.collection).snapshots(),
       builder: (context, snap) {
         if (snap.hasError) {
-          return const Center(
-            child: Text('Could not load data. Please try again.', style: TextStyle(color: AppColors.textMuted)),
-          );
+          return const EmptyState(icon: Icons.cloud_off_outlined, message: 'Could not load data. Please try again.');
         }
         if (!snap.hasData) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+          return const AppLoader();
         }
         final docs = snap.data!.docs.where((d) => !isLive(d.data())).toList()
           ..sort((a, b) {
@@ -178,22 +178,7 @@ class _BinList extends StatelessWidget {
           });
 
         if (docs.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(tab.icon, size: 52, color: AppColors.textMuted),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No deleted ${tab.label.toLowerCase()}.',
-                    style: const TextStyle(color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return EmptyState(icon: tab.icon, message: 'No deleted ${tab.label.toLowerCase()}.');
         }
 
         return ListView.separated(
@@ -208,11 +193,7 @@ class _BinList extends StatelessWidget {
             final when = at is Timestamp ? DateFormat('dd MMM yyyy, hh:mm a').format(at.toDate()) : 'Just now';
             return Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
+              decoration: AppCard.decoration,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

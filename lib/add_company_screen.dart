@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AddCompanyScreen extends StatefulWidget {
   const AddCompanyScreen({super.key});
@@ -85,10 +86,11 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         title: const Text('Add Company'),
       ),
-      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -138,7 +140,7 @@ class _AddCompanyScreenState extends State<AddCompanyScreen> {
             ],
           ),
         ),
-      )),
+      ))),
     );
   }
 }

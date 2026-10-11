@@ -7,6 +7,7 @@ import 'current_user.dart';
 import 'recycle_bin_screen.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class EditPlacementScreen extends StatefulWidget {
   final String placementId;
@@ -182,8 +183,8 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
-      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Placement')),
-      body: ContentWidth(maxWidth: 640, child: Form(
+      appBar: AppBar(flexibleSpace: const AppBarRibbon(), backgroundColor: AppColors.appPrimary, title: const Text('Edit Placement')),
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -312,7 +313,7 @@ class _EditPlacementScreenState extends State<EditPlacementScreen> {
             ),
           ],
         ),
-      )),
+      ))),
     );
   }
 }

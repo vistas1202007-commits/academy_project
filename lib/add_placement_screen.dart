@@ -5,6 +5,7 @@ import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class AddPlacementScreen extends StatefulWidget {
   const AddPlacementScreen({super.key});
@@ -144,10 +145,11 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         title: const Text('Add Placement'),
       ),
-      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -269,7 +271,7 @@ class _AddPlacementScreenState extends State<AddPlacementScreen> {
             ],
           ),
         ),
-      )),
+      ))),
     );
   }
 }

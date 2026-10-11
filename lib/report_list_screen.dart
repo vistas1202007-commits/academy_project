@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'add_report_screen.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class ReportListScreen extends StatefulWidget {
   const ReportListScreen({super.key});
@@ -325,13 +326,14 @@ class _ReportListScreenState extends State<ReportListScreen> {
   Widget build(BuildContext context) {
     if (!_roleLoaded) {
       return const Scaffold(
-        body: ContentWidth(maxWidth: 900, child: Center(child: CircularProgressIndicator(color: AppColors.appPrimary))),
+        body: ContentWidth(maxWidth: 900, child: AppLoader()),
       );
     }
 
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
         backgroundColor: AppColors.appPrimary,
         elevation: 0,
         title: const Text('Reports'),
@@ -347,7 +349,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('reports')
             .orderBy('createdAt', descending: true)
@@ -357,15 +359,13 @@ class _ReportListScreenState extends State<ReportListScreen> {
             return const Center(child: Text('Something went wrong.'));
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
+            return const AppLoader();
           }
 
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return Center(
-              child: Text('No reports yet.', style: TextStyle(color: Colors.grey[600])),
-            );
+            return const EmptyState(icon: Icons.description_outlined, message: 'No reports yet.');
           }
 
           return ListView.builder(
@@ -381,17 +381,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                decoration: AppCard.decoration,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   onTap: () => _showDetail(context, doc.id, data),
@@ -425,7 +415,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
             },
           );
         },
-      )),
+      ))),
     );
   }
 }

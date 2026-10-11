@@ -6,6 +6,7 @@ import 'current_user.dart';
 import 'recycle_bin_screen.dart';
 import 'soft_delete.dart';
 import 'responsive.dart';
+import 'ui_kit.dart';
 
 class EditCompanyScreen extends StatefulWidget {
   final String companyId;
@@ -110,8 +111,8 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackground,
-      appBar: AppBar(backgroundColor: AppColors.appPrimary, title: const Text('Edit Company')),
-      body: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
+      appBar: AppBar(flexibleSpace: const AppBarRibbon(), backgroundColor: AppColors.appPrimary, title: const Text('Edit Company')),
+      body: PageWash(child: ContentWidth(maxWidth: 640, child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -178,7 +179,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
             ],
           ),
         ),
-      )),
+      ))),
     );
   }
 }
