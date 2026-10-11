@@ -2,11 +2,189 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 
-class HelpScreen extends StatelessWidget {
+/// Role chips ke labels
+const String _all = 'All roles';
+const String _admin = 'Admin';
+const String _trainer = 'Trainer';
+const String _po = 'Placement Officer';
+const String _mob = 'Mobilizer';
+
+class _HelpItem {
+  final String title;
+  final String body;
+  const _HelpItem(this.title, this.body);
+
+  bool matches(String q) => title.toLowerCase().contains(q) || body.toLowerCase().contains(q);
+}
+
+class _HelpSection {
+  final String title;
+  final IconData icon;
+  final List<String> roles;
+  final List<_HelpItem> items;
+
+  /// Sirf Roles section me role matrix table dikhti hai
+  final bool showRoleMatrix;
+
+  const _HelpSection(this.title, this.icon, this.roles, this.items, {this.showRoleMatrix = false});
+}
+
+/// Role matrix: feature, phir Admin / Trainer / Placement Officer / Mobilizer
+const List<List<String>> _roleMatrix = [
+  ['Dashboard, My Profile, Help', '✓', '✓', '✓', '✓'],
+  ['Add / edit / delete trainees', '✓', '—', '—', '—'],
+  ['View trainees', 'All', 'Own batches', '—', 'View only'],
+  ['Create batches', '✓', '—', '—', '—'],
+  ['Mark / edit attendance', '✓', 'Own batches', '—', '—'],
+  ['Delete attendance', '✓', '—', '—', '—'],
+  ['Enquiries (add, follow-up, convert)', '✓', '—', '—', '✓'],
+  ['Companies and placements', '✓', '—', '✓', '—'],
+  ['Fees Report, Download Receipt', '✓', '—', '—', '—'],
+  ['Reports (view / add)', '✓', '—', '—', '✓'],
+  ['Edit / delete reports', '✓', '—', '—', '—'],
+  ['Analytics, At-Risk, Ask Your Data', '✓', '—', '—', '—'],
+  ['Staff, Bulk Import, Notifications', '✓', '—', '—', '—'],
+];
+
+const List<_HelpSection> _sections = [
+  _HelpSection('Getting started', Icons.rocket_launch_outlined, [_all], [
+    _HelpItem('Who can log in',
+        'Only staff accounts created by the Admin can log in. There is no public sign-up. Each account has one role: Admin, Trainer, Placement Officer or Mobilizer.'),
+    _HelpItem('Sign in with Email and Password',
+        'Email and Password is the main way to sign in. Enter the email and password given to you by your Admin on the Login screen.'),
+    _HelpItem('Mobile OTP and Google sign-in',
+        'These only work for accounts that have linked them in My Profile → Login Options, and only where these providers are enabled. They are not available in the public demo; use Email and Password there.'),
+    _HelpItem('Forgot password',
+        'On the Login screen tap "Forgot password?", enter your email and tap Send Link. If an account exists for that email, a reset link is sent. Check your Spam folder too.'),
+    _HelpItem('Fingerprint / Face Lock',
+        'My Profile → Login Options → turn on Fingerprint / Face Lock (on supported phones). The app then asks to unlock when it opens, and again after it has been in the background for more than 30 seconds.'),
+    _HelpItem('Navigation',
+        'Use the Quick Actions on the Dashboard, or the side menu (☰ on phone, sidebar on desktop) for Reports, Analytics, Help and other screens. Menu items depend on your role.'),
+    _HelpItem('My Profile',
+        'Dashboard → My Profile shows your details. Tap the edit icon to update your own name, phone, address and education. Only the Admin can change your role or account status.'),
+    _HelpItem('Deactivated account',
+        'If login says your account is deactivated, contact your Admin to reactivate it.'),
+  ]),
+  _HelpSection('Roles', Icons.badge_outlined, [_all], [
+    _HelpItem('Admin', 'Full access: trainees, batches, attendance, fees, staff, imports, analytics and insights.'),
+    _HelpItem('Trainer', 'Marks and edits attendance and views trainees for the batches assigned to them ("My Batches").'),
+    _HelpItem('Placement Officer', 'Adds companies and records, edits or deletes placements.'),
+    _HelpItem('Mobilizer', 'Adds and follows up enquiries, converts them into trainees, views registered trainees and adds reports.'),
+  ], showRoleMatrix: true),
+  _HelpSection('Trainees', Icons.school_outlined, [_admin, _trainer, _mob], [
+    _HelpItem('Add a trainee',
+        'Dashboard → Add Trainee → fill personal and guardian details, choose Course and Batch, status and fees → Save. A Trainee ID like VIS-2026-0001 is created automatically.'),
+    _HelpItem('Find a trainee',
+        'View Trainees → search by name, phone, Trainee ID, village or batch. Tap a trainee to open the full profile. Trainers see only their own batches; Mobilizers see the list as View Registered Trainees (view only).'),
+    _HelpItem('Edit or delete',
+        'Only the Admin can edit a trainee (Trainee Profile → Edit Trainee) or delete one (delete icon in the list). Statuses: Registered, Joined, Ongoing, Completed, Dropped.'),
+    _HelpItem('Bulk import',
+        'Admin: Dashboard → Bulk Import → Import Trainees → select the Enrollment & Fees Excel (.xlsx). Row 1 is the title, row 2 the header, data starts at row 3. Batch is read from column D (sheet name if empty). Warnings, skipped and failed rows are listed after the import.'),
+    _HelpItem('Undo an import',
+        'Right after an import, tap "Undo This Import" on the Bulk Import screen. It removes only the records added in that run. The button is available until you leave the screen or start a new import.'),
+  ]),
+  _HelpSection('Batches and attendance', Icons.event_available_outlined, [_admin, _trainer], [
+    _HelpItem('Create a batch',
+        'Admin: Dashboard → Add Batch → batch name, Course, Trainer, timing, start and end dates → Save. View Batches lists all batches; tap one to see its trainees.'),
+    _HelpItem('Mark attendance',
+        'Dashboard → Mark Attendance → choose Batch and Date → mark each trainee P (Present), A (Absent) or L (Leave), or use Mark all present → Save. Trainers only see their own batches.'),
+    _HelpItem('Attendance history and corrections',
+        'Attendance History → choose a batch → tap the edit icon on a date to reopen it with the existing marks.'),
+    _HelpItem('Delete an attendance record', 'Only the Admin sees the delete icon in Attendance History.'),
+  ]),
+  _HelpSection('Enquiries', Icons.support_agent_outlined, [_mob, _admin], [
+    _HelpItem('Add an enquiry', 'Mobilizer: Dashboard → Add Enquiry → enquirer details and Course Interested → Save.'),
+    _HelpItem('Follow up',
+        'View Enquiries → filter by status (New / Follow-up / Registered / Not Interested) → tap an enquiry → update notes and status → Save Update. Everyone with access sees all enquiries.'),
+    _HelpItem('Convert to a trainee',
+        'Open an enquiry → Convert to Registration. A trainee record with a new Trainee ID is created and the enquiry is marked Registered.'),
+  ]),
+  _HelpSection('Placements and companies', Icons.work_outline, [_po, _admin], [
+    _HelpItem('Add a company', 'Dashboard → Add Company (or + on View Companies) → name, contact person, phone, location → Save.'),
+    _HelpItem('Record a placement',
+        'Dashboard → Add Placement → trainee, company, course, job details, salary, joining date and status (Not Placed / Interview Scheduled / Selected / Joined / Rejected / Self-Employed / Not Joined) → Save.'),
+    _HelpItem('Edit or delete', 'View Placements → tap a record → Edit Placement. Delete Placement is at the bottom of the edit screen.'),
+    _HelpItem('Import placements',
+        'Admin: Bulk Import → Import Placement Records → select the Placement Excel ("Trainees Details" sheet). New companies in the file are created automatically, and "Undo This Import" works the same way as for trainees.'),
+  ]),
+  _HelpSection('Fees and receipts', Icons.currency_rupee, [_admin], [
+    _HelpItem('Record fees',
+        'When adding or editing a trainee, enter Total Course Fee and Fee Paid So Far. The pending amount is calculated automatically.'),
+    _HelpItem('Fees Report', 'Dashboard → Fees Report shows total collected and pending, with search to find trainees with dues.'),
+    _HelpItem('Download Receipt',
+        'Trainee Profile → Fees card → Download Receipt creates a PDF fee receipt you can save or share. Only the Admin sees this button.'),
+    _HelpItem('No online payments', 'The app only records fees. Payments are collected outside the app.'),
+  ]),
+  _HelpSection('Analytics and reports', Icons.insights_outlined, [_admin, _mob], [
+    _HelpItem('Analytics (Admin)',
+        'Menu → Analytics: enrollment trend, course-wise trainees, gender, villages, enquiry → placement funnel, fees by batch, attendance, salaries and top companies. Pick a Date Range at the top.'),
+    _HelpItem('Export Excel', 'On Analytics tap Export Excel to save the summary sheets as an Excel file.'),
+    _HelpItem('Reports (Admin and Mobilizer)',
+        'Menu → Reports lists saved reports. Tap + to add one with attachments. Only the Admin can edit or delete reports and attachments.'),
+  ]),
+  _HelpSection('Insights', Icons.lightbulb_outline, [_admin], [
+    _HelpItem('At-Risk Trainees',
+        'Menu → At-Risk Trainees scores Joined and Ongoing trainees using the last 28 days of attendance. Each trainee shows the reasons behind the score.'),
+    _HelpItem('At-Risk rules',
+        'Attendance below 60%: +60, or below 75%: +40. Fees more than 50% pending: +25. Fewer than 5 attendance records in 28 days: +10. Status Joined: +5. Score 60+ = High, 30–59 = Medium, below 30 = Low.'),
+    _HelpItem('Notify guardian (simulated)',
+        'For High-risk trainees, "Notify guardian (simulated)" logs an alert in Notifications. No real message is sent.'),
+    _HelpItem('Ask Your Data',
+        'Menu → Ask Your Data → tap a ready-made question to see the answer with a table: trainees at risk, batch with highest dropout %, batch with lowest attendance, fees collected vs pending, course-wise placement %, course-wise average salary, village with most dropouts, enquiry to registration conversion %, top 5 hiring companies, trainees with no attendance record. You cannot type free-form questions.'),
+  ]),
+  _HelpSection('Admin tools', Icons.admin_panel_settings_outlined, [_admin], [
+    _HelpItem('Add staff',
+        'Dashboard → Add Staff → name, email, phone, education, address, a temporary password and role → Create Account.'),
+    _HelpItem('Manage staff',
+        'Dashboard → Staff List → tap a person → Edit Details, Send Password Reset Email, Deactivate / Activate Account, or Delete Account. You cannot deactivate or delete your own account.'),
+    _HelpItem('Recycle Bin',
+        'There is no Recycle Bin in this version. Deleting a trainee, attendance record, placement, report or staff profile is permanent, so the app always asks for confirmation first.'),
+    _HelpItem('Notifications (simulated)',
+        'Menu → Notifications: Generate fee reminders, Generate absent alerts, Batch alert and Daily summary. These only create log records marked "Simulated (not sent)". No SMS or WhatsApp is sent. Trainees without a guardian phone are skipped, and the same alert is not logged twice in a day.'),
+    _HelpItem('Bulk Import', 'Dashboard → Bulk Import for trainees and placements from Excel. See Trainees and Placements for file format and undo.'),
+  ]),
+  _HelpSection('FAQ', Icons.quiz_outlined, [_all], [
+    _HelpItem('Why can\'t I see a screen or button?',
+        'Screens and buttons depend on your role. Check the role matrix in the Roles section. Admin-only screens show "Access denied" for other roles.'),
+    _HelpItem('Mobile OTP or Google login does not work',
+        'Sign in with Email and Password first, then link them in My Profile → Login Options. They also need the provider to be enabled, so they do not work in the public demo.'),
+    _HelpItem('I did not get the password reset email', 'Check Spam, make sure the email is correct, or ask your Admin to send a reset link from Staff List.'),
+    _HelpItem('A trainee is missing from attendance', 'Check that the trainee is assigned to that batch. Only the Admin can change a trainee\'s batch.'),
+    _HelpItem('Are notifications sent to guardians?', 'No. Notifications are simulated logs only.'),
+    _HelpItem('Can I recover something I deleted?', 'No. Deletes are permanent. For a bulk import, use "Undo This Import" right after importing.'),
+  ]),
+];
+
+class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
 
   @override
+  State<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends State<HelpScreen> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final q = _query.trim().toLowerCase();
+    final visible = <Widget>[];
+    for (final section in _sections) {
+      final titleHit = q.isNotEmpty && section.title.toLowerCase().contains(q);
+      final items = q.isEmpty || titleHit ? section.items : section.items.where((i) => i.matches(q)).toList();
+      final matrixHit = section.showRoleMatrix &&
+          (q.isEmpty || titleHit || _roleMatrix.any((row) => row.first.toLowerCase().contains(q)));
+      if (items.isEmpty && !matrixHit) continue;
+      visible.add(_buildSection(section, items, showMatrix: matrixHit, expanded: q.isNotEmpty));
+    }
+
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
@@ -35,123 +213,59 @@ class HelpScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'A complete guide for every role',
+                  'Guide by role. Tap a section to open it.',
                   style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-
-          _section('🔑 Getting Started', [
-            _step('Who can log in',
-                'Only staff accounts created by the Admin can log in — there is no public sign-up. Each account belongs to one role: Admin, Trainer, Placement Officer, or Mobilizer.'),
-            _step('Login with Mobile OTP or Google',
-                'First log in with your email once. Then open My Profile → Login Options and link your mobile number (verified by OTP) and/or your Google account. After that, you can use "Login with Mobile OTP" or "Continue with Google" on the Login screen.'),
-            _step('Fingerprint / Face lock',
-                'My Profile → Login Options → turn on Fingerprint / Face Lock. The app will then ask for your fingerprint (or phone PIN) when it opens, and again if it was in the background for more than 30 seconds.'),
-            _step('Forgot your password?',
-                'On the Login screen, tap "Forgot Password?" → enter your email → check your inbox (and Spam folder) for the reset link.'),
-            _step('Deactivated account',
-                'If your account shows as deactivated when logging in, contact your Admin to reactivate it.'),
-          ]),
-
-          _section('👤 My Profile', [
-            _step('View your profile',
-                'Open the side menu (☰ icon top-left) → "My Profile" to see your name, role, email, phone, education, address, and (for Trainers) your assigned batch.'),
-            _step('Update your own details',
-                'On your Profile screen, tap "Edit Profile" to update your name, phone, address, and education yourself at any time.'),
-            _step('Changing your role or account status',
-                'Your role and account status (active/inactive) can only be changed by the Admin, for security reasons.'),
-          ]),
-
-          _section('👥 Managing Staff Accounts (Admin only)', [
-            _step('Add a new staff member',
-                'Dashboard → "Add Staff" → fill Name, Email, Phone, Education, Address, set a temporary Password (at least 8 characters, with letters and numbers), choose their Role (Trainer / Placement Officer / Mobilizer / Admin) → Create Account.'),
-            _step('View or edit staff details',
-                'Dashboard → "Staff List" → tap any staff member to view their details, edit their information, or change their role.'),
-            _step('Deactivate or reactivate an account',
-                'Open Staff List → tap the staff member → "Deactivate Account" (or "Activate Account"). A deactivated account cannot log in until reactivated. You cannot deactivate your own account.'),
-            _step('Reset a staff member\'s password',
-                'Open Staff List → tap their name → "Send Password Reset Email". They will receive a link on their registered email to set a new password.'),
-            _step('Remove a staff account',
-                'Open Staff List → tap the staff member → "Delete Account". This permanently removes their access. You cannot delete your own account this way.'),
-          ]),
-
-          _section('🎓 Managing Trainees', [
-            _step('Add a new trainee',
-                'Dashboard → "Add Trainee" → fill in personal and guardian details, select the Course and Batch from the dropdown lists, and optionally enter fee details → Save. A Trainee ID (e.g. VIS-2026-0001) is generated automatically.'),
-            _step('View all trainees',
-                'Dashboard → "View Trainees" → search by name, phone, Trainee ID, village, or batch, and tap any trainee to open their full profile.'),
-            _step('Edit a trainee or update their status',
-                'Open a trainee\'s profile → Edit → update details, change their status (Registered / Joined / Ongoing / Completed / Dropped), or update their fee record.'),
-            _step('Removing a trainee record',
-                'Only the Admin can edit or delete a trainee record.'),
-          ]),
-
-          _section('📚 Managing Batches', [
-            _step('Create a batch',
-                'Dashboard → "Add Batch" → enter a batch name, select the Course from the dropdown, assign a Trainer, set the timing and start/end dates → Save.'),
-            _step('View batches',
-                'Dashboard → "View Batches" → see all batches along with their trainer, dates, and trainee count. Tap a batch to see the full list of trainees assigned to it.'),
-          ]),
-
-          _section('✅ Attendance', [
-            _step('Mark attendance',
-                'Dashboard → "Mark Attendance" → select a Batch and Date → mark each trainee Present / Absent / Leave → Save Attendance.'),
-            _step('View attendance history',
-                'Dashboard → "Attendance History" → select a batch to see past attendance records.'),
-            _step('Correcting attendance',
-                'From Attendance History, use the Edit option to reopen a past date for corrections, pre-filled with the existing marks.'),
-            _step('Deleting an attendance record',
-                'A delete option for attendance records is available to the Admin only.'),
-            _step('For Trainers',
-                'Trainers only see and mark attendance for the batch(es) assigned to them.'),
-          ]),
-
-          _section('📞 Enquiries (Mobilizer)', [
-            _step('Add a new enquiry',
-                'Dashboard → "Add Enquiry" → fill in the enquirer\'s details and select the Course Interested from the dropdown list → Save.'),
-            _step('Track and update enquiries',
-                'Dashboard → "View Enquiries" → filter by status (New / Follow-up / Registered / Not Interested), tap any enquiry to update its follow-up notes and status.'),
-            _step('Converting an enquiry into a trainee',
-                'Open an enquiry and tap "Convert to Registration" to automatically create a new trainee record with an auto-generated Trainee ID.'),
-            _step('What Mobilizers can see',
-                'The enquiry list and dashboard counts show all enquiries, whoever added them.'),
-          ]),
-
-          _section('💼 Placement (Placement Officer)', [
-            _step('Add a company',
-                'Dashboard → "Add Company" → enter company name, contact person, phone, and location → Save.'),
-            _step('Record a placement',
-                'Dashboard → "Add Placement" → select the trainee and company, choose the Course from the dropdown, fill in job details, salary, joining date, and set a status (Not Placed / Interview Scheduled / Selected / Joined / Rejected / Self-Employed / Not Joined) → Save.'),
-            _step('View, edit, or remove placement records',
-                'Dashboard → "View Placements" → tap any record to view full details, edit the information, or delete the record.'),
-          ]),
-
-          _section('💰 Fees', [
-            _step('Recording fee payments',
-                'When adding or editing a trainee, enter the Total Course Fee and the Fee Paid So Far. The pending amount is calculated automatically.'),
-            _step('Fees Report (Admin only)',
-                'Dashboard → "Fees Report" shows a summary of total fees collected and pending across all trainees, with search and filters to quickly find trainees with pending payments.'),
-            _step('Note',
-                'This is for record-keeping only — the app does not process online payments. Payments should be collected separately and simply recorded here.'),
-          ]),
-
-          _section('📥 Bulk Import (Admin only)', [
-            _step('Importing trainee records',
-                'Dashboard → "Bulk Import" → select an Excel file to import multiple trainee records at once, along with their batch assignments.'),
-            _step('Importing placement records',
-                'The same screen also supports importing placement records from an Excel file, including automatically creating any new companies found in the file.'),
-            _step('Undoing an import',
-                'If an import needs to be reversed, use the "Undo Last Import" option to remove all records added in that specific import session.'),
-          ]),
-
+          const SizedBox(height: 16),
+          TextField(
+            controller: _searchController,
+            onChanged: (v) => setState(() => _query = v),
+            decoration: InputDecoration(
+              hintText: 'Search help',
+              prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
+              suffixIcon: _query.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textMuted),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _query = '');
+                      },
+                    ),
+              filled: true,
+              fillColor: AppColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.appAccent),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (visible.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 30),
+              child: Center(
+                child: Text('No help topics match your search.', style: TextStyle(color: AppColors.textMuted)),
+              ),
+            )
+          else
+            ...visible,
           const SizedBox(height: 10),
-          Center(
+          const Center(
             child: Text(
-              'Need more help? Contact your system administrator.',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              'Need more help? Contact your Admin.',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
           ),
           const SizedBox(height: 20),
@@ -160,43 +274,102 @@ class HelpScreen extends StatelessWidget {
     );
   }
 
-  Widget _section(String title, List<Widget> steps) {
+  Widget _buildSection(_HelpSection section, List<_HelpItem> items, {required bool showMatrix, required bool expanded}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: AppColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          // Search badalne par key badalti hai, taaki initiallyExpanded dobara lage
+          key: ValueKey('${section.title}-$expanded'),
+          initiallyExpanded: expanded,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          iconColor: AppColors.appPrimary,
+          collapsedIconColor: AppColors.textMuted,
+          leading: Icon(section.icon, color: AppColors.appPrimary),
+          title: Text(
+            section.title,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.appPrimary),
           ),
-          const SizedBox(height: 12),
-          ...steps,
-        ],
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Wrap(spacing: 6, runSpacing: 6, children: section.roles.map(_roleChip).toList()),
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+          children: [
+            ...items.map(_step),
+            if (showMatrix) _matrixTable(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _step(String title, String description) {
+  Widget _roleChip(String role) {
+    final color = role == _admin ? AppColors.appPrimary : AppColors.appAccent;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(role, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+    );
+  }
+
+  Widget _matrixTable() {
+    const header = ['Feature', 'Admin', 'Trainer', 'Placement Officer', 'Mobilizer'];
+    Widget cell(String text, {bool bold = false, bool first = false}) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Text(
+            text,
+            textAlign: first ? TextAlign.left : TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: bold ? FontWeight.w600 : FontWeight.normal,
+              color: text == '—' ? AppColors.textMuted : AppColors.textDark,
+            ),
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 640),
+          child: Table(
+            columnWidths: const {0: FlexColumnWidth(2.4)},
+            defaultColumnWidth: const FlexColumnWidth(1),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            border: TableBorder.all(color: AppColors.border, borderRadius: BorderRadius.circular(8)),
+            children: [
+              TableRow(
+                decoration: BoxDecoration(color: AppColors.appBackground),
+                children: [for (var i = 0; i < header.length; i++) cell(header[i], bold: true, first: i == 0)],
+              ),
+              for (final row in _roleMatrix)
+                TableRow(children: [for (var i = 0; i < row.length; i++) cell(row[i], first: i == 0)]),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _step(_HelpItem item) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.only(top: 4),
+            margin: const EdgeInsets.only(top: 6),
             width: 6,
             height: 6,
             decoration: const BoxDecoration(color: AppColors.appAccent, shape: BoxShape.circle),
@@ -206,9 +379,10 @@ class HelpScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+                Text(item.title,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textDark)),
                 const SizedBox(height: 2),
-                Text(description, style: TextStyle(fontSize: 12.5, color: Colors.grey[600], height: 1.4)),
+                Text(item.body, style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted, height: 1.4)),
               ],
             ),
           ),
