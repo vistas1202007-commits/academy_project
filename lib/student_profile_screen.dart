@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'edit_student_screen.dart';
 import 'current_user.dart';
+import 'fee_receipt_pdf.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 
@@ -338,6 +339,7 @@ class StudentProfileScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+                        if (feePaid > 0) _ReceiptButton(data: data),
                       ],
                     ),
                   ),
@@ -383,6 +385,69 @@ class StudentProfileScreen extends StatelessWidget {
           );
         },
       )),
+    );
+  }
+}
+
+/// FEES card ka "Download Receipt"; sirf Admin ko dikhta hai
+class _ReceiptButton extends StatefulWidget {
+  final Map<String, dynamic> data;
+  const _ReceiptButton({required this.data});
+
+  @override
+  State<_ReceiptButton> createState() => _ReceiptButtonState();
+}
+
+class _ReceiptButtonState extends State<_ReceiptButton> {
+  late final Future<String> _role = currentUserRole();
+  bool _busy = false;
+
+  Future<void> _download() async {
+    setState(() => _busy = true);
+    final result = await shareFeeReceipt(widget.data);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    final message = switch (result) {
+      ReceiptResult.denied => 'Access denied: receipt sirf Admin bana sakte hain.',
+      ReceiptResult.failed => 'Receipt nahi ban paayi. Dobara try karein.',
+      ReceiptResult.shared => null,
+    };
+    if (message == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.danger),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _role,
+      builder: (context, snap) {
+        if (snap.data != 'admin') return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: OutlinedButton.icon(
+              onPressed: _busy ? null : _download,
+              icon: _busy
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.appPrimary),
+                    )
+                  : const Icon(Icons.download_outlined, size: 20),
+              label: const Text('Download Receipt', style: TextStyle(fontWeight: FontWeight.w600)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.appPrimary,
+                side: const BorderSide(color: AppColors.border),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
