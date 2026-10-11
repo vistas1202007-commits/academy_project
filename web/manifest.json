@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#05141C",
-    "theme_color": "#05141C",
+    "theme_color": "#0B4F55",
     "description": "Vistas — Skill Training ERP",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
