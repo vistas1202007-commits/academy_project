@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function myUserDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isActiveUser() { return isSignedIn() && myUserDoc().get('isActive', true) != false; }
+    function myRole() { return myUserDoc().get('role', ''); }
+    function isAdmin() { return isActiveUser() && myRole() == 'admin'; }
+    function isTrainer() { return isActiveUser() && myRole() == 'trainer'; }
+    function isPlacementOfficer() { return isActiveUser() && myRole() == 'placementOfficer'; }
+    function isMobilizer() { return isActiveUser() && myRole() == 'mobilizer'; }
+    // Recycle Bin fields: only an Admin may set or change them
+    function binKeys() { return ['isDeleted', 'deletedAt', 'deletedBy']; }
+    function createsBin() { return request.resource.data.keys().hasAny(binKeys()); }
+    function touchesBin() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(binKeys()); }
+
+    match /users/{userId} {
+      allow read: if isActiveUser() && (request.auth.uid == userId || isAdmin());
+      allow update: if
+        (isAdmin() && (request.auth.uid != userId ||
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isActive']))) ||
+        (isActiveUser() && request.auth.uid == userId &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isActive', 'email']));
+      allow create: if isAdmin();
+      allow delete: if isAdmin() && request.auth.uid != userId;
+    }
+    match /students/{studentId} {
+      allow read: if isActiveUser() && (isAdmin() || isTrainer() || isPlacementOfficer() || isMobilizer());
+      allow create: if isAdmin() || (isMobilizer() && !createsBin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    match /batches/{batchId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+    match /attendance/{attendanceId} {
+      allow read: if isActiveUser() && (isAdmin() || isTrainer());
+      allow create, update: if isAdmin() ||
+        (isTrainer() && get(/databases/$(database)/documents/batches/$(request.resource.data.batchId)).data.trainerId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+    match /companies/{companyId} {
+      allow read: if isActiveUser() && (isAdmin() || isPlacementOfficer());
+      allow create: if isAdmin() || (isPlacementOfficer() && !createsBin());
+      allow update: if isAdmin() || (isPlacementOfficer() && !touchesBin());
+      allow delete: if isAdmin();
+    }
+    match /placements/{placementId} {
+      allow read: if isActiveUser() && (isAdmin() || isPlacementOfficer());
+      allow create: if isAdmin() || (isPlacementOfficer() && !createsBin());
+      allow update: if isAdmin() || (isPlacementOfficer() && !touchesBin());
+      allow delete: if isAdmin();
+    }
+    match /enquiries/{enquiryId} {
+      allow read: if isActiveUser() && (isAdmin() || isMobilizer());
+      allow create: if isAdmin() || (isMobilizer() && !createsBin());
+      allow update: if isAdmin() || (isMobilizer() && !touchesBin());
+      allow delete: if isAdmin();
+    }
+    match /reports/{reportId} {
+      allow read: if isActiveUser() && (isAdmin() || isMobilizer());
+      allow create: if isAdmin() || isMobilizer();
+      allow update, delete: if isAdmin();
+    }
+    match /counters/{counterId} {
+      allow read, write: if isAdmin() || isMobilizer();
+    }
+    // Simulated notification log (no real messages are sent); Admin only
+    match /notifications/{notificationId} {
+      allow read, create, update: if isAdmin();
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

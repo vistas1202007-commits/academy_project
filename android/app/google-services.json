@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "206443858106",
+    "project_id": "skillbridge-3b6c3",
+    "storage_bucket": "skillbridge-3b6c3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206443858106:android:625a9d612b6b4782455a83",
+        "android_client_info": {
+          "package_name": "com.example.vti_erp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhY9fp1DY0JhLYWenN-z3Vwmn-uX_ru3c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

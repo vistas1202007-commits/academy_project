@@ -1,0 +1,200 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
+import 'add_placement_screen.dart';
+import 'placement_detail_screen.dart';
+import 'app_colors.dart';
+import 'soft_delete.dart';
+import 'responsive.dart';
+import 'ui_kit.dart';
+
+class PlacementListScreen extends StatefulWidget {
+  const PlacementListScreen({super.key});
+
+  @override
+  State<PlacementListScreen> createState() => _PlacementListScreenState();
+}
+
+class _PlacementListScreenState extends State<PlacementListScreen> {
+  String _searchQuery = '';
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'Selected':
+      case 'Joined':
+      case 'Self-Employed':
+        return AppColors.appPrimary;
+      case 'Rejected':
+      case 'Not Joined':
+        return AppColors.danger;
+      case 'Interview Scheduled':
+        return AppColors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.appBackground,
+      appBar: AppBar(
+        flexibleSpace: const AppBarRibbon(),
+        backgroundColor: AppColors.appPrimary,
+        title: const Text('Placements'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.appAccent,
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const AddPlacementScreen()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: PageWash(child: ContentWidth(maxWidth: 900, child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              decoration: InputDecoration(
+                hintText: 'Search by name, company, or trainee ID',
+                prefixIcon: Icon(Icons.search, color: AppColors.appPrimary),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('placements')
+                  .orderBy('createdAt', descending: true)
+                  .liveSnapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const AppLoader();
+                }
+                final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
+                final docs = allDocs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final name = (data['studentName'] ?? '').toString().toLowerCase();
+                  final company = (data['companyName'] ?? '').toString().toLowerCase();
+                  final traineeId = (data['traineeId'] ?? '').toString().toLowerCase();
+                  return name.contains(_searchQuery) || company.contains(_searchQuery) || traineeId.contains(_searchQuery);
+                }).toList();
+                if (docs.isEmpty) {
+                  return EmptyState(icon: Icons.work_history_outlined, message: 'No placement records yet.');
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: docs.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final status = data['status'] ?? 'Not Placed';
+                    final traineeId = (data['traineeId'] ?? '').toString();
+                    final course = (data['course'] ?? '').toString();
+                    final jobPost = (data['jobPost'] ?? '').toString();
+                    return Material(
+                      color: AppColors.surface,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppCard.radius,
+                        side: BorderSide(color: AppColors.border, width: 0.5),
+                      ),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => PlacementDetailScreen(
+                                placementId: docs[index].id,
+                                data: data,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 3)),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      data['studentName'] ?? '',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _statusColor(status).withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      status,
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor(status)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (traineeId.isNotEmpty || course.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Text(
+                                    [
+                                      if (traineeId.isNotEmpty) traineeId,
+                                      if (course.isNotEmpty) course,
+                                    ].join(' - '),
+                                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                  ),
+                                ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '${data['companyName'] ?? ''} - ${data['jobLocation'] ?? ''}',
+                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              ),
+                              if (jobPost.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Text(
+                                    jobPost,
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                ),
+                              if ((data['salary'] ?? '').toString().isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Text(
+                                    'Salary: Rs.${data['salary']} - ${data['employmentType'] ?? ''}',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ))),
+    );
+  }
+}
