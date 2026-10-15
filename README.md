@@ -7,9 +7,14 @@ A Flutter + Firebase ERP for skill training institutes. It manages trainees, bat
 
 ### Demo Login
 
-| Email | Password |
+All demo accounts use the password `test123456`.
+
+| Role | Email |
 |---|---|
-| `unknown@gmail.com` | `test123456` |
+| Admin | `unknown@gmail.com` |
+| Trainer | `user1@gmail.com` |
+| Mobilizer | `user2@gmail.com` |
+| Placement Officer | `user3@gmail.com` |
 
 The demo uses sample data. Please do not enter real personal information.
 
