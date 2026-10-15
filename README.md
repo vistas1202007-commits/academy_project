@@ -5,6 +5,14 @@ A Flutter + Firebase ERP for skill training institutes. It manages trainees, bat
 **Live web app:** https://vistas-erp.web.app
 **Android APK:** [Download](apk/vistas-erp.apk) (allow "Install from unknown sources" when prompted)
 
+### Demo Login
+
+| Email | Password |
+|---|---|
+| `unknown@gmail.com` | `test123456` |
+
+The demo uses sample data. Please do not enter real personal information.
+
 ## Overview
 
 The app covers a trainee's full journey through a vocational training institute: first enquiry, registration, batch training and attendance, fee collection, and final placement. Each staff role gets its own dashboard and permissions.
