@@ -1,1 +1,40 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"skillbridge-3b6c3","appId":"1:206443858106:android:625a9d612b6b4782455a83","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"skillbridge-3b6c3","configurations":{"android":"1:206443858106:android:625a9d612b6b4782455a83","ios":"1:206443858106:ios:1b9553848ad8a029455a83","macos":"1:206443858106:ios:1b9553848ad8a029455a83","web":"1:206443858106:web:f43f67805da5729f455a83","windows":"1:206443858106:web:ce12e4da3a0e572f455a83"}}}}}}
+{
+    "flutter":  {
+                    "platforms":  {
+                                      "android":  {
+                                                      "default":  {
+                                                                      "projectId":  "skillbridge-3b6c3",
+                                                                      "appId":  "1:206443858106:android:625a9d612b6b4782455a83",
+                                                                      "fileOutput":  "android/app/google-services.json"
+                                                                  }
+                                                  },
+                                      "dart":  {
+                                                   "lib/firebase_options.dart":  {
+                                                                                     "projectId":  "skillbridge-3b6c3",
+                                                                                     "configurations":  {
+                                                                                                            "android":  "1:206443858106:android:625a9d612b6b4782455a83",
+                                                                                                            "ios":  "1:206443858106:ios:1b9553848ad8a029455a83",
+                                                                                                            "macos":  "1:206443858106:ios:1b9553848ad8a029455a83",
+                                                                                                            "web":  "1:206443858106:web:f43f67805da5729f455a83",
+                                                                                                            "windows":  "1:206443858106:web:ce12e4da3a0e572f455a83"
+                                                                                                        }
+                                                                                 }
+                                               }
+                                  }
+                },
+    "hosting":  {
+                    "public":  "build/web",
+                    "ignore":  [
+                                   "firebase.json",
+                                   "**/.*",
+                                   "**/node_modules/**"
+                               ],
+                    "rewrites":  [
+                                     {
+                                         "source":  "**",
+                                         "destination":  "/index.html"
+                                     }
+                                 ],
+                    "site":  "vistas-erp"
+                }
+}

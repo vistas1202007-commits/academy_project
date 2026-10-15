@@ -1,63 +1,59 @@
-# Vistas Academy
+# Vistas: Skill Training ERP
 
-A Flutter + Firebase ERP (Enterprise Resource Planning) application built for **Vistas Academy**, a skill training academy, to manage trainees, batches, attendance, placements, and enquiries across multiple staff roles.
+A Flutter + Firebase ERP for skill training institutes. It manages trainees, batches, trainers, attendance, fees, enquiries and placements in one real-time system, replacing manual registers and spreadsheets.
+
+**Live web app:** https://vistas-erp.web.app
+**Android APK:** [Download](apk/vistas-erp.apk) (allow "Install from unknown sources" when prompted)
 
 ## Overview
 
-This app digitizes the day-to-day operations of a vocational training institute — from a candidate's first enquiry, through registration and batch training, to final placement — replacing manual registers and spreadsheets with a single real-time system.
+The app covers a trainee's full journey through a vocational training institute: first enquiry, registration, batch training and attendance, fee collection, and final placement. Each staff role gets its own dashboard and permissions.
 
 ## User Roles
 
-The app supports **4 distinct roles**, each with its own dashboard and permissions:
-
 | Role | Responsibilities |
 |---|---|
-| **Admin** | Full access — manages trainees, batches, trainers, companies, placements, and staff records |
-| **Trainer** | Views trainees in their assigned batch(es), marks daily attendance |
-| **Placement Officer** | Manages company tie-ups and tracks student placements |
-| **Mobilizer** | Registers and tracks enquiries (leads) from prospective trainees |
+| **Admin** | Full access: trainees, batches, staff, companies, placements, reports and analytics |
+| **Trainer** | Views trainees in assigned batches and marks daily attendance |
+| **Placement Officer** | Manages company tie-ups and tracks trainee placements |
+| **Mobilizer** | Logs and follows up enquiries (leads) from prospective trainees |
 
 ## Features
 
-### Trainee Management
-- Add / edit / view trainee profiles (personal, guardian, and training info)
-- Auto-generated Trainee ID (format: `VIS-YYYY-0001`)
-- Status tracking: Registered → Joined → Ongoing → Completed / Dropped
-- Fee tracking (total fee, amount paid, pending balance)
-
-### Batch Management
-- Create and manage training batches (course, trainer, duration, status)
-- View all trainees enrolled in a specific batch
-
-### Attendance
-- Trainers mark daily attendance for their assigned batch
-- Attendance history tracking
-
-### Placement
-- Company/employer database
-- Track which trainees are placed at which companies
-
-### Enquiry Management
-- Mobilizers log new enquiries (leads)
-- Follow-up status tracking
-- Convert enquiries into registered trainees
-
-### Bulk Import
-- Import trainee data in bulk from Excel spreadsheets
-
-### Reports
-- Fees report across all trainees
+- **Trainee management:** profiles with personal, guardian and training details, auto-generated Trainee IDs (`VIS-YYYY-0001`) and status tracking (Registered → Joined → Ongoing → Completed / Dropped)
+- **Batches:** create batches by course, trainer and duration, and view the trainees enrolled in each
+- **Attendance:** daily attendance marking and attendance history
+- **Fees:** total, paid and pending amounts, a fees report, and PDF fee receipts
+- **Enquiries:** log leads, track follow-ups and convert them into registered trainees
+- **Placements:** company database and placement tracking for each trainee
+- **Analytics:** charts and data export, plus an at-risk list that flags trainees falling behind
+- **Ask Data:** answer quick questions about the data from a single screen
+- **Bulk import:** add trainees in bulk from Excel sheets
+- **Notifications, recycle bin and app lock:** in-app notification log, restore for deleted records, and biometric/PIN lock
+- **Responsive UI:** drawer on phones, sidebar on desktop and web
 
 ## Tech Stack
 
-- **Frontend:** Flutter (cross-platform — Android, iOS, Web, Windows, macOS, Linux)
-- **Backend:** Firebase
-    - Cloud Firestore (database)
-    - Firebase Authentication (login & role-based access)
+- **Frontend:** Flutter (Android and Web)
+- **State management:** Riverpod
+- **Backend:** Firebase Authentication, Cloud Firestore, Firebase Storage, Firebase Hosting
+- **Libraries:** fl_chart, pdf / printing, excel, local_auth
 
-## Status
+## Run Locally
 
-This project has been developed and delivered to the client. It is currently in an active bug-fixing and refinement phase based on tester feedback.
+```bash
+git clone https://github.com/vistas1202007-commits/academy_project.git
+cd academy_project
+flutter pub get
+flutter run            # Android device or emulator
+flutter run -d chrome  # Web
+```
 
----
-*Private repository — internal project, not for public distribution.*
+The app connects to its own Firebase project. To use your own backend, create a Firebase project and run `flutterfire configure` to regenerate `lib/firebase_options.dart` and `android/app/google-services.json`, then deploy `firestore.rules`.
+
+## Build
+
+```bash
+flutter build apk --release   # build/app/outputs/flutter-apk/app-release.apk
+flutter build web --release   # build/web, deployed with: firebase deploy --only hosting
+```
