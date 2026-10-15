@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile_screen.dart';
 import 'app_colors.dart';
@@ -306,7 +307,7 @@ class StaffListScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('users')
             .orderBy('createdAt', descending: true)
-            .snapshots(),
+            .liveSnapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const AppLoader();

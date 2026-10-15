@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 import 'ui_kit.dart';
@@ -51,7 +52,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(flexibleSpace: const AppBarRibbon(), backgroundColor: AppColors.appPrimary, title: const Text('Edit Batch — Trainer')),
       body: PageWash(child: ContentWidth(maxWidth: 640, child: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).snapshots(),
+        stream: FirebaseFirestore.instance.collection('batches').doc(widget.batchId).liveSnapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
@@ -74,7 +75,7 @@ class _EditBatchScreenState extends State<EditBatchScreen> {
                 ),
                 const SizedBox(height: 20),
                 StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'trainer').snapshots(),
+                  stream: FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'trainer').liveSnapshots(),
                   builder: (context, trainerSnap) {
                     if (!trainerSnap.hasData) {
                       return const LinearProgressIndicator(color: AppColors.appPrimary);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'student_profile_screen.dart';
 import 'current_user.dart';
@@ -211,7 +212,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
               stream: FirebaseFirestore.instance
                   .collection('batches')
                   .where('trainerId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-                  .snapshots(),
+                  .liveSnapshots(),
               builder: (context, batchSnap) {
                 if (!batchSnap.hasData) {
                   return const AppLoader();
@@ -227,7 +228,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   stream: FirebaseFirestore.instance
                       .collection('students')
                       .where('batch', whereIn: batchNames)
-                      .snapshots(),
+                      .liveSnapshots(),
                   builder: (context, studentSnap) {
                     if (!studentSnap.hasData) {
                       return const AppLoader();
@@ -241,7 +242,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
               stream: FirebaseFirestore.instance
                   .collection('students')
                   .orderBy('createdAt', descending: true)
-                  .snapshots(),
+                  .liveSnapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Something went wrong.'));

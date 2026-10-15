@@ -18,18 +18,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  /// Mobile OTP and Google login; setting this to false hides both buttons
-  final bool _showAltLogins = true;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isGoogleLoading = false;
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    // When Mobile/Google login fails, the app rebuilds LoginScreen;
+    // When a login attempt fails elsewhere, the app rebuilds LoginScreen;
     // the previous message is shown here
     _showNotice();
     loginNotice.addListener(_showNotice);
@@ -40,35 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (notice == null || !mounted) return;
     loginNotice.value = null;
     setState(() => _errorMessage = notice);
-  }
-
-  Future<void> _loginWithPhone() async {
-    setState(() => _errorMessage = '');
-    await showPhoneOtpSheet(
-      context,
-      title: 'Login with Mobile',
-      onVerified: signInStaffWithCredential,
-      errorMessage: altLoginErrorMessage,
-    );
-  }
-
-  Future<void> _loginWithGoogle() async {
-    setState(() {
-      _isGoogleLoading = true;
-      _errorMessage = '';
-    });
-    String? error;
-    try {
-      final credential = await googleCredential();
-      if (credential != null) error = await signInStaffWithCredential(credential);
-    } catch (e) {
-      error = altLoginErrorMessage(e);
-    }
-    if (!mounted) return;
-    setState(() {
-      _isGoogleLoading = false;
-      if (error != null) _errorMessage = error;
-    });
   }
 
   Future<void> _login() async {
@@ -312,7 +280,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final busy = _isLoading || _isGoogleLoading;
     return FullBleed(
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
@@ -347,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(fontSize: 13, color: _LoginColors.muted, letterSpacing: 0.6),
                           ),
                           const SizedBox(height: 22),
-                          _buildCard(busy),
+                          _buildCard(_isLoading),
                         ],
                       ),
                     ),
@@ -442,43 +409,6 @@ class _LoginScreenState extends State<LoginScreen> {
             style: TextButton.styleFrom(foregroundColor: _LoginColors.muted),
             child: const Text('Forgot password?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
-          if (_showAltLogins) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('OR', style: TextStyle(color: _LoginColors.muted, fontSize: 12)),
-                ),
-                Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _altButton(
-              onPressed: busy ? null : _loginWithPhone,
-              icon: const Icon(Icons.phone_android_outlined, size: 20),
-              label: 'Login with Mobile OTP',
-            ),
-            const SizedBox(height: 10),
-            _altButton(
-              onPressed: busy ? null : _loginWithGoogle,
-              icon: _isGoogleLoading
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.aurora),
-                    )
-                  : const Icon(Icons.account_circle_outlined, size: 20),
-              label: 'Continue with Google',
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Mobile and Google login work after you link them from My Profile.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11.5, color: _LoginColors.faint),
-            ),
-          ],
         ],
       ),
     );
@@ -501,24 +431,6 @@ class _LoginScreenState extends State<LoginScreen> {
       focusedBorder: border(AppColors.aurora, 1.5),
     );
   }
-
-  Widget _altButton({required VoidCallback? onPressed, required Widget icon, required String label}) {
-    return SizedBox(
-      width: double.infinity,
-      height: 46,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: icon,
-        label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFFDDF2EE),
-          disabledForegroundColor: _LoginColors.faint,
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.18)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
-  }
 }
 
 /// Colors for the dark login card only
@@ -528,6 +440,5 @@ class _LoginColors {
   static const Color card = Color(0xD90B2228);
   static const Color field = Color(0x14FFFFFF);
   static const Color muted = Color(0xFF9DBFBB);
-  static const Color faint = Color(0xFF6E8E8B);
   static const Color errorText = Color(0xFFF2B8B0);
 }

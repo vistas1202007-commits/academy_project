@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'student_profile_screen.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
@@ -33,7 +34,7 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
         stream: FirebaseFirestore.instance
             .collection('students')
             .orderBy('createdAt', descending: true)
-            .snapshots(),
+            .liveSnapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong.'));

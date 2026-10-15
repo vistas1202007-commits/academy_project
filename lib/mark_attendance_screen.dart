@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app_colors.dart';
 import 'soft_delete.dart';
@@ -197,7 +198,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
             child: Column(
               children: [
                 StreamBuilder<QuerySnapshot>(
-                  stream: batchesQuery.snapshots(),
+                  stream: batchesQuery.liveSnapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const SizedBox();
                     final batches = snapshot.data!.docs;
@@ -284,7 +285,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                 stream: FirebaseFirestore.instance
                     .collection('students')
                     .where('batch', isEqualTo: _selectedBatchName)
-                    .snapshots(),
+                    .liveSnapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const AppLoader();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:intl/intl.dart';
 import 'edit_student_screen.dart';
 import 'current_user.dart';
@@ -107,7 +108,7 @@ class StudentProfileScreen extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('placements')
           .where('traineeId', isEqualTo: traineeId)
-          .snapshots(),
+          .liveSnapshots(),
       builder: (context, snap) {
         if (!snap.hasData) {
           return _sectionCard('PLACEMENT', [
@@ -152,7 +153,7 @@ class StudentProfileScreen extends StatelessWidget {
         title: const Text('Trainee Profile'),
       ),
       body: PageWash(child: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('students').doc(studentId).snapshots(),
+        stream: FirebaseFirestore.instance.collection('students').doc(studentId).liveSnapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));

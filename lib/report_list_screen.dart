@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
@@ -353,7 +354,7 @@ class _ReportListScreenState extends State<ReportListScreen> {
         stream: FirebaseFirestore.instance
             .collection('reports')
             .orderBy('createdAt', descending: true)
-            .snapshots(),
+            .liveSnapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong.'));

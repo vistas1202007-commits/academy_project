@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'mark_attendance_screen.dart';
@@ -89,7 +90,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: StreamBuilder<QuerySnapshot>(
-              stream: batchesQuery.snapshots(),
+              stream: batchesQuery.liveSnapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox();
                 final batches = snapshot.data!.docs;
@@ -155,7 +156,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                 stream: FirebaseFirestore.instance
                     .collection('attendance')
                     .orderBy('date', descending: true)
-                    .snapshots(),
+                    .liveSnapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Center(child: Text('Something went wrong.'));

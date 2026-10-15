@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'friendly_error.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'add_enquiry_screen.dart';
@@ -415,7 +416,7 @@ class _EnquiryListScreenState extends State<EnquiryListScreen> {
             ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: query.snapshots(),
+              stream: query.liveSnapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const AppLoader();

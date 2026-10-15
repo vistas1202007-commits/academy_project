@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'edit_profile_screen.dart';
-import 'login_options_card.dart';
 import 'app_colors.dart';
 import 'responsive.dart';
 import 'ui_kit.dart';
@@ -101,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
       body: PageWash(child: ContentWidth(maxWidth: 1100, child: uid == null
           ? const Center(child: Text('Not logged in.'))
           : StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+        stream: FirebaseFirestore.instance.collection('users').doc(uid).liveSnapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator(color: AppColors.appPrimary));
@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
                   stream: FirebaseFirestore.instance
                       .collection('batches')
                       .where('trainerId', isEqualTo: uid)
-                      .snapshots(),
+                      .liveSnapshots(),
                   builder: (context, batchSnap) {
                     final batchNames = batchSnap.hasData
                         ? batchSnap.data!.docs
@@ -214,7 +214,6 @@ class ProfileScreen extends StatelessWidget {
                     ]);
                   },
                 ),
-              const LoginOptionsCard(),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

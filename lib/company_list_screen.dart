@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'add_company_screen.dart';
 import 'edit_company_screen.dart';
 import 'app_colors.dart';
@@ -62,7 +63,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
               stream: FirebaseFirestore.instance
                   .collection('companies')
                   .orderBy('createdAt', descending: true)
-                  .snapshots(),
+                  .liveSnapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const AppLoader();

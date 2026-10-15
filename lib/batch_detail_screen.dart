@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'student_profile_screen.dart';
@@ -59,7 +60,7 @@ class BatchDetailScreen extends StatelessWidget {
         ],
       ),
       body: PageWash(child: ContentWidth(maxWidth: 1100, child: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('batches').doc(batchId).snapshots(),
+        stream: FirebaseFirestore.instance.collection('batches').doc(batchId).liveSnapshots(),
         builder: (context, batchSnap) {
           if (!batchSnap.hasData) {
             return const AppLoader();
@@ -144,7 +145,7 @@ class BatchDetailScreen extends StatelessWidget {
                   stream: FirebaseFirestore.instance
                       .collection('students')
                       .where('batch', isEqualTo: batchName)
-                      .snapshots(),
+                      .liveSnapshots(),
                   builder: (context, studentSnap) {
                     if (!studentSnap.hasData) {
                       return const AppLoader(padding: EdgeInsets.all(20));

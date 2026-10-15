@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -160,7 +161,7 @@ class _BinList extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       // Whole collection; deleted ones are filtered client-side (no index)
-      stream: FirebaseFirestore.instance.collection(tab.collection).snapshots(),
+      stream: FirebaseFirestore.instance.collection(tab.collection).liveSnapshots(),
       builder: (context, snap) {
         if (snap.hasError) {
           return const EmptyState(icon: Icons.cloud_off_outlined, message: 'Could not load data. Please try again.');

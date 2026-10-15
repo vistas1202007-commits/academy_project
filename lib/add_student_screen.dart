@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
@@ -221,7 +222,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       stream: FirebaseFirestore.instance
           .collection('batches')
           .orderBy('batchName')
-          .snapshots(),
+          .liveSnapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return InputDecorator(

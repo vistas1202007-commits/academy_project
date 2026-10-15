@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -587,7 +588,7 @@ class _AnalyticsBodyState extends State<_AnalyticsBody> {
   void initState() {
     super.initState();
     for (final c in _collections) {
-      _subs.add(FirebaseFirestore.instance.collection(c).snapshots().listen(
+      _subs.add(FirebaseFirestore.instance.collection(c).liveSnapshots().listen(
         (snap) {
           _docs[c] = snap.docs;
           _errors.remove(c);

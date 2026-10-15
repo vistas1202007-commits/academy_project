@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'add_placement_screen.dart';
 import 'placement_detail_screen.dart';
 import 'app_colors.dart';
@@ -71,7 +72,7 @@ class _PlacementListScreenState extends State<PlacementListScreen> {
               stream: FirebaseFirestore.instance
                   .collection('placements')
                   .orderBy('createdAt', descending: true)
-                  .snapshots(),
+                  .liveSnapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const AppLoader();

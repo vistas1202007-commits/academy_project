@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'course_data.dart';
 import 'current_user.dart';
 import 'app_colors.dart';
@@ -180,7 +181,7 @@ class _AddBatchScreenState extends State<AddBatchScreen> {
               stream: FirebaseFirestore.instance
                   .collection('users')
                   .where('role', isEqualTo: 'trainer')
-                  .snapshots(),
+                  .liveSnapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const LinearProgressIndicator(color: AppColors.appPrimary);

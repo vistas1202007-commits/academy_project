@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'batch_detail_screen.dart';
@@ -63,7 +64,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: query.snapshots(),
+              stream: query.liveSnapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Something went wrong.'));
@@ -205,7 +206,7 @@ class _BatchListScreenState extends State<BatchListScreen> {
                                         stream: FirebaseFirestore.instance
                                             .collection('students')
                                             .where('batch', isEqualTo: batchName)
-                                            .snapshots(),
+                                            .liveSnapshots(),
                                         builder: (context, studentSnap) {
                                           final count = studentSnap.hasData
                                               ? liveDocsOf(studentSnap.data!).length

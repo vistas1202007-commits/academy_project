@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'add_student_screen.dart';
 import 'student_list_screen.dart';
 import 'add_batch_screen.dart';
@@ -76,7 +77,7 @@ class DashboardScreen extends StatelessWidget {
               _TrainerOverview(trainerUid: currentUid)
             else if (role == 'placementOfficer')
                 StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('placements').snapshots(),
+                  stream: FirebaseFirestore.instance.collection('placements').liveSnapshots(),
                   builder: (context, placementSnap) {
                     final placedCount = placementSnap.hasData
                         ? liveDocsOf(placementSnap.data!)
@@ -88,7 +89,7 @@ class DashboardScreen extends StatelessWidget {
                         .toString()
                         : '--';
                     return StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('companies').snapshots(),
+                      stream: FirebaseFirestore.instance.collection('companies').liveSnapshots(),
                       builder: (context, companySnap) {
                         final companyCount =
                         companySnap.hasData ? liveDocsOf(companySnap.data!).length.toString() : '--';
@@ -479,7 +480,7 @@ class _AdminOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('students').snapshots(),
+      stream: FirebaseFirestore.instance.collection('students').liveSnapshots(),
       builder: (context, studentSnap) {
         final allStudentDocs = studentSnap.data?.docs ?? [];
         final studentDocs = allStudentDocs.where((d) => isLive(d.data() as Map<String, dynamic>?)).toList();
@@ -494,11 +495,11 @@ class _AdminOverview extends StatelessWidget {
           if (status == 'Dropped') dropped++;
         }
         return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('enquiries').snapshots(),
+          stream: FirebaseFirestore.instance.collection('enquiries').liveSnapshots(),
           builder: (context, enquirySnap) {
             final totalEnquiries = enquirySnap.hasData ? liveDocsOf(enquirySnap.data!).length.toString() : '--';
             return StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('placements').snapshots(),
+              stream: FirebaseFirestore.instance.collection('placements').liveSnapshots(),
               builder: (context, placementSnap) {
                 int placedCount = 0;
                 if (placementSnap.hasData) {
@@ -612,7 +613,7 @@ class _TrainerOverview extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('batches')
           .where('trainerId', isEqualTo: trainerUid)
-          .snapshots(),
+          .liveSnapshots(),
       builder: (context, snapshot) {
         final myBatches = snapshot.hasData ? snapshot.data!.docs.length.toString() : '--';
         return _StatGrid(
@@ -652,7 +653,7 @@ class _MobilizerOverview extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('enquiries')
-          .snapshots(),
+          .liveSnapshots(),
       builder: (context, snapshot) {
         // Mobilizers see all enquiries (no createdBy filter)
         final allDocs = snapshot.hasData ? liveDocsOf(snapshot.data!) : <QueryDocumentSnapshot>[];
@@ -906,7 +907,7 @@ class _TodayAttendanceCardState extends State<_TodayAttendanceCard> {
       _subs.add(FirebaseFirestore.instance
           .collection('attendance')
           .where('batchId', whereIn: part)
-          .snapshots()
+          .liveSnapshots()
           .listen((snap) {
         if (mounted) setState(() => _chunkDocs[index] = snap.docs);
       }, onError: (Object _) {}));

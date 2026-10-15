@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'live_query.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -56,7 +57,7 @@ class _NotificationsBody extends StatefulWidget {
 
 class _NotificationsBodyState extends State<_NotificationsBody> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _stream =
-      FirebaseFirestore.instance.collection('notifications').snapshots();
+      FirebaseFirestore.instance.collection('notifications').liveSnapshots();
   NotificationType? _filter;
   bool _busy = false;
 
