@@ -70,3 +70,4 @@ The app connects to its own Firebase project. To use your own backend, create a 
 flutter build apk --release   # build/app/outputs/flutter-apk/app-release.apk
 flutter build web --release   # build/web, deployed with: firebase deploy --only hosting
 ```
+
